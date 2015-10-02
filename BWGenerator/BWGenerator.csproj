@@ -87,8 +87,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AudioProviders\OutputDataProvider.cs" />
-    <Compile Include="AudioProviders\Playback.cs" />
-    <Compile Include="AudioProviders\SampleProvider.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

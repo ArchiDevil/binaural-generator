@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NAudio.Wave;
 
-using NAudio.Wave;
-
-using BWGenerator.Models;
-
-namespace BWGenerator.AudioProviders
+namespace SharedContent.AudioProviders
 {
-    class Playback
+    public class Playback
     {
         IWavePlayer driverOut = new WaveOutEvent();
         SampleProvider sampleProvider = null;
@@ -21,9 +13,9 @@ namespace BWGenerator.AudioProviders
             set { sampleProvider.Gain = value; }
         }
 
-        public Playback(PresetModel currentPreset)
+        public Playback(SampleProvider sampleProvider)
         {
-            sampleProvider = new SampleProvider(currentPreset);
+            this.sampleProvider = sampleProvider;
             driverOut.Init(sampleProvider);
         }
 
