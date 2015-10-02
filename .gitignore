@@ -1,0 +1,7 @@
+/BWGenerator/bin/
+/BWGenerator/obj/
+/BWSitterGenerator/bin/
+/BWSitterGenerator/obj/
+/packages/
+*.user
+/.vs/
