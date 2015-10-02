@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace BWGenerator.Models
+namespace SharedContent.Models
 {
     public class ModelBase : INotifyPropertyChanged
     {

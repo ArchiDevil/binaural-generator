@@ -5,8 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BWSitterGenerator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
+        Title="MainWindow" Height="350" Width="850">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Button.Margin" Value="5"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Control.Margin" Value="5"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Control.Margin" Value="5"/>
+            <Setter Property="Control.Padding" Value="2"/>
+        </Style>
+
+        <Style TargetType="Slider">
+            <Setter Property="Control.Margin" Value="5"/>
+            <Setter Property="Slider.AutoToolTipPlacement" Value="BottomRight"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#FFE5E5E5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
@@ -15,7 +36,6 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition/>
             <RowDefinition Height="auto"/>
             <RowDefinition/>
             <RowDefinition/>
@@ -24,12 +44,187 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <!-- Column headers -->
-        <TextBlock Text="Channel 1" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center"/>
-        <TextBlock Text="Channel 2" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center"/>
-        <TextBlock Text="Channel 3" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center"/>
-        <TextBlock Text="Channel 4" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Center"/>
-        
-        
+        <Menu Grid.Row="0" Grid.ColumnSpan="4">
+            <MenuItem Header="File">
+                <MenuItem Header="Reset"/>
+                <MenuItem Header="Open..."/>
+                <MenuItem Header="Save preset"/>
+                <MenuItem Header="Save preset as..."/>
+                <Separator/>
+                <MenuItem Header="Exit"/>
+            </MenuItem>
+            <MenuItem Header="Start"/>
+            <MenuItem Header="Pause"/>
+            <MenuItem Header="Stop"/>
+        </Menu>
+
+        <GroupBox Grid.Row="1" Grid.RowSpan="5" Grid.Column="0">
+            <GroupBox.Header>
+                <CheckBox Content="Channel 1" IsChecked="{Binding Signal1Enabled}"/>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Volume"/>
+                    <Slider Maximum="1" Minimum="0" Value="1" Orientation="Vertical" AutoToolTipPrecision="2" Grid.Row="1"/>
+                </Grid>
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Carrier"/>
+                    <Slider Maximum="900" Minimum="50" Value="440" Orientation="Vertical" Grid.Row="1"/>
+                </Grid>
+
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Difference"/>
+                    <Slider Maximum="20" Minimum="0" Value="10" Orientation="Vertical" AutoToolTipPrecision="2" Grid.Row="1"/>
+                </Grid>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.RowSpan="5" Grid.Column="1">
+            <GroupBox.Header>
+                <CheckBox Content="Channel 2" IsChecked="{Binding Signal2Enabled}"/>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Volume"/>
+                    <Slider Maximum="1" Minimum="0" Value="1" Orientation="Vertical" AutoToolTipPrecision="2" Grid.Row="1"/>
+                </Grid>
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Carrier"/>
+                    <Slider Maximum="900" Minimum="50" Value="440" Orientation="Vertical" Grid.Row="1"/>
+                </Grid>
+
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Difference"/>
+                    <Slider Maximum="20" Minimum="0" Value="10" Orientation="Vertical" AutoToolTipPrecision="2" Grid.Row="1"/>
+                </Grid>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.RowSpan="5" Grid.Column="2">
+            <GroupBox.Header>
+                <CheckBox Content="Channel 3" IsChecked="{Binding Signal3Enabled}"/>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Volume"/>
+                    <Slider Maximum="1" Minimum="0" Value="1" Orientation="Vertical" AutoToolTipPrecision="2" Grid.Row="1"/>
+                </Grid>
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Carrier"/>
+                    <Slider Maximum="900" Minimum="50" Value="440" Orientation="Vertical" Grid.Row="1"/>
+                </Grid>
+
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Difference"/>
+                    <Slider Maximum="20" Minimum="0" Value="10" Orientation="Vertical" AutoToolTipPrecision="2" Grid.Row="1"/>
+                </Grid>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.RowSpan="5" Grid.Column="3">
+            <GroupBox.Header>
+                <CheckBox Content="Channel 4" IsChecked="{Binding Signal4Enabled}"/>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Volume"/>
+                    <Slider Maximum="1" Minimum="0" Value="1" Orientation="Vertical" AutoToolTipPrecision="2" Grid.Row="1"/>
+                </Grid>
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Carrier"/>
+                    <Slider Maximum="900" Minimum="50" Value="440" Orientation="Vertical" Grid.Row="1"/>
+                </Grid>
+
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Difference"/>
+                    <Slider Maximum="20" Minimum="0" Value="10" Orientation="Vertical" AutoToolTipPrecision="2" Grid.Row="1"/>
+                </Grid>
+            </Grid>
+        </GroupBox>
     </Grid>
 </Window>

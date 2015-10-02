@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
+using SharedContent.Models;
+
 namespace BWGenerator.Models
 {
     public class PresetModel : ModelBase

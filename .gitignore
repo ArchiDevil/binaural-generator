@@ -2,6 +2,8 @@
 /BWGenerator/obj/
 /BWSitterGenerator/bin/
 /BWSitterGenerator/obj/
+/SharedContent/bin/
+/SharedContent/obj/
 /packages/
 *.user
 /.vs/
