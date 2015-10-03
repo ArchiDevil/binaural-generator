@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="SharedContent.UserControls.EditableTextBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SharedContent.UserControls"
+             mc:Ignorable="d" Name="root"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel>
+        <TextBlock Name="textBlock"
+                 Text="{Binding ElementName=root, Path=Text, Mode=TwoWay}" 
+                 MouseRightButtonUp="textBlock_MouseRightButtonUp" />
+        <TextBox Name="editBox"
+                 Visibility="Collapsed" LostFocus="editBox_LostFocus" 
+                 Text="{Binding ElementName=root, Path=Text, Mode=TwoWay}"/>
+    </StackPanel>
+</UserControl>

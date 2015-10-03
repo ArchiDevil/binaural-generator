@@ -4,10 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BWSitterGenerator"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:SharedContent="clr-namespace:SharedContent.UserControls;assembly=SharedContent"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="850">
 
     <Window.Resources>
+        <sys:String x:Key="VolumeString">Volume, %</sys:String>
+        <sys:String x:Key="CarrierString">Tone, Hz</sys:String>
+        <sys:String x:Key="FreqString">Diff, Hz</sys:String>
+
         <Style TargetType="Button">
             <Setter Property="Margin" Value="5"/>
         </Style>
@@ -26,10 +32,11 @@
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Foreground" Value="Blue"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Orientation" Value="Vertical"/>
         </Style>
     </Window.Resources>
 
-    <Grid Background="#FFF0F0F0">
+    <Grid Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
@@ -39,8 +46,6 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition/>
-            <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
@@ -60,7 +65,7 @@
             <MenuItem Header="Stop" Click="StopMenu_Click"/>
         </Menu>
 
-        <GroupBox x:Name="Channel1" Grid.Row="1" Grid.RowSpan="5" Grid.Column="0">
+        <GroupBox x:Name="Channel1" Grid.Row="1" Grid.RowSpan="3" Grid.Column="0">
             <GroupBox.Header>
                 <CheckBox Content="Channel 1" IsChecked="{Binding Enabled}"/>
             </GroupBox.Header>
@@ -76,20 +81,20 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Volume"/>
-                <Slider x:Name="Slider11" Maximum="100" Minimum="0" Value="{Binding Gain}" Orientation="Vertical" Grid.Row="1"/>
-                <TextBlock Text="{Binding Value, ElementName=Slider11, StringFormat=\{0:n\} %}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource VolumeString}"/>
+                <Slider Maximum="100" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
+                <SharedContent:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" Grid.Row="2"/>
 
-                <TextBlock Text="Carrier" Grid.Column="1"/>
-                <Slider x:Name="Slider12" Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Orientation="Vertical" Grid.Row="1" TickFrequency="10"/>
-                <TextBlock Grid.Column="1" Text="{Binding Value, ElementName=Slider12, StringFormat=\{0:n\} Hz}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
+                <Slider Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
+                <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
 
-                <TextBlock Text="Difference" Grid.Column="2"/>
-                <Slider x:Name="Slider13" Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Orientation="Vertical" Grid.Row="1"/>
-                <TextBlock Grid.Column="2" Text="{Binding Value, ElementName=Slider13, StringFormat=\{0:n\} Hz}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
+                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1"/>
+                <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="Channel2" Grid.Row="1" Grid.RowSpan="5" Grid.Column="1">
+        <GroupBox x:Name="Channel2" Grid.Row="1" Grid.RowSpan="3" Grid.Column="1">
             <GroupBox.Header>
                 <CheckBox Content="Channel 2" IsChecked="{Binding Enabled}"/>
             </GroupBox.Header>
@@ -106,20 +111,20 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Volume"/>
-                <Slider x:Name="Slider21" Maximum="100" Minimum="0" Value="{Binding Gain}" Orientation="Vertical" Grid.Row="1"/>
-                <TextBlock Text="{Binding Value, ElementName=Slider21, StringFormat=\{0:n\} %}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource VolumeString}"/>
+                <Slider Maximum="100" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
+                <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
-                <TextBlock Text="Carrier" Grid.Column="1"/>
-                <Slider x:Name="Slider22" Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Orientation="Vertical" Grid.Row="1" TickFrequency="10"/>
-                <TextBlock Grid.Column="1" Text="{Binding Value, ElementName=Slider22, StringFormat=\{0:n\} Hz}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
+                <Slider Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
+                <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
 
-                <TextBlock Text="Difference" Grid.Column="2"/>
-                <Slider x:Name="Slider23" Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Orientation="Vertical" Grid.Row="1"/>
-                <TextBlock Grid.Column="2" Text="{Binding Value, ElementName=Slider23, StringFormat=\{0:n\} Hz}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
+                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1"/>
+                <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="Channel3" Grid.Row="1" Grid.RowSpan="5" Grid.Column="2">
+        <GroupBox x:Name="Channel3" Grid.Row="1" Grid.RowSpan="3" Grid.Column="2">
             <GroupBox.Header>
                 <CheckBox Content="Channel 3" IsChecked="{Binding Enabled}"/>
             </GroupBox.Header>
@@ -136,20 +141,20 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Volume"/>
-                <Slider x:Name="Slider31" Maximum="100" Minimum="0" Value="{Binding Gain}" Orientation="Vertical" Grid.Row="1"/>
-                <TextBlock Text="{Binding Value, ElementName=Slider31, StringFormat=\{0:n\} %}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource VolumeString}"/>
+                <Slider Maximum="100" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
+                <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
-                <TextBlock Text="Carrier" Grid.Column="1"/>
-                <Slider x:Name="Slider32" Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Orientation="Vertical" Grid.Row="1" TickFrequency="10"/>
-                <TextBlock Grid.Column="1" Text="{Binding Value, ElementName=Slider32, StringFormat=\{0:n\} Hz}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
+                <Slider Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
+                <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
 
-                <TextBlock Text="Difference" Grid.Column="2"/>
-                <Slider x:Name="Slider33" Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Orientation="Vertical" Grid.Row="1"/>
-                <TextBlock Grid.Column="2" Text="{Binding Value, ElementName=Slider33, StringFormat=\{0:n\} Hz}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
+                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1"/>
+                <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="Channel4" Grid.Row="1" Grid.RowSpan="5" Grid.Column="3">
+        <GroupBox x:Name="Channel4" Grid.Row="1" Grid.RowSpan="3" Grid.Column="3">
             <GroupBox.Header>
                 <CheckBox Content="Channel 4" IsChecked="{Binding Enabled}"/>
             </GroupBox.Header>
@@ -166,17 +171,17 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Volume"/>
-                <Slider x:Name="Slider41" Maximum="100" Minimum="0" Value="{Binding Gain}" Orientation="Vertical" Grid.Row="1"/>
-                <TextBlock Text="{Binding Value, ElementName=Slider41, StringFormat=\{0:n\} %}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource VolumeString}"/>
+                <Slider Maximum="100" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
+                <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
-                <TextBlock Text="Carrier" Grid.Column="1"/>
-                <Slider x:Name="Slider42" Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Orientation="Vertical" Grid.Row="1" TickFrequency="10"/>
-                <TextBlock Grid.Column="1" Text="{Binding Value, ElementName=Slider42, StringFormat=\{0:n\} Hz}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
+                <Slider Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
+                <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
 
-                <TextBlock Text="Difference" Grid.Column="2"/>
-                <Slider x:Name="Slider43" Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Orientation="Vertical" Grid.Row="1"/>
-                <TextBlock Grid.Column="2" Text="{Binding Value, ElementName=Slider43, StringFormat=\{0:n\} Hz}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
+                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1"/>
+                <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
     </Grid>

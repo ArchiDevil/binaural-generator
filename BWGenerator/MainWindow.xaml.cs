@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 
 using BWGenerator.Models;
-using BWGenerator.AudioProviders;
+using SharedContent.AudioProviders;
 
 using OxyPlot;
 using OxyPlot.Axes;
