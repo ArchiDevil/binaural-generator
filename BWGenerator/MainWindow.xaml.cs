@@ -38,7 +38,7 @@ namespace BWGenerator
 
             DataContext = Preset;
 
-            playback = new Playback(Preset);
+            playback = new Playback(new ModelledSampleProvider());
         }
 
         public PresetModel Preset { get; set; }

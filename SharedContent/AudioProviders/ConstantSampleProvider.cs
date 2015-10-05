@@ -21,12 +21,15 @@ namespace SharedContent.AudioProviders
 
         public override int Read(float[] buffer, int offset, int count)
         {
-            return Math.Max(ReadSignals(buffer, offset, count), ReadNoise(buffer, offset, count));
+            ReadSignals(buffer, offset, count);
+            ReadNoise(buffer, offset, count);
+            return count;
         }
 
         private int ReadSignals(float[] buffer, int offset, int count)
         {
             int outIndex = offset;
+            int returnVal = 0;
 
             for (int i = 0; i < count / waveFormat.Channels; i++)
             {
@@ -42,6 +45,9 @@ namespace SharedContent.AudioProviders
                 {
                     if (!signal.enabled)
                         continue;
+
+                    // return non-zero only if we wrote some values
+                    returnVal = count;
 
                     leftFrequency = signal.frequency;
                     rightFrequency = leftFrequency - signal.difference;
@@ -60,7 +66,7 @@ namespace SharedContent.AudioProviders
                 time += 1.0 / waveFormat.SampleRate;
             }
 
-            return count;
+            return returnVal;
         }
 
         private int ReadNoise(float[] buffer, int offset, int count)
@@ -69,7 +75,7 @@ namespace SharedContent.AudioProviders
             int outIndex = offset;
 
             if (!noiseSignal.enabled)
-                return 0;
+                return count;
 
             // for now - mono
             double[] prevSampleValues = new double[noiseSignal.smoothness];
