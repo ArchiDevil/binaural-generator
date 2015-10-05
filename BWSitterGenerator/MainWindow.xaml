@@ -20,6 +20,7 @@
 
         <Style TargetType="TextBlock">
             <Setter Property="Margin" Value="5"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
 
         <Style TargetType="TextBox">
@@ -29,6 +30,7 @@
 
         <Style TargetType="Slider">
             <Setter Property="Slider.TickPlacement" Value="TopLeft"/>
+            <Setter Property="Slider.IsSnapToTickEnabled" Value="True"/>
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Foreground" Value="Blue"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -86,11 +88,11 @@
                 <SharedContent:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
-                <Slider Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
+                <Slider Grid.Column="1" Maximum="800" Minimum="100" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
                 <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
-                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1"/>
+                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1" TickFrequency="0.5"/>
                 <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
@@ -116,11 +118,11 @@
                 <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
-                <Slider Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
+                <Slider Grid.Column="1" Maximum="800" Minimum="100" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
                 <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
-                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1"/>
+                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1" TickFrequency="0.5"/>
                 <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
@@ -146,11 +148,11 @@
                 <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
-                <Slider Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
+                <Slider Grid.Column="1" Maximum="800" Minimum="100" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
                 <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
-                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1"/>
+                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1" TickFrequency="0.5"/>
                 <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
@@ -176,11 +178,11 @@
                 <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
-                <Slider Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
+                <Slider Grid.Column="1" Maximum="800" Minimum="100" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
                 <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
-                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1"/>
+                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1" TickFrequency="0.5"/>
                 <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
