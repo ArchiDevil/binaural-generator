@@ -13,6 +13,7 @@
         <sys:String x:Key="VolumeString">Volume, %</sys:String>
         <sys:String x:Key="CarrierString">Tone, Hz</sys:String>
         <sys:String x:Key="FreqString">Diff, Hz</sys:String>
+        <sys:String x:Key="SmoothString">Smoothness</sys:String>
 
         <Style TargetType="Button">
             <Setter Property="Margin" Value="5"/>
@@ -29,6 +30,7 @@
 
         <Style TargetType="Slider">
             <Setter Property="Slider.TickPlacement" Value="TopLeft"/>
+            <Setter Property="Slider.IsSnapToTickEnabled" Value="True"/>
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Foreground" Value="Blue"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -82,7 +84,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="{StaticResource VolumeString}"/>
-                <Slider Maximum="100" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
+                <Slider Maximum="50" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
                 <SharedContent:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
@@ -112,7 +114,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="{StaticResource VolumeString}"/>
-                <Slider Maximum="100" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
+                <Slider Maximum="50" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
                 <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
@@ -142,7 +144,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="{StaticResource VolumeString}"/>
-                <Slider Maximum="100" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
+                <Slider Maximum="50" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
                 <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
@@ -154,13 +156,12 @@
                 <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="Channel4" Grid.Row="1" Grid.RowSpan="3" Grid.Column="3">
+        <GroupBox x:Name="NoiseChannel" Grid.Row="1" Grid.RowSpan="3" Grid.Column="3">
             <GroupBox.Header>
-                <CheckBox Content="Channel 4" IsChecked="{Binding Enabled}"/>
+                <CheckBox Content="NoiseChannel" IsChecked="{Binding Enabled}"/>
             </GroupBox.Header>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
@@ -175,13 +176,9 @@
                 <Slider Maximum="100" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
                 <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
-                <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
-                <Slider Grid.Column="1" Maximum="900" Minimum="50" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
-                <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
-
-                <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
-                <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1"/>
-                <SharedContent:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
+                <TextBlock Text="{StaticResource SmoothString}" Grid.Column="1"/>
+                <Slider Grid.Column="1" Maximum="10" Minimum="1" Value="{Binding Smoothness}" Grid.Row="1" TickFrequency="1"/>
+                <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Smoothness}" Grid.Row="2"/>
             </Grid>
         </GroupBox>
     </Grid>

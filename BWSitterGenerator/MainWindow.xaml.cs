@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using BWSitterGenerator.Models;
+using SharedContent.AudioProviders;
 
 namespace BWSitterGenerator
 {
@@ -22,23 +23,27 @@ namespace BWSitterGenerator
     /// </summary>
     public partial class MainWindow : Window
     {
-        SignalModel[] signalModels;
-        SharedContent.AudioProviders.Playback playback = null;
+        const int signalsCount = 3;
+        SignalModel[] signalModels = null;
+        NoiseModel noiseModel = null;
+        Playback playback = null;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            signalModels = new SignalModel[4];
-            for (int i = 0; i < 4; ++i)
+            signalModels = new SignalModel[signalsCount];
+            for (int i = 0; i < signalsCount; ++i)
                 signalModels[i] = new SignalModel();
+
+            noiseModel = new NoiseModel();
 
             Channel1.DataContext = signalModels[0];
             Channel2.DataContext = signalModels[1];
             Channel3.DataContext = signalModels[2];
-            Channel4.DataContext = signalModels[3];
+            NoiseChannel.DataContext = noiseModel;
 
-            playback = new SharedContent.AudioProviders.Playback(new SharedContent.AudioProviders.ConstantSampleProvider(signalModels));
+            playback = new Playback(new ConstantSampleProvider(signalModels, noiseModel));
         }
 
         private void PlayMenu_Click(object sender, RoutedEventArgs e)
@@ -63,7 +68,7 @@ namespace BWSitterGenerator
                 signal.Enabled = false;
                 signal.Difference = 10.0f;
                 signal.Frequency = 440.0f;
-                signal.Gain = 100.0f;
+                signal.Gain = 50.0f;
             }
 
             signalModels[0].Enabled = true;

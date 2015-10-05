@@ -3,7 +3,7 @@
     public class BasicSignalModel : ModelBase
     {
         public bool enabled = false;
-        public float gain = 100.0f;
+        public float gain = 50.0f;
         public float frequency = 440.0f;
         public float difference = 10.0f;
 
