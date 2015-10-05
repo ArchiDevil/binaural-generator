@@ -10,14 +10,21 @@ namespace SharedContent.AudioProviders
 {
     public class ConstantSampleProvider : SampleProvider
     {
-        private BasicSignalModel[] signals = null;
+        private BasicSignalModel[] channelSignals = null;
+        private BasicNoiseModel noiseSignal = null;
 
-        public ConstantSampleProvider(BasicSignalModel[] signals) : base()
+        public ConstantSampleProvider(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal) : base()
         {
-            this.signals = signals;
+            this.channelSignals = channelSignals;
+            this.noiseSignal = noiseSignal;
         }
 
         public override int Read(float[] buffer, int offset, int count)
+        {
+            return Math.Max(ReadSignals(buffer, offset, count), ReadNoise(buffer, offset, count));
+        }
+
+        private int ReadSignals(float[] buffer, int offset, int count)
         {
             int outIndex = offset;
 
@@ -31,7 +38,7 @@ namespace SharedContent.AudioProviders
 
                 double multiple = SharedFuncs.TwoPi / waveFormat.SampleRate;
 
-                foreach (var signal in signals)
+                foreach (var signal in channelSignals)
                 {
                     if (!signal.enabled)
                         continue;
@@ -43,13 +50,58 @@ namespace SharedContent.AudioProviders
                     rightSampleValue += Gain * signal.gain / 100.0f * Math.Sin(nSample * multiple * rightFrequency);
                 }
 
+                // add signal here, cause noise can be applied before signal
                 // left value
-                buffer[outIndex++] = (float)leftSampleValue;
+                buffer[outIndex++] += (float)leftSampleValue;
                 // right value
-                buffer[outIndex++] = (float)rightSampleValue;
+                buffer[outIndex++] += (float)rightSampleValue;
 
                 nSample++;
                 time += 1.0 / waveFormat.SampleRate;
+            }
+
+            return count;
+        }
+
+        private int ReadNoise(float[] buffer, int offset, int count)
+        {
+            // may be we need to save old array to avoid TICKS in sound
+            int outIndex = offset;
+
+            if (!noiseSignal.enabled)
+                return 0;
+
+            // for now - mono
+            double[] prevSampleValues = new double[noiseSignal.smoothness];
+            Random randomizer = new Random();
+
+            for (int i = 0; i < count / waveFormat.Channels; i++)
+            {
+                // save both of them, cause may be we need, 
+                // sometimes and somewhere to use 
+                // different values for different channels
+                double leftSampleValue = 0.0;
+                double rightSampleValue = 0.0;
+
+                for (int j = 1; j < prevSampleValues.Count(); ++j)
+                {
+                    prevSampleValues[j - 1] = prevSampleValues[j];
+                }
+                prevSampleValues[prevSampleValues.Count() - 1] = randomizer.NextDouble() * 2.0 - 1.0;
+
+                double noiseValue = 0.0;
+                noiseValue = prevSampleValues.Sum();
+                noiseValue /= prevSampleValues.Count();
+                noiseValue *= Gain * noiseSignal.gain / 100.0f;
+
+                // mono for now =(
+                rightSampleValue = leftSampleValue = noiseValue;
+
+                // add signal here, cause noise can be applied before signal
+                // left value
+                buffer[outIndex++] += (float)leftSampleValue;
+                // right value
+                buffer[outIndex++] += (float)rightSampleValue;
             }
 
             return count;
