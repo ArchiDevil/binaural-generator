@@ -30,14 +30,10 @@ namespace BWGenerator
             Preset.Name = "Some name";
             Preset.Description = "Some description";
             Preset.Signals.Add(new PresetModel.Signal { Name = "Signal 1" });
-            Preset.Signals[0].CarrierPoints.Add(new PresetModel.Signal.Point { time = 0.0, value = 220.0 });
-            Preset.Signals[0].CarrierPoints.Add(new PresetModel.Signal.Point { time = 30.0, value = 220.0 });
-
-            Preset.Signals[0].DifferencePoints.Add(new PresetModel.Signal.Point { time = 0.0, value = 2.0 });
-            Preset.Signals[0].DifferencePoints.Add(new PresetModel.Signal.Point { time = 30.0, value = 10.0 });
+            Preset.Signals[0].SignalPoints.Add(new PresetModel.Signal.SignalPoint { Time = 0.0, DifferenceValue = 2.0, CarrierValue = 440.0 });
+            Preset.Signals[0].SignalPoints.Add(new PresetModel.Signal.SignalPoint { Time = 30.0, DifferenceValue = 10.0, CarrierValue = 440.0 });
 
             DataContext = Preset;
-
             playback = new Playback(new ModelledSampleProvider());
         }
 
@@ -131,26 +127,15 @@ namespace BWGenerator
             return model;
         }
 
-        private void AddButton_Click(object sender, RoutedEventArgs e)
-        {
-            PresetModel.Signal lastSignal = Preset.Signals.Last();
-            string lastSignalName = lastSignal.Name;
-            int lastIndex = int.Parse(lastSignalName.Substring(lastSignalName.Length - 1));
-            lastIndex++;
-            Preset.Signals.Add(new PresetModel.Signal { Name = "Signal " + lastIndex.ToString() });
+        //private void AddButton_Click(object sender, RoutedEventArgs e)
+        //{
 
-            PresetSignalsComboBox.SelectedIndex = Preset.Signals.Count - 1;
-        }
+        //}
 
-        private void RemoveButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (Preset.Signals.Count == 1)
-                return;
+        //private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        //{
 
-            int selectedSignal = PresetSignalsComboBox.SelectedIndex;
-            Preset.Signals.RemoveAt(selectedSignal);
-            PresetSignalsComboBox.SelectedIndex = 0;
-        }
+        //}
 
         private void PresetSignalsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -170,6 +155,27 @@ namespace BWGenerator
         private void Stop_Click(object sender, RoutedEventArgs e)
         {
             playback.Stop();
+        }
+
+        private void AddSignalButton_Click(object sender, RoutedEventArgs e)
+        {
+            PresetModel.Signal lastSignal = Preset.Signals.Last();
+            string lastSignalName = lastSignal.Name;
+            int lastIndex = int.Parse(lastSignalName.Substring(lastSignalName.Length - 1));
+            lastIndex++;
+            Preset.Signals.Add(new PresetModel.Signal { Name = "Signal " + lastIndex.ToString() });
+
+            PresetSignalsComboBox.SelectedIndex = Preset.Signals.Count - 1;
+        }
+
+        private void RemoveSignalButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (Preset.Signals.Count == 1)
+                return;
+
+            int selectedSignal = PresetSignalsComboBox.SelectedIndex;
+            Preset.Signals.RemoveAt(selectedSignal);
+            PresetSignalsComboBox.SelectedIndex = 0;
         }
 
         //private static PlotModel CreateDifferenceModel()
