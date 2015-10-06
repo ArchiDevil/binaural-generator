@@ -16,7 +16,7 @@ namespace BWSitterGenerator.Models
             set { gain = value; RaisePropertyChanged("Gain"); }
         }
 
-        public int Smoothness
+        public double Smoothness
         {
             get { return smoothness; }
             set { smoothness = value; RaisePropertyChanged("Smoothness"); }

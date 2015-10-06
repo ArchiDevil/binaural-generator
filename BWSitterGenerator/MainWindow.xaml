@@ -178,7 +178,7 @@
                 <SharedContent:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
 
                 <TextBlock Text="{StaticResource SmoothString}" Grid.Column="1"/>
-                <Slider Grid.Column="1" Maximum="10" Minimum="1" Value="{Binding Smoothness}" Grid.Row="1" TickFrequency="1"/>
+                <Slider Grid.Column="1" Maximum="1.0" Minimum="0.9" Value="{Binding Smoothness}" Grid.Row="1" TickFrequency="0.001"/>
                 <SharedContent:EditableTextBox Grid.Column="1" Text="{Binding Smoothness}" Grid.Row="2"/>
             </Grid>
         </GroupBox>

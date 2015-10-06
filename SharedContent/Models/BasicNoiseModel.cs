@@ -4,7 +4,7 @@
     {
         public bool enabled = false;
         public float gain = 100.0f;
-        public int smoothness = 1;
+        public double smoothness = 0.9;
 
         public BasicNoiseModel()
         {

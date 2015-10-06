@@ -13,6 +13,14 @@ namespace SharedContent.AudioProviders
         private BasicSignalModel[] channelSignals = null;
         private BasicNoiseModel noiseSignal = null;
 
+        private NoiseGenerator noiseGenerator = null;
+        private double lastSmoothness; // it's in indeterminate state to create generator on first use
+
+        readonly int samplesCount = 30;
+
+        double previousLeftValue = 0.0;
+        double previousRightValue = 0.0;
+
         public ConstantSampleProvider(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal) : base()
         {
             this.channelSignals = channelSignals;
@@ -21,9 +29,12 @@ namespace SharedContent.AudioProviders
 
         public override int Read(float[] buffer, int offset, int count)
         {
-            ReadSignals(buffer, offset, count);
-            ReadNoise(buffer, offset, count);
-            return count;
+            for (int i = offset; i < offset + count; ++i)
+                buffer[i] = 0.0f;
+
+            int signalSamplesCount = ReadSignals(buffer, offset, count);
+            int noiseSamplesCount = ReadNoise(buffer, offset, count);
+            return Math.Max(signalSamplesCount, noiseSamplesCount);
         }
 
         private int ReadSignals(float[] buffer, int offset, int count)
@@ -77,31 +88,37 @@ namespace SharedContent.AudioProviders
             if (!noiseSignal.enabled)
                 return count;
 
-            // for now - mono
-            double[] prevSampleValues = new double[noiseSignal.smoothness];
-            Random randomizer = new Random();
+            if (noiseSignal.smoothness != lastSmoothness)
+            {
+                lastSmoothness = noiseSignal.smoothness;
+                noiseGenerator = new NoiseGenerator(lastSmoothness, samplesCount);
+            }
+
+            Random rand = new Random();
+            double noiseLeftValue = 0.0;
+            double noiseRightValue = 0.0;
+            // save both of them, cause may be we need, 
+            // sometimes and somewhere to use 
+            // different values for different channels
+            double leftSampleValue = 0.0;
+            double rightSampleValue = 0.0;
 
             for (int i = 0; i < count / waveFormat.Channels; i++)
             {
-                // save both of them, cause may be we need, 
-                // sometimes and somewhere to use 
-                // different values for different channels
-                double leftSampleValue = 0.0;
-                double rightSampleValue = 0.0;
+                // noiseValue = noiseGenerator.NextValue();
+                noiseLeftValue = rand.NextDouble() * 2.0 - 1.0;
+                noiseLeftValue = previousLeftValue * (noiseSignal.smoothness) + noiseLeftValue * (1.0 - noiseSignal.smoothness);
+                noiseLeftValue *= Gain * noiseSignal.gain / 100.0f;
+                previousLeftValue = noiseLeftValue;
 
-                for (int j = 1; j < prevSampleValues.Count(); ++j)
-                {
-                    prevSampleValues[j - 1] = prevSampleValues[j];
-                }
-                prevSampleValues[prevSampleValues.Count() - 1] = randomizer.NextDouble() * 2.0 - 1.0;
-
-                double noiseValue = 0.0;
-                noiseValue = prevSampleValues.Sum();
-                noiseValue /= prevSampleValues.Count();
-                noiseValue *= Gain * noiseSignal.gain / 100.0f;
+                noiseRightValue = rand.NextDouble() * 2.0 - 1.0;
+                noiseRightValue = previousRightValue * (noiseSignal.smoothness) + noiseRightValue * (1.0 - noiseSignal.smoothness);
+                noiseRightValue *= Gain * noiseSignal.gain / 100.0f;
+                previousRightValue = noiseRightValue;
 
                 // mono for now =(
-                rightSampleValue = leftSampleValue = noiseValue;
+                rightSampleValue = noiseRightValue;
+                leftSampleValue = noiseLeftValue;
 
                 // add signal here, cause noise can be applied before signal
                 // left value

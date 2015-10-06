@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="AudioProviders\ConstantSampleProvider.cs" />
     <Compile Include="AudioProviders\ModelledSampleProvider.cs" />
+    <Compile Include="NoiseGenerator.cs" />
     <Compile Include="Models\BasicNoiseModel.cs" />
     <Compile Include="Models\ModelBase.cs" />
     <Compile Include="Models\BasicSignalModel.cs" />

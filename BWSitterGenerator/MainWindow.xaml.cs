@@ -72,6 +72,10 @@ namespace BWSitterGenerator
             }
 
             signalModels[0].Enabled = true;
+
+            noiseModel.Gain = 50.0f;
+            noiseModel.Enabled = false;
+            noiseModel.Smoothness = 0.5;
         }
 
         private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
