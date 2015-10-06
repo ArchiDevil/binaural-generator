@@ -26,6 +26,15 @@
         <Style TargetType="Slider">
             <Setter Property="Margin" Value="5"/>
         </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+
+
+        <Style TargetType="oxy:PlotView">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -47,40 +56,24 @@
 
                     <TextBlock Text="Description:" Grid.Row="1"/>
                     <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Description}" AcceptsReturn="True"/>
-
-                    <TextBlock Text="Preset settings:" Grid.Row="2"/>
+                    
+                    <TextBlock Text="Summary: " Grid.Row="2" Grid.Column="0"/>
                     <Grid Grid.Row="2" Grid.Column="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
+
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Signals"/>
+                        <TextBlock Text="Total length: " Grid.Column="0"/>
+                        <TextBlock Text="{Binding TotalLength}" Grid.Column="1"/>
 
-                        <Grid Grid.Column="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <ComboBox x:Name="PresetSignalsComboBox" ItemsSource="{Binding Signals}" Margin="5" SelectionChanged="PresetSignalsComboBox_SelectionChanged">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Name}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button x:Name="AddButton" Content="Add" Grid.Column="1" Click="AddButton_Click"/>
-                            <Button x:Name="RemoveButton" Content="Remove" Grid.Column="2" Click="RemoveButton_Click"/>
-                        </Grid>
-
-                        <TextBlock Text="Info: " Grid.Row="1"/>
-                        <TextBox Grid.Row="1" Grid.Column="1"/>
+                        <TextBlock Text="Signals count" Grid.Row="1"/>
+                        <TextBlock Text="{Binding Path=Signals.Count}" Grid.Row="1" Grid.Column="1"/>
                     </Grid>
                 </Grid>
             </TabItem>
@@ -96,20 +89,43 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="Signal: " Margin="10" VerticalAlignment="Center"/>
-                    <ComboBox ItemsSource="{Binding Signals}" Grid.Column="1" Margin="10">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Name}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <TextBlock Text="Signal: "/>
 
-                    <TextBlock Grid.Row="1" Text="Difference:" Margin="10"/>
-                    <TextBlock Grid.Row="2" Text="Carrier:" Margin="10"/>
+                    <Grid Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <oxy:PlotView x:Name="DifferencePlot" Title="Difference" Margin="10" Grid.Column="1" Grid.Row="1"/>
-                    <oxy:PlotView x:Name="CarrierPlot" Title="Carrier" Margin="10" Grid.Column="1" Grid.Row="2"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <ComboBox ItemsSource="{Binding Signals}" Grid.ColumnSpan="2">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <Button Content="Add" Grid.Column="2" Click="AddSignalButton_Click"/>
+                        <Button Content="Remove" Grid.Column="3" Click="RemoveSignalButton_Click"/>
+                        
+                        <TextBlock Text="Start second: " Grid.Row="1" Grid.Column="0"/>
+                        <TextBox Text="0" Grid.Row="1" Grid.Column="1"/>
+                        <TextBlock Text="End second: " Grid.Row="1" Grid.Column="2"/>
+                        <TextBox Text="0" Grid.Row="1" Grid.Column="3"/>
+                    </Grid>
+
+                    <TextBlock Grid.Row="1" Text="Difference:"/>
+                    <TextBlock Grid.Row="2" Text="Carrier:"/>
+
+                    <oxy:PlotView x:Name="DifferencePlot" Title="Difference" Grid.Column="1" Grid.Row="1"/>
+                    <oxy:PlotView x:Name="CarrierPlot" Title="Carrier" Grid.Column="1" Grid.Row="2"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Miscellaneous">

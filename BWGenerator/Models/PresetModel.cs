@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using SharedContent.Models;
@@ -9,26 +10,26 @@ namespace BWGenerator.Models
     {
         public class Signal : ModelBase
         {
-            public struct Point
+            public struct SignalPoint
             {
-                public double time { get; set; }
-                public double value { get; set; }
+                public double Time { get; set; }
+                public double DifferenceValue { get; set; }
+                public double CarrierValue { get; set; }
             }
 
-            private string _name = "";
+            private string name = "";
 
             public string Name
             {
-                get { return _name; }
-                set { _name = value; RaisePropertyChanged("Name"); }
+                get { return name; }
+                set { name = value; RaisePropertyChanged("Name"); }
             }
 
-            public List<Point> DifferencePoints = new List<Point>();
-            public List<Point> CarrierPoints = new List<Point>();
+            public List<SignalPoint> SignalPoints = new List<SignalPoint>();
         }
 
-        private string _name = "";
-        private string _description = "";
+        private string name = "";
+        private string description = "";
 
         public PresetModel()
         {
@@ -39,14 +40,33 @@ namespace BWGenerator.Models
 
         public string Name
         {
-            get { return _name; }
-            set { _name = value; RaisePropertyChanged("Name"); }
+            get { return name; }
+            set { name = value; RaisePropertyChanged("Name"); }
         }
 
         public string Description
         {
-            get { return _description; }
-            set { _description = value; RaisePropertyChanged("Description"); }
+            get { return description; }
+            set { description = value; RaisePropertyChanged("Description"); }
+        }
+
+        public TimeSpan TotalLength
+        {
+            get
+            {
+                double minTime = 0;
+                double maxTime = 0;
+                foreach (var signal in Signals)
+                {
+                    if (signal.SignalPoints[0].Time < minTime)
+                        minTime = signal.SignalPoints[0].Time;
+
+                    if (signal.SignalPoints[signal.SignalPoints.Count - 1].Time > maxTime)
+                        maxTime = signal.SignalPoints[signal.SignalPoints.Count - 1].Time;
+                }
+                int secondsTime = (int)(maxTime - minTime);
+                return new TimeSpan(secondsTime / 3600, secondsTime / 60 % 60, secondsTime % 60);
+            }
         }
 
         public ObservableCollection<Signal> Signals { get; set; }

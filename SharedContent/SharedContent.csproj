@@ -67,9 +67,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="UserControls\EditableTextBox\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Page Include="UserControls\EditableTextBox.xaml">
       <SubType>Designer</SubType>
