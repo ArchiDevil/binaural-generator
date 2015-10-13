@@ -31,7 +31,6 @@
             <Setter Property="Margin" Value="5"/>
         </Style>
 
-
         <Style TargetType="oxy:PlotView">
             <Setter Property="Margin" Value="5"/>
         </Style>
@@ -56,7 +55,7 @@
 
                     <TextBlock Text="Description:" Grid.Row="1"/>
                     <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Description}" AcceptsReturn="True"/>
-                    
+
                     <TextBlock Text="Summary: " Grid.Row="2" Grid.Column="0"/>
                     <Grid Grid.Row="2" Grid.Column="1">
                         <Grid.ColumnDefinitions>
@@ -80,8 +79,8 @@
             <TabItem Header="Signal control">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="5*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -93,7 +92,7 @@
 
                     <Grid Grid.Column="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="1*"/>
@@ -102,9 +101,10 @@
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        
-                        <ComboBox ItemsSource="{Binding Signals}" Grid.ColumnSpan="2">
+
+                        <ComboBox x:Name="PresetSignalsComboBox" ItemsSource="{Binding Signals}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}"/>
@@ -112,20 +112,16 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
+                        <Button Content="Properties" Grid.Column="1" Click="Button_Click"/>
                         <Button Content="Add" Grid.Column="2" Click="AddSignalButton_Click"/>
                         <Button Content="Remove" Grid.Column="3" Click="RemoveSignalButton_Click"/>
-                        
-                        <TextBlock Text="Start second: " Grid.Row="1" Grid.Column="0"/>
-                        <TextBox Text="0" Grid.Row="1" Grid.Column="1"/>
-                        <TextBlock Text="End second: " Grid.Row="1" Grid.Column="2"/>
-                        <TextBox Text="0" Grid.Row="1" Grid.Column="3"/>
                     </Grid>
 
-                    <TextBlock Grid.Row="1" Text="Difference:"/>
-                    <TextBlock Grid.Row="2" Text="Carrier:"/>
+                    <ComboBox Grid.Row="1" VerticalAlignment="Top" ItemsSource="{Binding GraphsList}"/>
+                    <ComboBox Grid.Row="2" VerticalAlignment="Top" ItemsSource="{Binding GraphsList}"/>
 
-                    <oxy:PlotView x:Name="DifferencePlot" Title="Difference" Grid.Column="1" Grid.Row="1"/>
-                    <oxy:PlotView x:Name="CarrierPlot" Title="Carrier" Grid.Column="1" Grid.Row="2"/>
+                    <oxy:PlotView x:Name="Plot1" Grid.Column="1" Grid.Row="1"/>
+                    <oxy:PlotView x:Name="Plot2" Grid.Column="1" Grid.Row="2"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Miscellaneous">

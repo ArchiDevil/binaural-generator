@@ -23,12 +23,14 @@ namespace BWGenerator
             PlotsController.UnbindMouseDown(OxyMouseButton.Left);
             PlotsController.UnbindMouseDown(OxyMouseButton.Right);
 
-            DifferencePlot.Controller = PlotsController;
-            CarrierPlot.Controller = PlotsController;
+            Plot1.Controller = PlotsController;
+            Plot2.Controller = PlotsController;
 
+            // creating some default preset
             Preset = new PresetModel();
             Preset.Name = "Some name";
             Preset.Description = "Some description";
+            // creating default signal with default params
             Preset.Signals.Add(new PresetModel.Signal { Name = "Signal 1" });
             Preset.Signals[0].SignalPoints.Add(new PresetModel.Signal.SignalPoint { Time = 0.0, DifferenceValue = 2.0, CarrierValue = 440.0 });
             Preset.Signals[0].SignalPoints.Add(new PresetModel.Signal.SignalPoint { Time = 30.0, DifferenceValue = 10.0, CarrierValue = 440.0 });
@@ -127,19 +129,8 @@ namespace BWGenerator
             return model;
         }
 
-        //private void AddButton_Click(object sender, RoutedEventArgs e)
-        //{
-
-        //}
-
-        //private void RemoveButton_Click(object sender, RoutedEventArgs e)
-        //{
-
-        //}
-
         private void PresetSignalsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
         }
 
         private void Play_Click(object sender, RoutedEventArgs e)
@@ -176,6 +167,10 @@ namespace BWGenerator
             int selectedSignal = PresetSignalsComboBox.SelectedIndex;
             Preset.Signals.RemoveAt(selectedSignal);
             PresetSignalsComboBox.SelectedIndex = 0;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
         }
 
         //private static PlotModel CreateDifferenceModel()
