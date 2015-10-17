@@ -1,4 +1,4 @@
-﻿using SharedContent.Models;
+﻿using SharedLibrary.Models;
 
 namespace BWSitterGenerator.Models
 {

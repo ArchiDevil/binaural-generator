@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace SharedContent.Models
+namespace SharedLibrary.Models
 {
     public class ModelBase : INotifyPropertyChanged
     {

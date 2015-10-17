@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using SharedContent.Models;
+using SharedLibrary.Models;
 
-namespace SharedContent.AudioProviders
+namespace SharedLibrary.AudioProviders
 {
     public class ConstantSampleProvider : SampleProvider
     {

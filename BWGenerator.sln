@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BWGenerator", "BWGenerator\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BWSitterGenerator", "BWSitterGenerator\BWSitterGenerator.csproj", "{E7E950A4-B58D-4B86-B073-B6F760BA33D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedContent", "SharedContent\SharedContent.csproj", "{697F8CD6-F2A2-4A1B-A087-916A03C383EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "SharedContent\SharedLibrary.csproj", "{697F8CD6-F2A2-4A1B-A087-916A03C383EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using NAudio.Wave;
 
-namespace SharedContent.AudioProviders
+namespace SharedLibrary.AudioProviders
 {
     public class ModelledSampleProvider : SampleProvider
     {
