@@ -12,6 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
+using BWGenerator.Models;
+using SharedContent.Models;
+
 namespace BWGenerator
 {
     /// <summary>
@@ -19,9 +22,17 @@ namespace BWGenerator
     /// </summary>
     public partial class SignalPropertiesWindow : Window
     {
-        public SignalPropertiesWindow()
+        SignalViewModel viewModel = null;
+        public SignalPropertiesWindow(PresetModel.Signal currentSignal)
         {
             InitializeComponent();
+            viewModel = new SignalViewModel(currentSignal);
+            DataContext = viewModel;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }
