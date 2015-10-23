@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace SharedContent
+namespace SharedLibrary
 {
     /// <summary>
     /// A class that provides a source of pink noise with a power spectrum

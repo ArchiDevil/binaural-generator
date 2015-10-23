@@ -1,4 +1,4 @@
-﻿namespace SharedContent.Models
+﻿namespace SharedLibrary.Models
 {
     public class BasicNoiseModel : ModelBase
     {

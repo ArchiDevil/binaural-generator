@@ -1,6 +1,6 @@
 ﻿using NAudio.Wave;
 
-namespace SharedContent.AudioProviders
+namespace SharedLibrary.AudioProviders
 {
     public abstract class SampleProvider : ISampleProvider
     {

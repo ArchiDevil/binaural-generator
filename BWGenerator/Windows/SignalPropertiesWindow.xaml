@@ -53,7 +53,7 @@
         <TextBlock Text="End time:" Grid.Row="2" Grid.Column="0"/>
         <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding endTimeSeconds}"/>
         <TextBlock Text="sec" Grid.Row="2" Grid.Column="2"/>
-        
+
         <Button Content="Close" Grid.Row="4" Grid.ColumnSpan="4" HorizontalAlignment="Center" Padding="20 3 20 3" Click="Button_Click"/>
     </Grid>
 </Window>

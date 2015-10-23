@@ -147,7 +147,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SharedContent\SharedContent.csproj">
+    <ProjectReference Include="..\SharedContent\SharedLibrary.csproj">
       <Project>{697f8cd6-f2a2-4a1b-a087-916a03c383ec}</Project>
       <Name>SharedContent</Name>
     </ProjectReference>

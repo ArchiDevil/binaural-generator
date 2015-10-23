@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using BWSitterGenerator.Models;
-using SharedContent.AudioProviders;
+using SharedLibrary.AudioProviders;
 
 namespace BWSitterGenerator
 {

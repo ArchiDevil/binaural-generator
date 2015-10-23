@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SharedContent
+namespace SharedLibrary
 {
     public static class SharedFuncs
     {

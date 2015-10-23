@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BWGenerator"
         xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:GraphsAlias="clr-namespace:BWGenerator.Models"
         mc:Ignorable="d"
-        Title="MainWindow" Height="400" Width="650">
+        Title="BWGenerator" Height="400" Width="650">
 
     <Window.Resources>
         <Style TargetType="Button">
@@ -15,12 +17,11 @@
 
         <Style TargetType="TextBlock">
             <Setter Property="Margin" Value="5"/>
-            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Padding" Value="3"/>
         </Style>
 
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="5"/>
-            <Setter Property="Padding" Value="2"/>
         </Style>
 
         <Style TargetType="Slider">
@@ -33,16 +34,35 @@
 
         <Style TargetType="oxy:PlotView">
             <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
     </Window.Resources>
 
     <Grid>
-        <TabControl x:Name="tabControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Menu>
+            <MenuItem Header="File">
+                <MenuItem Header="New" IsEnabled="False"/>
+                <Separator/>
+                <MenuItem Header="Open..." IsEnabled="False"/>
+                <MenuItem Header="Save" IsEnabled="False"/>
+                <MenuItem Header="Save as..." IsEnabled="False"/>
+            </MenuItem>
+            <MenuItem Header="Preferences..." IsEnabled="False"/>
+            <MenuItem Header="Exit" Click="MenuItem_Click"/>
+        </Menu>
+
+        <TabControl x:Name="tabControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1">
             <TabItem x:Name="SettingsTab" Header="Preset settings">
-                <Grid Background="#FFE5E5E5">
+                <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width=" auto"/>
                         <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="5*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -77,7 +97,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Signal control">
-                <Grid Background="#FFE5E5E5">
+                <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="5*"/>
@@ -98,13 +118,7 @@
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-
-                        <ComboBox x:Name="PresetSignalsComboBox" ItemsSource="{Binding Signals}">
+                        <ComboBox x:Name="PresetSignalsComboBox" ItemsSource="{Binding Signals}" SelectionChanged="PresetSignalsComboBox_SelectionChanged">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}"/>
@@ -117,30 +131,42 @@
                         <Button Content="Remove" Grid.Column="3" Click="RemoveSignalButton_Click"/>
                     </Grid>
 
-                    <ComboBox Grid.Row="1" VerticalAlignment="Top" ItemsSource="{Binding GraphsList}"/>
-                    <ComboBox Grid.Row="2" VerticalAlignment="Top" ItemsSource="{Binding GraphsList}"/>
+                    <ComboBox x:Name="Plot1Type" Grid.Row="1" VerticalAlignment="Top" ItemsSource="{Binding GraphsList}" SelectedItem="Carrier" SelectionChanged="Plot1Type_SelectionChanged"/>
+                    <ComboBox x:Name="Plot2Type" Grid.Row="2" VerticalAlignment="Top" ItemsSource="{Binding GraphsList}" SelectedItem="Difference" SelectionChanged="Plot2Type_SelectionChanged"/>
 
                     <oxy:PlotView x:Name="Plot1" Grid.Column="1" Grid.Row="1"/>
                     <oxy:PlotView x:Name="Plot2" Grid.Column="1" Grid.Row="2"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Miscellaneous">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-            <TabItem Header="Summary and test">
-                <Grid Background="#FFE5E5E5">
+            <TabItem Header="Noise control">
+                <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="1*"/>
+                        <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="Overall length:"/>
-                    <TextBlock Grid.Column="1" Text="some minutes"/>
+                    <TextBlock Text="Smoothness: " Grid.Row="0" Grid.Column="0"/>
+                    <TextBlock Text="Volume: " Grid.Row="1" Grid.Column="0"/>
+
+                    <oxy:PlotView x:Name="NoiseSmth" Grid.Row="0" Grid.Column="1"/>
+                    <oxy:PlotView x:Name="NoiseVol" Grid.Row="1" Grid.Column="1"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Summary and test">
+                <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
 
                     <TextBlock Text="Test play:" Grid.Row="1"/>
                     <Grid Grid.Row="1" Grid.Column="1">

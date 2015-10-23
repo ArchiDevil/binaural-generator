@@ -1,33 +1,49 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-using SharedContent.Models;
+using SharedLibrary.Models;
 
 namespace BWGenerator.Models
 {
-    public class PresetModel : ModelBase
+    public struct SignalPoint
     {
-        public class Signal : ModelBase
+        public double Time { get; set; }
+        public double DifferenceValue { get; set; }
+        public double CarrierValue { get; set; }
+        public double VolumeValue { get; set; }
+    }
+
+    public class Signal : ModelBase
+    {
+        public Signal()
         {
-            public struct SignalPoint
-            {
-                public double Time { get; set; }
-                public double DifferenceValue { get; set; }
-                public double CarrierValue { get; set; }
-            }
-
-            private string name = "";
-
-            public string Name
-            {
-                get { return name; }
-                set { name = value; RaisePropertyChanged("Name"); }
-            }
-
-            public List<SignalPoint> SignalPoints = new List<SignalPoint>();
+            points = new SignalPoint[2];
+            points[0] = new SignalPoint { Time = 0.0, DifferenceValue = 8.0, CarrierValue = 330.0, VolumeValue = 80.0 };
+            points[1] = new SignalPoint { Time = 30.0, DifferenceValue = 10.0, CarrierValue = 440.0, VolumeValue = 100.0 };
         }
 
+        private string name = "";
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; RaisePropertyChanged("Name"); }
+        }
+
+        public SignalPoint[] points = null;
+    }
+
+    public struct NoisePoint
+    {
+        public double Time { get; set; }
+        public double SmoothnessValue { get; set; }
+        public double VolumeValue { get; set; }
+    }
+
+    public class PresetModel : ModelBase
+    {
         private string name = "";
         private string description = "";
 
@@ -36,6 +52,10 @@ namespace BWGenerator.Models
             Name = "";
             Description = "";
             Signals = new ObservableCollection<Signal>();
+
+            noisePoints = new NoisePoint[2];
+            noisePoints[0] = new NoisePoint { Time = 0.0, SmoothnessValue = 0.9, VolumeValue = 90.0 };
+            noisePoints[1] = new NoisePoint { Time = 30.0, SmoothnessValue = 0.92, VolumeValue = 100.0 };
         }
 
         public string Name
@@ -58,11 +78,17 @@ namespace BWGenerator.Models
                 double maxTime = 0;
                 foreach (var signal in Signals)
                 {
-                    if (signal.SignalPoints[0].Time < minTime)
-                        minTime = signal.SignalPoints[0].Time;
+                    if (signal.points.First().Time < minTime)
+                        minTime = signal.points.First().Time;
 
-                    if (signal.SignalPoints[signal.SignalPoints.Count - 1].Time > maxTime)
-                        maxTime = signal.SignalPoints[signal.SignalPoints.Count - 1].Time;
+                    if (signal.points.First().Time > maxTime)
+                        maxTime = signal.points.First().Time;
+
+                    if (signal.points.Last().Time < minTime)
+                        minTime = signal.points.Last().Time;
+
+                    if (signal.points.Last().Time > maxTime)
+                        maxTime = signal.points.Last().Time;
                 }
                 int secondsTime = (int)(maxTime - minTime);
                 return new TimeSpan(secondsTime / 3600, secondsTime / 60 % 60, secondsTime % 60);
@@ -70,5 +96,22 @@ namespace BWGenerator.Models
         }
 
         public ObservableCollection<Signal> Signals { get; set; }
+
+        public NoisePoint[] noisePoints = null;
+
+        public string[] GraphsList
+        {
+            get
+            {
+                return Enum.GetNames(typeof(Graphs));
+            }
+        }
     }
+
+    public enum Graphs
+    {
+        Carrier,
+        Difference,
+        Volume
+    };
 }
