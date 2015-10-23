@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -27,13 +28,22 @@ namespace Asynchronous_Server_Socket_Example
         public static void StartListening()
         {
             // Data buffer for incoming data.
-            byte[] bytes = new Byte[1024];
+            byte[] bytes = new byte[1024];
 
             // Establish the local endpoint for the socket.
             // The DNS name of the computer
             // running the listener is "host.contoso.com".
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPAddress ipAddress = null;
+            for (int i = 0; i < ipHostInfo.AddressList.Count(); i++)
+            {
+                if (ipHostInfo.AddressList[i].AddressFamily == AddressFamily.InterNetwork)
+                {
+                    ipAddress = ipHostInfo.AddressList[i];
+                    break;
+                }
+            }
+
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
             // Create a TCP/IP socket.
@@ -57,7 +67,6 @@ namespace Asynchronous_Server_Socket_Example
                     // Wait until a connection is made before continuing.
                     allDone.WaitOne();
                 }
-
             }
             catch (Exception e)
             {
@@ -66,7 +75,6 @@ namespace Asynchronous_Server_Socket_Example
 
             Console.WriteLine("\nPress ENTER to continue...");
             Console.Read();
-
         }
 
         public static void AcceptCallback(IAsyncResult ar)
@@ -86,7 +94,7 @@ namespace Asynchronous_Server_Socket_Example
 
         public static void ReadCallback(IAsyncResult ar)
         {
-            String content = String.Empty;
+            string content = string.Empty;
 
             // Retrieve the state object and the handler socket
             // from the asynchronous state object.
@@ -142,7 +150,6 @@ namespace Asynchronous_Server_Socket_Example
 
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
-
             }
             catch (Exception e)
             {

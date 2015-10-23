@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
@@ -29,7 +30,7 @@ namespace Asynchronous_Client_Socket_Example
         private static ManualResetEvent receiveDone = new ManualResetEvent(false);
 
         // The response from the remote device.
-        private static String response = String.Empty;
+        private static string response = string.Empty;
 
         private static void StartClient()
         {
@@ -39,8 +40,17 @@ namespace Asynchronous_Client_Socket_Example
                 // Establish the remote endpoint for the socket.
                 // The name of the 
                 // remote device is "host.contoso.com".
-                IPHostEntry ipHostInfo = Dns.GetHostEntry("host.contoso.com");
-                IPAddress ipAddress = ipHostInfo.AddressList[0];
+                IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+                IPAddress ipAddress = null;
+                for (int i = 0; i < ipHostInfo.AddressList.Count(); i++)
+                {
+                    if (ipHostInfo.AddressList[i].AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        ipAddress = ipHostInfo.AddressList[i];
+                        break;
+                    }
+                }
+
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
 
                 // Create a TCP/IP socket.

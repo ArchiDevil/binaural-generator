@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -18,12 +19,20 @@ namespace Synchronous_Client_Socket_Example
                 // Establish the remote endpoint for the socket.
                 // This example uses port 11000 on the local computer.
                 IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                IPAddress ipAddress = ipHostInfo.AddressList[0];
+                IPAddress ipAddress = null;
+                for (int i = 0; i < ipHostInfo.AddressList.Count(); i++)
+                {
+                    if (ipHostInfo.AddressList[i].AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        ipAddress = ipHostInfo.AddressList[i];
+                        break;
+                    }
+                }
+
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, 11000);
 
                 // Create a TCP/IP  socket.
-                Socket sender = new Socket(AddressFamily.InterNetwork,
-                    SocketType.Stream, ProtocolType.Tcp);
+                Socket sender = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                 // Connect the socket to the remote endpoint. Catch any errors.
                 try
@@ -40,13 +49,11 @@ namespace Synchronous_Client_Socket_Example
 
                     // Receive the response from the remote device.
                     int bytesRec = sender.Receive(bytes);
-                    Console.WriteLine("Echoed test = {0}",
-                        Encoding.ASCII.GetString(bytes, 0, bytesRec));
+                    Console.WriteLine("Echoed test = {0}", Encoding.ASCII.GetString(bytes, 0, bytesRec));
 
                     // Release the socket.
                     sender.Shutdown(SocketShutdown.Both);
                     sender.Close();
-
                 }
                 catch (ArgumentNullException ane)
                 {
@@ -60,7 +67,6 @@ namespace Synchronous_Client_Socket_Example
                 {
                     Console.WriteLine("Unexpected exception : {0}", e.ToString());
                 }
-
             }
             catch (Exception e)
             {

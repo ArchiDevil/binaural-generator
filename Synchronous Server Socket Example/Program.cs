@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,13 +14,22 @@ namespace Synchronous_Server_Socket_Example
         public static void StartListening()
         {
             // Data buffer for incoming data.
-            byte[] bytes = new Byte[1024];
+            byte[] bytes = new byte[1024];
 
             // Establish the local endpoint for the socket.
             // Dns.GetHostName returns the name of the 
             // host running the application.
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPAddress ipAddress = null;
+            for (int i = 0; i < ipHostInfo.AddressList.Count(); i++)
+            {
+                if(ipHostInfo.AddressList[i].AddressFamily == AddressFamily.InterNetwork)
+                {
+                    ipAddress = ipHostInfo.AddressList[i];
+                    break;
+                }
+            }
+
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
             // Create a TCP/IP socket.
