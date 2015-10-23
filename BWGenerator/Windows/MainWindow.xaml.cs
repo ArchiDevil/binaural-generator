@@ -57,7 +57,7 @@ namespace BWGenerator
             Preset = new PresetModel();
             Preset.Name = "New preset";
             Preset.Description = "Write your description here";
-            Preset.Signals.Add(new Signal { Name = "Signal 1" });
+            Preset.Signals.Add(new Signal { Name = "Signal 0" });
 
             DataContext = Preset;
             playback = new Playback(new ModelledSampleProvider());
@@ -127,12 +127,8 @@ namespace BWGenerator
 
         private void AddSignalButton_Click(object sender, RoutedEventArgs e)
         {
-            Signal lastSignal = Preset.Signals.Last();
-            string lastSignalName = lastSignal.Name;
-            int lastIndex = int.Parse(lastSignalName.Substring(lastSignalName.Length - 1));
-            lastIndex++;
-            Preset.Signals.Add(new Signal { Name = "Signal " + lastIndex.ToString() });
-
+            int signalsCount = Preset.Signals.Count();
+            Preset.Signals.Add(new Signal { Name = "Signal " + signalsCount.ToString() });
             PresetSignalsComboBox.SelectedIndex = Preset.Signals.Count - 1;
         }
 
@@ -141,13 +137,19 @@ namespace BWGenerator
             if (Preset.Signals.Count == 1)
                 return;
 
-            int selectedSignal = PresetSignalsComboBox.SelectedIndex;
-            Preset.Signals.RemoveAt(selectedSignal);
-            PresetSignalsComboBox.SelectedIndex = 0;
+            Preset.Signals.RemoveAt(PresetSignalsComboBox.SelectedIndex);
+            if (Preset.Signals.Count() < PresetSignalsComboBox.SelectedIndex)
+                PresetSignalsComboBox.SelectedIndex = Preset.Signals.Count() - 1;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            int selectedIndex = PresetSignalsComboBox.SelectedIndex;
+            if (selectedIndex < 0)
+                return;
+
+            SignalPropertiesWindow window = new SignalPropertiesWindow(Preset.Signals[selectedIndex]);
+            window.ShowDialog();
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)

@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using System.Windows;
+﻿using System;
+using System.Linq;
 
 using SharedLibrary.Models;
 
@@ -7,20 +7,27 @@ namespace BWGenerator.Models
 {
     public class SignalViewModel : ModelBase
     {
-        private Signal currentSignal = null;
-
         public int startTimeSeconds
         {
             get
             {
-                if (currentSignal.points.Count() > 0)
-                    return (int)currentSignal.points.First().Time;
-                else
-                    return 0;
+                return (currentSignal.points.Count() > 0) ? (int)currentSignal.points.First().Time : 0;
             }
             set
             {
-                MessageBox.Show("LALALA");
+                if (value < 0.0 || value > endTimeSeconds)
+                    return;
+
+                currentSignal.points[0].Time = value;
+                for (int i = 1; i < currentSignal.points.Count(); i++)
+                {
+                    if (value > currentSignal.points[i].Time)
+                    {
+                        SharedLibrary.SharedFuncs.RemoveFromArrayByIndex(ref currentSignal.points, i);
+                    }
+                }
+
+                RaisePropertyChanged("startTimeSeconds");
             }
         }
 
@@ -28,22 +35,40 @@ namespace BWGenerator.Models
         {
             get
             {
-                if (currentSignal.points.Count() > 0)
-                    return (int)currentSignal.points.Last().Time;
-                else
-                    return 0;
+                return (currentSignal.points.Count() > 0) ? (int)currentSignal.points.Last().Time : 0;
             }
             set
             {
-                MessageBox.Show("LALALA");
+                if (value < 0.0 || value < startTimeSeconds)
+                    return;
+
+                currentSignal.points[currentSignal.points.Count() - 1].Time = value;
+                for (int i = 0; i < currentSignal.points.Count() - 1; i++)
+                {
+                    if (value < currentSignal.points[i].Time)
+                    {
+                        SharedLibrary.SharedFuncs.RemoveFromArrayByIndex(ref currentSignal.points, i);
+                    }
+                }
+
+                RaisePropertyChanged("endTimeSeconds");
             }
         }
 
         public string signalName
         {
-            get { return currentSignal.Name; }
-            set { currentSignal.Name = value; RaisePropertyChanged("signalName"); }
+            get
+            {
+                return currentSignal.Name;
+            }
+            set
+            {
+                currentSignal.Name = value;
+                RaisePropertyChanged("signalName");
+            }
         }
+
+        private Signal currentSignal = null;
 
         public SignalViewModel(Signal currentSignal)
         {
