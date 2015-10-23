@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Windows;
-using SharedContent.Models;
+
+using SharedLibrary.Models;
 
 namespace BWGenerator.Models
 {
     public class SignalViewModel : ModelBase
     {
-        private PresetModel.Signal currentSignal = null;
+        private Signal currentSignal = null;
 
         public int startTimeSeconds
         {
             get
             {
-                if (currentSignal.SignalPoints.Count > 0)
-                    return (int)currentSignal.SignalPoints.First().Time;
+                if (currentSignal.points.Count() > 0)
+                    return (int)currentSignal.points.First().Time;
                 else
                     return 0;
             }
@@ -31,8 +28,8 @@ namespace BWGenerator.Models
         {
             get
             {
-                if (currentSignal.SignalPoints.Count > 0)
-                    return (int)currentSignal.SignalPoints.Last().Time;
+                if (currentSignal.points.Count() > 0)
+                    return (int)currentSignal.points.Last().Time;
                 else
                     return 0;
             }
@@ -48,7 +45,7 @@ namespace BWGenerator.Models
             set { currentSignal.Name = value; RaisePropertyChanged("signalName"); }
         }
 
-        public SignalViewModel(PresetModel.Signal currentSignal)
+        public SignalViewModel(Signal currentSignal)
         {
             this.currentSignal = currentSignal;
         }

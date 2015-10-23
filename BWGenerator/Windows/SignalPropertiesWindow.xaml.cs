@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 using BWGenerator.Models;
-using SharedContent.Models;
+using SharedLibrary.Models;
 
 namespace BWGenerator
 {
@@ -23,7 +23,7 @@ namespace BWGenerator
     public partial class SignalPropertiesWindow : Window
     {
         SignalViewModel viewModel = null;
-        public SignalPropertiesWindow(PresetModel.Signal currentSignal)
+        public SignalPropertiesWindow(Signal currentSignal)
         {
             InitializeComponent();
             viewModel = new SignalViewModel(currentSignal);
