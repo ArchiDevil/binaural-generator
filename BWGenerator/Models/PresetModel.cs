@@ -7,7 +7,7 @@ using SharedLibrary.Models;
 
 namespace BWGenerator.Models
 {
-    public struct SignalPoint
+    public class SignalPoint
     {
         public double Time { get; set; }
         public double DifferenceValue { get; set; }
@@ -35,7 +35,7 @@ namespace BWGenerator.Models
         public SignalPoint[] points = null;
     }
 
-    public struct NoisePoint
+    public class NoisePoint
     {
         public double Time { get; set; }
         public double SmoothnessValue { get; set; }
@@ -49,13 +49,16 @@ namespace BWGenerator.Models
 
         public PresetModel()
         {
-            Name = "";
-            Description = "";
+            Name = "Enter your name";
+            Description = "Enter your description";
             Signals = new ObservableCollection<Signal>();
 
-            noisePoints = new NoisePoint[2];
+            Signals.Add(new Signal { Name = "Signal 1" });
+
+            noisePoints = new NoisePoint[3];
             noisePoints[0] = new NoisePoint { Time = 0.0, SmoothnessValue = 0.9, VolumeValue = 90.0 };
-            noisePoints[1] = new NoisePoint { Time = 30.0, SmoothnessValue = 0.92, VolumeValue = 100.0 };
+            noisePoints[1] = new NoisePoint { Time = 15.0, SmoothnessValue = 0.86, VolumeValue = 85.0 };
+            noisePoints[2] = new NoisePoint { Time = 30.0, SmoothnessValue = 0.92, VolumeValue = 100.0 };
         }
 
         public string Name

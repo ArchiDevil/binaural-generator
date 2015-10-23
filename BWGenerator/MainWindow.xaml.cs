@@ -8,38 +8,68 @@ using BWGenerator.Models;
 using SharedLibrary.AudioProviders;
 
 using OxyPlot;
+using OxyPlot.Wpf;
 
 namespace BWGenerator
 {
     public partial class MainWindow : Window
     {
-        SignalPlotViewModel[] models = new SignalPlotViewModel[2];
+        SignalPlotViewModel[] signalPlotModels = new SignalPlotViewModel[2];
         NoisePlotViewModel noiseSmoothnessModel = null;
         NoisePlotViewModel noiseVolumeModel = null;
 
-        public double CarrierSelector(SignalPoint point)
+        // SIGNAL GETTERS
+        public double SignalCarrierGetter(SignalPoint point)
         {
             return point.CarrierValue;
         }
 
-        public double DifferenceSelector(SignalPoint point)
+        public double SignalDifferenceGetter(SignalPoint point)
         {
             return point.DifferenceValue;
         }
 
-        public double VolumeSelector(SignalPoint point)
+        public double SignalVolumeGetter(SignalPoint point)
         {
             return point.VolumeValue;
         }
 
-        public double NoiseSmoothnessSelector(NoisePoint point)
+        //SIGNAL SETTERS
+        public void SignalCarrierSetter(SignalPoint point, double value)
+        {
+            point.CarrierValue = value;
+        }
+
+        public void SignalDifferenceSetter(SignalPoint point, double value)
+        {
+            point.DifferenceValue = value;
+        }
+
+        public void SignalVolumeSetter(SignalPoint point, double value)
+        {
+            point.VolumeValue = value;
+        }
+
+        // NOISE GETTERS
+        public double NoiseSmoothnessGetter(NoisePoint point)
         {
             return point.SmoothnessValue;
         }
 
-        public double NoiseVolumeSelector(NoisePoint point)
+        public double NoiseVolumeGetter(NoisePoint point)
         {
             return point.VolumeValue;
+        }
+
+        // NOISE SETTERS
+        public void NoiseSmoothnessSetter(NoisePoint point, double value)
+        {
+            point.SmoothnessValue = value;
+        }
+
+        public void NoiseVolumeSetter(NoisePoint point, double value)
+        {
+            point.VolumeValue = value;
         }
 
         public MainWindow()
@@ -53,11 +83,10 @@ namespace BWGenerator
 
             Plot1.Controller = PlotsController;
             Plot2.Controller = PlotsController;
+            NoiseSmoothnessPlot.Controller = PlotsController;
+            NoiseVolumePlot.Controller = PlotsController;
 
             Preset = new PresetModel();
-            Preset.Name = "New preset";
-            Preset.Description = "Write your description here";
-            Preset.Signals.Add(new Signal { Name = "Signal 1" });
 
             DataContext = Preset;
             playback = new Playback(new ModelledSampleProvider());
@@ -67,47 +96,43 @@ namespace BWGenerator
         public PlotController PlotsController { get; set; }
         private Playback playback = null;
 
-        private void SelectSignal(int signalId)
+        void SelectSignal(int signalId)
         {
             if (signalId < 0 || Plot1Type.SelectedIndex < 0 || Plot2Type.SelectedIndex < 0)
                 return;
 
-            switch ((Graphs)Plot1Type.SelectedIndex)
+            SelectModel((Graphs)Plot1Type.SelectedIndex, Plot1, 0, signalId);
+            SelectModel((Graphs)Plot2Type.SelectedIndex, Plot2, 1, signalId);
+
+            //TODO: should be done once =)
+            noiseSmoothnessModel = new NoisePlotViewModel(Preset, NoiseSmoothnessGetter, NoiseSmoothnessSetter);
+            noiseVolumeModel = new NoisePlotViewModel(Preset, NoiseVolumeGetter, NoiseVolumeSetter);
+
+            NoiseSmoothnessPlot.Model = noiseSmoothnessModel.model;
+            NoiseVolumePlot.Model = noiseVolumeModel.model;
+        }
+
+        void SelectModel(Graphs type, PlotView plot, int modelIndex, int signalId)
+        {
+            SignalPlotViewModel newModel = null;
+
+            switch (type)
             {
                 case Graphs.Carrier:
-                    models[0] = new SignalPlotViewModel(Preset.Signals[signalId], CarrierSelector);
+                    newModel = new SignalPlotViewModel(Preset.Signals[signalId], SignalCarrierGetter);
                     break;
                 case Graphs.Difference:
-                    models[0] = new SignalPlotViewModel(Preset.Signals[signalId], DifferenceSelector);
+                    newModel = new SignalPlotViewModel(Preset.Signals[signalId], SignalDifferenceGetter);
                     break;
                 case Graphs.Volume:
-                    models[0] = new SignalPlotViewModel(Preset.Signals[signalId], VolumeSelector);
+                    newModel = new SignalPlotViewModel(Preset.Signals[signalId], SignalVolumeGetter);
                     break;
                 default:
                     throw new InvalidCastException();
             }
 
-            switch ((Graphs)Plot2Type.SelectedIndex)
-            {
-                case Graphs.Carrier:
-                    models[1] = new SignalPlotViewModel(Preset.Signals[signalId], CarrierSelector);
-                    break;
-                case Graphs.Difference:
-                    models[1] = new SignalPlotViewModel(Preset.Signals[signalId], DifferenceSelector);
-                    break;
-                case Graphs.Volume:
-                    models[1] = new SignalPlotViewModel(Preset.Signals[signalId], VolumeSelector);
-                    break;
-                default:
-                    throw new InvalidCastException();
-            }
-            Plot1.Model = models[0].model;
-            Plot2.Model = models[1].model;
-
-            noiseSmoothnessModel = new NoisePlotViewModel(Preset, NoiseSmoothnessSelector);
-            noiseVolumeModel = new NoisePlotViewModel(Preset, NoiseVolumeSelector);
-            NoiseSmth.Model = noiseSmoothnessModel.model;
-            NoiseVol.Model = noiseVolumeModel.model;
+            signalPlotModels[modelIndex] = newModel;
+            plot.Model = newModel.model;
         }
 
         private void Play_Click(object sender, RoutedEventArgs e)
@@ -127,12 +152,9 @@ namespace BWGenerator
 
         private void AddSignalButton_Click(object sender, RoutedEventArgs e)
         {
-            Signal lastSignal = Preset.Signals.Last();
-            string lastSignalName = lastSignal.Name;
-            int lastIndex = int.Parse(lastSignalName.Substring(lastSignalName.Length - 1));
-            lastIndex++;
+            string lastSignalName = Preset.Signals.Last().Name;
+            int lastIndex = int.Parse(lastSignalName.Substring(lastSignalName.Length - 1)) + 1;
             Preset.Signals.Add(new Signal { Name = "Signal " + lastIndex.ToString() });
-
             PresetSignalsComboBox.SelectedIndex = Preset.Signals.Count - 1;
         }
 
@@ -162,54 +184,20 @@ namespace BWGenerator
 
         private void Plot1Type_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int selectedIndex = PresetSignalsComboBox.SelectedIndex;
-            if (selectedIndex < 0)
+            int signalId = PresetSignalsComboBox.SelectedIndex;
+            if (signalId < 0)
                 return;
 
-            SignalPlotViewModel modelToCheck = models[0];
-
-            switch ((Graphs)Plot1Type.SelectedIndex)
-            {
-                case Graphs.Carrier:
-                    modelToCheck = new SignalPlotViewModel(Preset.Signals[selectedIndex], CarrierSelector);
-                    break;
-                case Graphs.Difference:
-                    modelToCheck = new SignalPlotViewModel(Preset.Signals[selectedIndex], DifferenceSelector);
-                    break;
-                case Graphs.Volume:
-                    modelToCheck = new SignalPlotViewModel(Preset.Signals[selectedIndex], VolumeSelector);
-                    break;
-                default:
-                    throw new InvalidCastException();
-            }
-
-            Plot1.Model = modelToCheck.model;
+            SelectModel((Graphs)Plot1Type.SelectedIndex, Plot1, 0, signalId);
         }
 
         private void Plot2Type_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int selectedIndex = PresetSignalsComboBox.SelectedIndex;
-            if (selectedIndex < 0)
+            int signalId = PresetSignalsComboBox.SelectedIndex;
+            if (signalId < 0)
                 return;
 
-            SignalPlotViewModel modelToCheck = models[1];
-
-            switch ((Graphs)Plot2Type.SelectedIndex)
-            {
-                case Graphs.Carrier:
-                    modelToCheck = new SignalPlotViewModel(Preset.Signals[selectedIndex], CarrierSelector);
-                    break;
-                case Graphs.Difference:
-                    modelToCheck = new SignalPlotViewModel(Preset.Signals[selectedIndex], DifferenceSelector);
-                    break;
-                case Graphs.Volume:
-                    modelToCheck = new SignalPlotViewModel(Preset.Signals[selectedIndex], VolumeSelector);
-                    break;
-                default:
-                    throw new InvalidCastException();
-            }
-
-            Plot2.Model = modelToCheck.model;
+            SelectModel((Graphs)Plot2Type.SelectedIndex, Plot2, 1, signalId);
         }
     }
 }

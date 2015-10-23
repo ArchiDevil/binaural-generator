@@ -7,16 +7,19 @@ namespace BWGenerator.Models
 {
     public class NoisePlotViewModel
     {
-        public delegate double SelectNoiseValueDelegate(NoisePoint point);
+        public delegate double NoiseValueDelegateGetter(NoisePoint point);
+        public delegate void NoiseValueDelegateSetter(NoisePoint point, double value);
         public PlotModel model { get; }
-        
-        private SelectNoiseValueDelegate selector = null;
+
+        private NoiseValueDelegateGetter getter = null;
+        private NoiseValueDelegateSetter setter = null;
         private LineSeries currentSerie = null;
         private PresetModel currentPreset = null;
 
-        public NoisePlotViewModel(PresetModel currentPreset, SelectNoiseValueDelegate selector)
+        public NoisePlotViewModel(PresetModel currentPreset, NoiseValueDelegateGetter getter, NoiseValueDelegateSetter setter)
         {
-            this.selector = selector;
+            this.getter = getter;
+            this.setter = setter;
             this.currentPreset = currentPreset;
             model = CreatePlotModel();
         }
@@ -29,7 +32,7 @@ namespace BWGenerator.Models
             model.Axes.Add(new LinearAxis
             {
                 MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Solid
+                MinorGridlineStyle = LineStyle.Solid,
             });
 
             // X-axis (time)
@@ -47,11 +50,11 @@ namespace BWGenerator.Models
                 MarkerSize = 6,
                 MarkerStroke = OxyColors.White,
                 MarkerFill = OxyColors.SkyBlue,
-                MarkerStrokeThickness = 1.5
+                MarkerStrokeThickness = 1.5,
             };
 
-            foreach(var point in currentPreset.noisePoints)
-                s1.Points.Add(new DataPoint { X = point.Time, Y = selector(point) });
+            foreach (var point in currentPreset.noisePoints)
+                s1.Points.Add(new DataPoint { X = point.Time, Y = getter(point) });
 
             model.Series.Add(s1);
             s1.MouseDown += MouseDownHandler;
@@ -68,6 +71,12 @@ namespace BWGenerator.Models
             indexOfPointToMove = -1;
             model.InvalidatePlot(false);
             e.Handled = true;
+
+            for(int i = 0; i < currentSerie.Points.Count; ++i)
+            {
+                currentPreset.noisePoints[i].Time = currentSerie.Points[i].X;
+                setter(currentPreset.noisePoints[i], currentSerie.Points[i].Y);
+            }
         }
 
         void MouseMoveHandler(object sender, OxyMouseEventArgs e)
@@ -75,7 +84,16 @@ namespace BWGenerator.Models
             if (indexOfPointToMove == -1)
                 return;
 
-            currentSerie.Points[indexOfPointToMove] = currentSerie.InverseTransform(e.Position);
+            DataPoint modifiedPosition = currentSerie.InverseTransform(e.Position);
+            DataPoint currentPoint = currentSerie.Points[indexOfPointToMove];
+            if (indexOfPointToMove == 0 || indexOfPointToMove == currentSerie.Points.Count - 1)
+            {
+                currentSerie.Points[indexOfPointToMove] = new DataPoint(currentPoint.X, modifiedPosition.Y);
+            }
+            else
+            {
+                currentSerie.Points[indexOfPointToMove] = modifiedPosition;
+            }
             model.InvalidatePlot(false);
             e.Handled = true;
         }
@@ -92,12 +110,12 @@ namespace BWGenerator.Models
             {
                 indexOfPointToMove = indexOfNearestPoint;
             }
-            else
-            {
-                int i = (int)e.HitTestResult.Index + 1;
-                currentSerie.Points.Insert(i, currentSerie.InverseTransform(e.Position));
-                indexOfPointToMove = i;
-            }
+            //else
+            //{
+            //    int i = (int)e.HitTestResult.Index + 1;
+            //    currentSerie.Points.Insert(i, currentSerie.InverseTransform(e.Position));
+            //    indexOfPointToMove = i;
+            //}
 
             model.InvalidatePlot(false);
             e.Handled = true;
