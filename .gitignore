@@ -1,9 +1,17 @@
+/Asynchronous Client Socket Example/bin
+/Asynchronous Client Socket Example/obj
+/Asynchronous Server Socket Example/bin
+/Asynchronous Server Socket Example/obj
 /BWGenerator/bin/
 /BWGenerator/obj/
 /BWSitterGenerator/bin/
 /BWSitterGenerator/obj/
 /SharedContent/bin/
 /SharedContent/obj/
+/Synchronous Client Socket Example/bin
+/Synchronous Client Socket Example/obj
+/Synchronous Server Socket Example/bin
+/Synchronous Server Socket Example/obj
 /packages/
 *.user
 /.vs/
