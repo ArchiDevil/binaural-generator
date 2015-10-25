@@ -7,7 +7,7 @@ using NetworkLayer;
 namespace Tests
 {
     [TestClass]
-    public class ClientConnectionInterfaceTests
+    public class ClientTests
     {
         IServerConnectionInterface server = null;
         IClientConnectionInterface client = null;
@@ -16,8 +16,14 @@ namespace Tests
         public void StartServer()
         {
             server = new InternetServerConnectionInterface();
-            bool serverStartResult = server.Start(port);
+            bool serverStartResult = server.StartListening("localhost", port);
             Assert.IsTrue(serverStartResult);
+        }
+
+        public void EndServer()
+        {
+            server.Shutdown();
+            server = null;
         }
 
         public void StartClient()
@@ -27,23 +33,42 @@ namespace Tests
             Assert.IsTrue(clientStartResult);
         }
 
-        [TestMethod]
-        public void ServerStartTest()
+        public void EndClient()
         {
-            StartServer();
+            client.Disconnect();
+            client = null;
+        }
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            if (server != null)
+            {
+                EndServer();
+                server = null;
+            }
+
+            if (client != null)
+            {
+                EndClient();
+                client = null;
+            }
         }
 
         [TestMethod]
         public void ClientStartTest()
         {
+            StartServer();
             StartClient();
+            EndClient();
+            EndServer();
         }
 
         [TestMethod]
         public void ConnectionTest()
         {
-            StartServer();
-            StartClient();
+            // StartServer();
+            // StartClient();
         }
     }
 }

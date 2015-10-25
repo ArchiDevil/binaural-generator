@@ -8,8 +8,9 @@ namespace NetworkLayer
 {
     public interface IServerConnectionInterface
     {
-        bool Start(int port);
-        void Stop();
+        bool StartListening(int port);
+        bool StartListening(string bindPoint, int port);
+        void Shutdown();
 
         int Send(byte[] data);
         int Receive(byte[] data);

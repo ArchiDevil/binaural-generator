@@ -5,66 +5,116 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
     public class InternetServerConnectionInterface : IServerConnectionInterface
     {
-        string address = string.Empty;
+        string bindingPoint = string.Empty;
         int port = -1;
-        Socket listenerSocket = null;
+        List<Socket> listenerSockets = new List<Socket>();
+        Socket client = null;
+        ManualResetEvent stopExecution = new ManualResetEvent(false);
+        Thread runnerThread = null;
+        private bool isTermination = false;
 
-        public bool Start(int port)
+        private void Work()
         {
-            Stop();
+            byte[] buffer = new byte[1024];
+
+            int received = client.Receive(buffer);
+            string message = Encoding.ASCII.GetString(buffer, 0, received);
+            if (message.IndexOf("<EOF>") == -1)
+                return;
+
+            buffer = Encoding.ASCII.GetBytes("<EOF>");
+            client.Send(buffer);
+
+            while (true)
+            {
+
+            }
+        }
+
+        private void AsyncAcceptCallback(IAsyncResult result)
+        {
+            if (isTermination)
+                return;
+
+            Socket listener = result.AsyncState as Socket;
+            client = listener.EndAccept(result);
+
+            runnerThread = new Thread(Work);
+            runnerThread.Start();
+        }
+
+        public bool StartListening(int port)
+        {
+            return StartListening("", port);
+        }
+
+        public bool StartListening(string bindingPoint, int port)
+        {
+            Shutdown();
+            this.bindingPoint = bindingPoint;
             this.port = port;
 
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList.Where((a, i) => a.AddressFamily == AddressFamily.InterNetwork).First();
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
-            listenerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            IPHostEntry ipHostInfo = null;
+            if (bindingPoint.Length != 0)
+                ipHostInfo = Dns.GetHostEntry(bindingPoint);
+            else
+                ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
 
-            try
+            foreach (var address in ipHostInfo.AddressList)
             {
-                listenerSocket.Bind(localEndPoint);
-                listenerSocket.Listen(1);
+                if (address.AddressFamily != AddressFamily.InterNetwork)
+                    continue;
 
-                while (true)
+                IPEndPoint localEndPoint = new IPEndPoint(address, port);
+                Socket listenerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                listenerSockets.Add(listenerSocket);
+                try
                 {
-                    Socket handler = listenerSocket.Accept();
-                    string data = null;
-                    byte[] bytes = null;
-
-                    // An incoming connection needs to be processed.
-                    while (true)
-                    {
-                        bytes = new byte[1024];
-                        int bytesRec = handler.Receive(bytes);
-                        data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                        if (data.IndexOf("<EOF>") > -1)
-                            break;
-                    }
-
-                    byte[] msg = Encoding.ASCII.GetBytes(data);
-                    handler.Send(msg);
-
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
+                    listenerSocket.Bind(localEndPoint);
+                    listenerSocket.Listen(1);
+                    listenerSocket.BeginAccept(new AsyncCallback(AsyncAcceptCallback), listenerSocket);
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.Assert(false, e.Message);
-                return false;
+                catch (Exception e)
+                {
+                    Debug.Assert(false, e.Message);
+                    return false;
+                }
             }
 
             return true;
         }
 
-        public void Stop()
+        public void Shutdown()
         {
-            throw new NotImplementedException();
+            isTermination = true;
+
+            if (runnerThread != null)
+                runnerThread.Abort();
+
+            if (client != null)
+            {
+                if (client.Connected)
+                    client.Shutdown(SocketShutdown.Both);
+
+                client.Close(1000);
+                client = null;
+            }
+
+            if (listenerSockets != null && listenerSockets.Count > 0)
+            {
+                foreach (var socket in listenerSockets)
+                    socket.Close();
+
+                listenerSockets.Clear();
+                listenerSockets = null;
+            }
         }
 
         public int Receive(byte[] data)
