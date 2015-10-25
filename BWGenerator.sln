@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BWSitterGenerator", "BWSitt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "SharedContent\SharedLibrary.csproj", "{697F8CD6-F2A2-4A1B-A087-916A03C383EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synchronous Server Socket Example", "Synchronous Server Socket Example\Synchronous Server Socket Example.csproj", "{FA9C7BA3-6CB6-436B-A4D1-4A20F4FBB0D2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asynchronous Client Socket Example", "Asynchronous Client Socket Example\Asynchronous Client Socket Example.csproj", "{D935516E-64BF-4A4F-81A7-BD4DDAF5DF6B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asynchronous Server Socket Example", "Asynchronous Server Socket Example\Asynchronous Server Socket Example.csproj", "{669AA0CB-A1F3-424C-9665-D0BBE72A6DC8}"
@@ -37,10 +35,6 @@ Global
 		{697F8CD6-F2A2-4A1B-A087-916A03C383EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{697F8CD6-F2A2-4A1B-A087-916A03C383EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{697F8CD6-F2A2-4A1B-A087-916A03C383EC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FA9C7BA3-6CB6-436B-A4D1-4A20F4FBB0D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FA9C7BA3-6CB6-436B-A4D1-4A20F4FBB0D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FA9C7BA3-6CB6-436B-A4D1-4A20F4FBB0D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FA9C7BA3-6CB6-436B-A4D1-4A20F4FBB0D2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D935516E-64BF-4A4F-81A7-BD4DDAF5DF6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D935516E-64BF-4A4F-81A7-BD4DDAF5DF6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D935516E-64BF-4A4F-81A7-BD4DDAF5DF6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
