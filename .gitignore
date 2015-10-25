@@ -12,10 +12,6 @@
 /SharedContent/obj/
 /Tests/bin/
 /Tests/obj/
-/Synchronous Client Socket Example/bin
-/Synchronous Client Socket Example/obj
-/Synchronous Server Socket Example/bin
-/Synchronous Server Socket Example/obj
 /packages/
 *.user
 /.vs/
