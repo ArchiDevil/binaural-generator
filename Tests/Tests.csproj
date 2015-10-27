@@ -50,9 +50,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="ClientTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerTests.cs" />
+    <Compile Include="ServerClientTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetworkLayer\NetworkLayer.csproj">

@@ -17,26 +17,7 @@ namespace NetworkLayer
         List<Socket> listenerSockets = new List<Socket>();
         Socket client = null;
         ManualResetEvent stopExecution = new ManualResetEvent(false);
-        Thread runnerThread = null;
         private bool isTermination = false;
-
-        private void Work()
-        {
-            byte[] buffer = new byte[1024];
-
-            int received = client.Receive(buffer);
-            string message = Encoding.ASCII.GetString(buffer, 0, received);
-            if (message.IndexOf("<EOF>") == -1)
-                return;
-
-            buffer = Encoding.ASCII.GetBytes("<EOF>");
-            client.Send(buffer);
-
-            while (true)
-            {
-
-            }
-        }
 
         private void AsyncAcceptCallback(IAsyncResult result)
         {
@@ -44,10 +25,39 @@ namespace NetworkLayer
                 return;
 
             Socket listener = result.AsyncState as Socket;
+
+            if (client != null)
+            {
+                client.Close();
+                client = null;
+            }
+
             client = listener.EndAccept(result);
 
-            runnerThread = new Thread(Work);
-            runnerThread.Start();
+            listener.BeginAccept(new AsyncCallback(AsyncAcceptCallback), listener);
+
+            try
+            {
+                byte[] buffer = new byte[1024];
+                int received = client.Receive(buffer);
+                string message = Encoding.ASCII.GetString(buffer, 0, received);
+                if (message.IndexOf("<EOF>") == -1)
+                {
+                    throw new Exception("Wrong startup message");
+                }
+
+                buffer = Encoding.ASCII.GetBytes("<EOF>");
+                int sent = client.Send(buffer);
+                if (sent == 0)
+                {
+                    throw new Exception("Wrong startup message");
+                }
+            }
+            catch (Exception)
+            {
+                // unrecoverable error =(
+                Shutdown();
+            }
         }
 
         public bool StartListening(int port)
@@ -58,6 +68,7 @@ namespace NetworkLayer
         public bool StartListening(string bindingPoint, int port)
         {
             Shutdown();
+            isTermination = false;
             this.bindingPoint = bindingPoint;
             this.port = port;
 
@@ -95,15 +106,9 @@ namespace NetworkLayer
         {
             isTermination = true;
 
-            if (runnerThread != null)
-                runnerThread.Abort();
-
             if (client != null)
             {
-                if (client.Connected)
-                    client.Shutdown(SocketShutdown.Both);
-
-                client.Close(1000);
+                client.Close();
                 client = null;
             }
 
@@ -119,12 +124,18 @@ namespace NetworkLayer
 
         public int Receive(byte[] data)
         {
-            throw new NotImplementedException();
+            if (client == null)
+                return 0;
+
+            return client.Receive(data);
         }
 
         public int Send(byte[] data)
         {
-            throw new NotImplementedException();
+            if (client == null)
+                return 0;
+
+            return client.Send(data);
         }
 
         public Task<int> AsyncReceive(byte[] data)
@@ -133,6 +144,11 @@ namespace NetworkLayer
         }
 
         public Task<int> AsyncSend(byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsListening()
         {
             throw new NotImplementedException();
         }

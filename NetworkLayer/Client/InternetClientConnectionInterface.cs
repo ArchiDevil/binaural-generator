@@ -61,7 +61,6 @@ namespace NetworkLayer
         {
             if (sender != null)
             {
-                sender.Disconnect(false);
                 sender.Close();
                 sender = null;
             }
@@ -72,7 +71,7 @@ namespace NetworkLayer
             if (sender == null)
                 return 0;
 
-            throw new NotImplementedException();
+            return sender.Receive(data);
         }
 
         public int Send(byte[] data)
@@ -80,7 +79,7 @@ namespace NetworkLayer
             if (sender == null)
                 return 0;
 
-            throw new NotImplementedException();
+            return sender.Send(data);
         }
 
         public Task<int> AsyncReceive(byte[] data)

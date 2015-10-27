@@ -12,6 +12,8 @@ namespace NetworkLayer
         bool StartListening(string bindPoint, int port);
         void Shutdown();
 
+        bool IsListening();
+
         int Send(byte[] data);
         int Receive(byte[] data);
 
