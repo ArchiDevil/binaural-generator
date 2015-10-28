@@ -95,13 +95,57 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ServerHeavySendingTest()
+        {
+            StartServer();
+            StartClient();
+
+            int appendsCount = 16384;
+            StringBuilder b = new StringBuilder("Hello, World!");
+            for (int i = 0; i < appendsCount; ++i)
+            {
+                b.Append(", append value! =)");
+            }
+
+            string message = b.ToString();
+            byte[] msg = Encoding.ASCII.GetBytes(message);
+            int count = server.Send(msg);
+            Assert.AreEqual(message.Length, count);
+
+            EndClient();
+            EndServer();
+        }
+
+        [TestMethod]
         public void ServerFailedSendingTest()
         {
-            server = new InternetServerConnectionInterface();
+            StartServer();
+
             string message = "Hello, World!";
             byte[] msg = Encoding.ASCII.GetBytes(message);
             int count = server.Send(msg);
             Assert.AreEqual(0, count);
+
+            EndServer();
+        }
+
+        [TestMethod]
+        public void ServerFailedSendingAfterDisconnectTest()
+        {
+            StartServer();
+            StartClient();
+
+            string message = "Hello, World!";
+            byte[] msg = Encoding.ASCII.GetBytes(message);
+            int count = server.Send(msg);
+            Assert.AreEqual(message.Length, count);
+
+            EndClient();
+
+            count = server.Send(msg);
+            Assert.AreEqual(0, count);
+
+            EndServer();
         }
 
         [TestMethod]
@@ -124,12 +168,107 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ServerHeavyReceivingTest()
+        {
+            StartServer();
+            StartClient();
+
+            int appendsCount = 16384;
+            StringBuilder b = new StringBuilder("Hello, World!");
+            for (int i = 0; i < appendsCount; ++i)
+            {
+                b.Append(", append value! =)");
+            }
+
+            string message = b.ToString();
+            byte[] msg = Encoding.ASCII.GetBytes(message);
+            int count = 0;
+            count = client.Send(msg);
+            Assert.AreEqual(message.Length, count);
+
+            count = server.Receive(msg);
+            Assert.AreEqual(message, Encoding.ASCII.GetString(msg));
+
+            EndClient();
+            EndServer();
+        }
+
+        [TestMethod]
         public void ServerFailedReceivingTest()
         {
-            server = new InternetServerConnectionInterface();
+            StartServer();
+
             byte[] msg = new byte[1024];
             int count = server.Receive(msg);
             Assert.AreEqual(0, count);
+
+            EndServer();
+        }
+
+        [TestMethod]
+        public void ServerFailedReceivingAfterDisconnectTest()
+        {
+            StartServer();
+            StartClient();
+
+            string message = "Hello, World!";
+            byte[] msg = Encoding.ASCII.GetBytes(message);
+            int count = 0;
+            count = client.Send(msg);
+            Assert.AreEqual(message.Length, count);
+
+            count = server.Receive(msg);
+            Assert.AreEqual(message, Encoding.ASCII.GetString(msg));
+
+            EndClient();
+
+            count = server.Receive(msg);
+            Assert.AreEqual(0, count);
+
+            EndServer();
+        }
+
+        [TestMethod]
+        public void ServerAsyncSendTest()
+        {
+            StartServer();
+            StartClient();
+
+            string message = "Hello";
+            int count = server.AsyncSend(Encoding.ASCII.GetBytes(message)).Result;
+            Assert.AreEqual(message.Length, count);
+
+            EndClient();
+            EndServer();
+        }
+
+        [TestMethod]
+        public void ServerAsyncFailedSendTest()
+        {
+            StartServer();
+
+            string message = "Hello";
+            int count = server.AsyncSend(Encoding.ASCII.GetBytes(message)).Result;
+            Assert.AreEqual(0, count);
+
+            EndServer();
+        }
+
+        [TestMethod]
+        public void ServerIsListeningTest()
+        {
+            server = new InternetServerConnectionInterface();
+            server.StartListening(port);
+
+            Assert.AreEqual(true, server.IsListening());
+
+            server.Shutdown();
+            server = null;
+
+            server = new InternetServerConnectionInterface();
+            Assert.AreEqual(false, server.IsListening());
+            server.Shutdown();
+            server = null;
         }
 
         // client tests
@@ -148,16 +287,10 @@ namespace Tests
         {
             StartServer("");
 
-            Console.WriteLine("Starting client on 127.0.0.1");
             StartClient("127.0.0.1");
-
-            Console.WriteLine("Closing client");
             EndClient();
 
-            Console.WriteLine("Starting client on 127.0.0.1");
             StartClient("127.0.0.1");
-
-            Console.WriteLine("Closing client");
             EndClient();
 
             EndServer();

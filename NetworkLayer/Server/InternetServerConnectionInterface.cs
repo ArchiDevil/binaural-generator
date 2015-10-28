@@ -127,7 +127,17 @@ namespace NetworkLayer
             if (client == null)
                 return 0;
 
-            return client.Receive(data);
+            int count = 0;
+            try
+            {
+                count = client.Receive(data);
+            }
+            catch (SocketException)
+            {
+                client.Close();
+                client = null;
+            }
+            return count;
         }
 
         public int Send(byte[] data)
@@ -135,7 +145,17 @@ namespace NetworkLayer
             if (client == null)
                 return 0;
 
-            return client.Send(data);
+            int count = 0;
+            try
+            {
+                count = client.Send(data);
+            }
+            catch(SocketException)
+            {
+                client.Close();
+                client = null;
+            }
+            return count;
         }
 
         public Task<int> AsyncReceive(byte[] data)
@@ -145,12 +165,15 @@ namespace NetworkLayer
 
         public Task<int> AsyncSend(byte[] data)
         {
-            throw new NotImplementedException();
+            if (client == null)
+                return Task.FromResult(0);
+
+            return Task.Factory.StartNew(() => client.Send(data));
         }
 
         public bool IsListening()
         {
-            throw new NotImplementedException();
+            return listenerSockets.Count > 0;
         }
     }
 }
