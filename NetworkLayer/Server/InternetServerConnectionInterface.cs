@@ -150,7 +150,7 @@ namespace NetworkLayer
             {
                 count = client.Send(data);
             }
-            catch(SocketException)
+            catch (SocketException)
             {
                 client.Close();
                 client = null;
@@ -160,7 +160,10 @@ namespace NetworkLayer
 
         public Task<int> AsyncReceive(byte[] data)
         {
-            throw new NotImplementedException();
+            if (client == null)
+                return Task.FromResult(0);
+
+            return Task.Factory.StartNew(() => client.Receive(data));
         }
 
         public Task<int> AsyncSend(byte[] data)
@@ -173,6 +176,9 @@ namespace NetworkLayer
 
         public bool IsListening()
         {
+            if (listenerSockets == null)
+                return false;
+
             return listenerSockets.Count > 0;
         }
     }
