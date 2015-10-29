@@ -14,17 +14,11 @@ namespace NetworkLayer
     {
         string bindingPoint = string.Empty;
         int port = -1;
-        List<Socket> listenerSockets = new List<Socket>();
+        List<Socket> listenerSockets = null;
         Socket client = null;
-        ManualResetEvent stopExecution = new ManualResetEvent(false);
-        private bool isTermination = false;
 
-        private void AsyncAcceptCallback(IAsyncResult result)
+        private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
-            if (isTermination)
-                return;
-
-            Socket listener = result.AsyncState as Socket;
 
             if (client != null)
             {
@@ -32,9 +26,14 @@ namespace NetworkLayer
                 client = null;
             }
 
-            client = listener.EndAccept(result);
+            client = e.AcceptSocket;
 
-            listener.BeginAccept(new AsyncCallback(AsyncAcceptCallback), listener);
+            if (!client.Connected)
+                return;
+
+            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+            args.Completed += AcceptCompleted;
+            (sender as Socket).AcceptAsync(args);
 
             try
             {
@@ -68,7 +67,6 @@ namespace NetworkLayer
         public bool StartListening(string bindingPoint, int port)
         {
             Shutdown();
-            isTermination = false;
             this.bindingPoint = bindingPoint;
             this.port = port;
 
@@ -77,6 +75,9 @@ namespace NetworkLayer
                 ipHostInfo = Dns.GetHostEntry(bindingPoint);
             else
                 ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+
+            if (listenerSockets == null)
+                listenerSockets = new List<Socket>();
 
             foreach (var address in ipHostInfo.AddressList)
             {
@@ -90,7 +91,9 @@ namespace NetworkLayer
                 {
                     listenerSocket.Bind(localEndPoint);
                     listenerSocket.Listen(1);
-                    listenerSocket.BeginAccept(new AsyncCallback(AsyncAcceptCallback), listenerSocket);
+                    SocketAsyncEventArgs e = new SocketAsyncEventArgs();
+                    e.Completed += AcceptCompleted;
+                    listenerSocket.AcceptAsync(e);
                 }
                 catch (Exception e)
                 {
@@ -104,18 +107,19 @@ namespace NetworkLayer
 
         public void Shutdown()
         {
-            isTermination = true;
-
             if (client != null)
             {
                 client.Close();
                 client = null;
             }
 
-            if (listenerSockets != null && listenerSockets.Count > 0)
+            if (listenerSockets != null)
             {
                 foreach (var socket in listenerSockets)
+                {
                     socket.Close();
+                    socket.Dispose();
+                }
 
                 listenerSockets.Clear();
                 listenerSockets = null;

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -321,6 +317,36 @@ namespace Tests
             server = null;
         }
 
+        [TestMethod]
+        public void ServerCanAcceptReconnections()
+        {
+            StartServer();
+            StartClient();
+            for(int i = 0; i < 10; i++)
+            {
+                client.Disconnect();
+                Assert.IsTrue(client.Connect("localhost", port));
+            }
+            EndClient();
+            EndServer();
+        }
+
+        [TestMethod]
+        public void ServerCanRelisten()
+        {
+            StartServer();
+            StartClient();
+
+            client.Disconnect();
+            server.Shutdown();
+
+            Assert.IsTrue(server.StartListening("localhost", port));
+            Assert.IsTrue(client.Connect("localhost", port));
+
+            EndClient();
+            EndServer();
+        }
+
         // client tests
 
         [TestMethod]
@@ -344,6 +370,49 @@ namespace Tests
             EndClient();
 
             EndServer();
+        }
+
+        [TestMethod]
+        public void ClientSendingTest()
+        {
+            StartServer();
+            StartClient();
+
+            string message = "Hello!";
+            int count = client.Send(Encoding.ASCII.GetBytes(message));
+            Assert.AreEqual(message.Length, count);
+
+            EndClient();
+            EndServer();
+        }
+
+        [TestMethod]
+        public void ClientHeavySendingTest()
+        {
+            StartServer();
+            StartClient();
+
+            int appendsCount = 16384;
+            StringBuilder b = new StringBuilder("Hello, World!");
+            for (int i = 0; i < appendsCount; ++i)
+            {
+                b.Append(", append value! =)");
+            }
+
+            string message = b.ToString();
+            int count = client.Send(Encoding.ASCII.GetBytes(message));
+            Assert.AreEqual(message.Length, count);
+
+            EndServer();
+            EndClient();
+        }
+
+        [TestMethod]
+        public void ClientSendingFailedTest()
+        {
+            client = new InternetClientConnectionInterface();
+            int count = client.Send(Encoding.ASCII.GetBytes("Hello"));
+            Assert.AreEqual(0, count);
         }
     }
 }
