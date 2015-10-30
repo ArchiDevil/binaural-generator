@@ -74,28 +74,20 @@ namespace NetworkLayer
             return sender.Receive(data);
         }
 
+        public int Receive(byte[] data, int offset, int size)
+        {
+            if (sender == null)
+                return 0;
+
+            return sender.Receive(data, offset, size, SocketFlags.None);
+        }
+
         public int Send(byte[] data)
         {
             if (sender == null)
                 return 0;
 
             return sender.Send(data);
-        }
-
-        public Task<int> AsyncReceive(byte[] data)
-        {
-            if (sender == null)
-                return Task.FromResult(0);
-
-            throw new NotImplementedException();
-        }
-
-        public Task<int> AsyncSend(byte[] data)
-        {
-            if (sender == null)
-                return Task.FromResult(0);
-
-            throw new NotImplementedException();
         }
     }
 }

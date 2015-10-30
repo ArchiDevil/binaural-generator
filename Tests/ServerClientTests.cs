@@ -96,7 +96,7 @@ namespace Tests
             StartServer();
             StartClient();
 
-            int appendsCount = 16384;
+            int appendsCount = 1024 * 1024; // is about 10 mbytes of sent data
             StringBuilder b = new StringBuilder("Hello, World!");
             for (int i = 0; i < appendsCount; ++i)
             {
@@ -225,85 +225,6 @@ namespace Tests
         }
 
         [TestMethod]
-        public void ServerAsyncSendTest()
-        {
-            StartServer();
-            StartClient();
-
-            string message = "Hello";
-            int count = server.AsyncSend(Encoding.ASCII.GetBytes(message)).Result;
-            Assert.AreEqual(message.Length, count);
-
-            EndClient();
-            EndServer();
-        }
-
-        [TestMethod]
-        public void ServerAsyncHeavySendingTest()
-        {
-            StartServer();
-            StartClient();
-
-            int appendsCount = 16384;
-            StringBuilder b = new StringBuilder("Hello, World!");
-            for (int i = 0; i < appendsCount; ++i)
-            {
-                b.Append(", append value! =)");
-            }
-
-            string message = b.ToString();
-            byte[] msg = Encoding.ASCII.GetBytes(message);
-            int count = server.AsyncSend(msg).Result;
-            Assert.AreEqual(message.Length, count);
-
-            EndClient();
-            EndServer();
-        }
-
-        [TestMethod]
-        public void ServerAsyncFailedSendTest()
-        {
-            StartServer();
-
-            string message = "Hello";
-            int count = server.AsyncSend(Encoding.ASCII.GetBytes(message)).Result;
-            Assert.AreEqual(0, count);
-
-            EndServer();
-        }
-
-        [TestMethod]
-        public void ServerAsyncReceivingTest()
-        {
-            StartServer();
-            StartClient();
-
-            string message = "Hello, World!";
-            byte[] msg = Encoding.ASCII.GetBytes(message);
-            int count = 0;
-            count = client.Send(msg);
-            Assert.AreEqual(message.Length, count);
-
-            count = server.AsyncReceive(msg).Result;
-            Assert.AreEqual(message, Encoding.ASCII.GetString(msg));
-
-            EndClient();
-            EndServer();
-        }
-
-        [TestMethod]
-        public void ServerFailedAsyncReceivingTest()
-        {
-            StartServer();
-
-            byte[] msg = new byte[1024];
-            int count = server.AsyncReceive(msg).Result;
-            Assert.AreEqual(0, count);
-
-            EndServer();
-        }
-
-        [TestMethod]
         public void ServerIsListeningTest()
         {
             server = new InternetServerConnectionInterface();
@@ -392,7 +313,7 @@ namespace Tests
             StartServer();
             StartClient();
 
-            int appendsCount = 16384;
+            int appendsCount = 1024 * 1024;
             StringBuilder b = new StringBuilder("Hello, World!");
             for (int i = 0; i < appendsCount; ++i)
             {
@@ -413,6 +334,85 @@ namespace Tests
             client = new InternetClientConnectionInterface();
             int count = client.Send(Encoding.ASCII.GetBytes("Hello"));
             Assert.AreEqual(0, count);
+        }
+
+        [TestMethod]
+        public void ClientReceivingTest()
+        {
+            StartServer();
+            StartClient();
+
+            string message = "Hello";
+            server.Send(Encoding.ASCII.GetBytes(message));
+
+            byte[] received = new byte[1024];
+            int count = client.Receive(received);
+
+            Assert.AreEqual(message.Length, count);
+            if (Encoding.ASCII.GetString(received).IndexOf(message) == -1)
+                Assert.Fail();
+
+            EndServer();
+            EndClient();
+        }
+
+        [TestMethod]
+        public void ClientHeavyReceivingTest()
+        {
+            StartServer();
+            StartClient();
+
+            int appendsCount = 16384;
+            StringBuilder b = new StringBuilder("Hello, World!");
+            for (int i = 0; i < appendsCount; ++i)
+            {
+                b.Append(", append value! =)");
+            }
+
+            string message = b.ToString();
+            int count = server.Send(Encoding.ASCII.GetBytes(message));
+            Assert.AreEqual(message.Length, count);
+
+            int bufferSize = 1024 * 1024 * 20;
+            byte[] buffer = new byte[1024 * 1024 * 20]; // 20 mb buffer
+            int offset = 0;
+            while (offset != message.Length)
+            {
+                count = client.Receive(buffer, offset, bufferSize - offset);
+                offset += count;
+            }
+            count = offset;
+            Assert.AreEqual(message.Length, count);
+            
+            EndServer();
+            EndClient();
+        }
+
+        [TestMethod]
+        public void ClientReceivingFailedTest()
+        {
+            client = new InternetClientConnectionInterface();
+            byte[] msg = new byte[1024];
+            int count = client.Receive(msg);
+            Assert.AreEqual(0, count);
+        }
+
+        [TestMethod]
+        public void ClientCanReconnect()
+        {
+            StartServer();
+            StartClient();
+
+            int count = client.Send(Encoding.ASCII.GetBytes("Hello"));
+            Assert.AreEqual(5, count);
+            client.Disconnect();
+
+            client.Connect("localhost", port);
+            count = client.Send(Encoding.ASCII.GetBytes("Hello"));
+            Assert.AreEqual(5, count);
+
+            EndClient();
+            EndServer();
         }
     }
 }

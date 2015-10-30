@@ -16,8 +16,5 @@ namespace NetworkLayer
 
         int Send(byte[] data);
         int Receive(byte[] data);
-
-        Task<int> AsyncSend(byte[] data);
-        Task<int> AsyncReceive(byte[] data);
     }
 }

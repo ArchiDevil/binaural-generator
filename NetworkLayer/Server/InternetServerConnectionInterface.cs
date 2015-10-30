@@ -162,22 +162,6 @@ namespace NetworkLayer
             return count;
         }
 
-        public Task<int> AsyncReceive(byte[] data)
-        {
-            if (client == null)
-                return Task.FromResult(0);
-
-            return Task.Factory.StartNew(() => client.Receive(data));
-        }
-
-        public Task<int> AsyncSend(byte[] data)
-        {
-            if (client == null)
-                return Task.FromResult(0);
-
-            return Task.Factory.StartNew(() => client.Send(data));
-        }
-
         public bool IsListening()
         {
             if (listenerSockets == null)
