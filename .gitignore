@@ -2,8 +2,12 @@
 /BWGenerator/obj/
 /BWSitterGenerator/bin/
 /BWSitterGenerator/obj/
+/NetworkLayer/bin/
+/NetworkLayer/obj/
 /SharedContent/bin/
 /SharedContent/obj/
+/Tests/bin/
+/Tests/obj/
 /packages/
 *.user
 /.vs/
