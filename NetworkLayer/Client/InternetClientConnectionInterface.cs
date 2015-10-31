@@ -50,7 +50,6 @@ namespace NetworkLayer
             }
             catch (Exception e)
             {
-                Debug.Assert(false, e.Message);
                 return false;
             }
 

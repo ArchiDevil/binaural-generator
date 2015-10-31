@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
+    public delegate void ClientConnectedHandler();
+
     public interface IServerConnectionInterface
     {
         bool StartListening(int port);
@@ -16,5 +18,7 @@ namespace NetworkLayer
 
         int Send(byte[] data);
         int Receive(byte[] data);
+
+        event ClientConnectedHandler ClientConnected;
     }
 }

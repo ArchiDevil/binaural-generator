@@ -17,9 +17,10 @@ namespace NetworkLayer
         List<Socket> listenerSockets = null;
         Socket client = null;
 
+        public event ClientConnectedHandler ClientConnected = delegate { };
+
         private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
-
             if (client != null)
             {
                 client.Close();
@@ -51,6 +52,8 @@ namespace NetworkLayer
                 {
                     throw new Exception("Wrong startup message");
                 }
+
+                ClientConnected();
             }
             catch (Exception)
             {
