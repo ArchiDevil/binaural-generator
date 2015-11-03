@@ -65,12 +65,26 @@ namespace NetworkLayer
             }
         }
 
+        public int Send(byte[] data)
+        {
+            if (sender == null)
+                return 0;
+
+            int count = 0;
+            if (sender.Poll(-1, SelectMode.SelectWrite))
+                count = sender.Send(data);
+            return count;
+        }
+
         public int Receive(byte[] data)
         {
             if (sender == null)
                 return 0;
 
-            return sender.Receive(data);
+            int count = 0;
+            if (sender.Poll(-1, SelectMode.SelectWrite))
+                count = sender.Receive(data);
+            return count;
         }
 
         public int Receive(byte[] data, int offset, int size)
@@ -78,15 +92,10 @@ namespace NetworkLayer
             if (sender == null)
                 return 0;
 
-            return sender.Receive(data, offset, size, SocketFlags.None);
-        }
-
-        public int Send(byte[] data)
-        {
-            if (sender == null)
-                return 0;
-
-            return sender.Send(data);
+            int count = 0;
+            if (sender.Poll(-1, SelectMode.SelectWrite))
+                count = sender.Receive(data, offset, size, SocketFlags.None);
+            return count;
         }
     }
 }

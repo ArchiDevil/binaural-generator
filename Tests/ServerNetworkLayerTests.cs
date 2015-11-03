@@ -185,6 +185,25 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ServerReceivingTimeoutTest()
+        {
+            StartServer();
+            StartClient();
+
+            string message = "Hello, World!";
+            byte[] msg = Encoding.ASCII.GetBytes(message);
+            int count = 0;
+            count = client.Send(msg);
+            Assert.AreEqual(message.Length, count);
+
+            count = server.Receive(msg, 1000);
+            Assert.AreEqual(message, Encoding.ASCII.GetString(msg));
+
+            EndClient();
+            EndServer();
+        }
+
+        [TestMethod]
         public void ServerHeavyReceivingTest()
         {
             StartServer();
@@ -257,6 +276,17 @@ namespace Tests
             server.Shutdown();
             Assert.AreEqual(false, server.IsListening());
             server = null;
+        }
+
+        [TestMethod]
+        public void ServerIsClientConnectedTest()
+        {
+            StartServer();
+            Assert.IsFalse(server.IsClientConnected());
+
+            StartClient();
+            System.Threading.Thread.Sleep(200);
+            Assert.IsTrue(server.IsClientConnected());
         }
 
         [TestMethod]

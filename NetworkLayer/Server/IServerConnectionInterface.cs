@@ -15,9 +15,11 @@ namespace NetworkLayer
         void Shutdown();
 
         bool IsListening();
+        bool IsClientConnected();
 
         int Send(byte[] data);
         int Receive(byte[] data);
+        int Receive(byte[] data, int timeout);
 
         event ClientConnectedHandler ClientConnected;
     }

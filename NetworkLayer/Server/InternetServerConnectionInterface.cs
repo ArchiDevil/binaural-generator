@@ -55,8 +55,9 @@ namespace NetworkLayer
 
                 ClientConnected();
             }
-            catch (Exception)
+            catch (Exception exc)
             {
+                Debug.Assert(false, exc.Message);
                 // unrecoverable error =(
                 Shutdown();
             }
@@ -137,10 +138,36 @@ namespace NetworkLayer
             int count = 0;
             try
             {
-                count = client.Receive(data);
+                if (client.Poll(-1, SelectMode.SelectRead))
+                    count = client.Receive(data);
+                else
+                    count = 0;
             }
-            catch (SocketException)
+            catch (SocketException e)
             {
+                Debug.Assert(false, e.Message);
+                client.Close();
+                client = null;
+            }
+            return count;
+        }
+
+        public int Receive(byte[] data, int timeout)
+        {
+            if (client == null)
+                return 0;
+
+            int count = 0;
+            try
+            {
+                if (client.Poll(timeout * 1000, SelectMode.SelectRead))
+                    count = client.Receive(data);
+                else
+                    count = 0;
+            }
+            catch (SocketException e)
+            {
+                Debug.Assert(false, e.Message);
                 client.Close();
                 client = null;
             }
@@ -155,10 +182,14 @@ namespace NetworkLayer
             int count = 0;
             try
             {
-                count = client.Send(data);
+                if (client.Poll(-1, SelectMode.SelectWrite))
+                    count = client.Send(data);
+                else
+                    count = 0;
             }
-            catch (SocketException)
+            catch (SocketException e)
             {
+                Debug.Assert(false, e.Message);
                 client.Close();
                 client = null;
             }
@@ -171,6 +202,11 @@ namespace NetworkLayer
                 return false;
 
             return listenerSockets.Count > 0;
+        }
+
+        public bool IsClientConnected()
+        {
+            return client != null;
         }
     }
 }
