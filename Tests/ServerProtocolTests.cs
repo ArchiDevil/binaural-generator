@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,6 +14,16 @@ namespace Tests
         InternetClientConnectionInterface client = null;
 
         int protocolPort = ServerProtocol.protocolPort;
+
+        byte[] CreateInfoPacket()
+        {
+            string message = "Test client";
+            byte[] msg = new byte[256];
+            msg[0] = 2; // client info packet type
+            BitConverter.GetBytes(message.Length).CopyTo(msg, 1);
+            Encoding.UTF8.GetBytes(message).CopyTo(msg, 5);
+            return msg;
+        }
 
         [TestInitialize]
         public void Initialize()
@@ -69,7 +80,10 @@ namespace Tests
             protocol.ClientConnected += (args) => e.Set();
             client.Connect("localhost", protocolPort);
 
-            if (!e.WaitOne(5000))
+            // client info packet
+            client.Send(CreateInfoPacket());
+
+            if (!e.WaitOne(50000))
                 Assert.Fail();
         }
 
@@ -83,11 +97,15 @@ namespace Tests
             protocol.ClientConnected += (info) => { e.Set(); receivedInfo = info; };
             client.Connect("localhost", protocolPort);
 
+            // client info packet
+            string message = "Test client";
+            client.Send(CreateInfoPacket());
+
             if (!e.WaitOne(5000))
                 Assert.Fail();
 
             Assert.AreNotEqual(null, receivedInfo);
-            Assert.AreEqual("Test client", receivedInfo.clientName);
+            Assert.AreEqual(message, receivedInfo.clientName);
         }
 
         [TestMethod]
@@ -98,6 +116,7 @@ namespace Tests
             protocol.Bind("localhost");
             protocol.ClientConnected += (args) => e.Set();
             client.Connect("localhost", protocolPort);
+            client.Send(CreateInfoPacket());
 
             if (!e.WaitOne(5000))
                 Assert.Fail();
@@ -122,6 +141,7 @@ namespace Tests
             protocol.Bind("localhost");
             protocol.ClientConnected += (args) => e.Set();
             client.Connect("localhost", protocolPort);
+            client.Send(CreateInfoPacket());
 
             SensorsData sensorsData = new SensorsData
             {
@@ -161,6 +181,7 @@ namespace Tests
             protocol.Bind("localhost");
             protocol.ClientConnected += (args) => e.Set();
             client.Connect("localhost", protocolPort);
+            client.Send(CreateInfoPacket());
 
             VoiceWindowData voiceData = new VoiceWindowData();
             for(int i = 0; i < voiceData.data.Length; ++i)

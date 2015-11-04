@@ -22,8 +22,6 @@ namespace NetworkLayer
         public delegate void VoiceWindowReceiveHandler(VoiceWindowData e);
         public delegate void ChatMessageReceiveHandler(string e);
 
-        ManualResetEvent clientInfoReceived = new ManualResetEvent(false);
-
         ManualResetEvent sendingThreadStopped = new ManualResetEvent(false);
         ManualResetEvent receivingThreadStopped = new ManualResetEvent(false);
 
@@ -122,7 +120,6 @@ namespace NetworkLayer
 
         public void Stop()
         {
-            clientInfoReceived.Set();
             if (sendingWorker != null)
             {
                 sendingTerminate = true;
@@ -206,8 +203,6 @@ namespace NetworkLayer
             MemoryStream stream = new MemoryStream();
             formatter.Serialize(stream, protocolInfo);
 
-            clientInfoReceived.Reset();
-
             SendPacket(PacketType.ProtocolInfoMessage, stream.GetBuffer());
 
             lock (connectionInterface)
@@ -216,6 +211,19 @@ namespace NetworkLayer
                 int count = connectionInterface.Receive(buffer, 5000);
                 if (count > 0)
                 {
+                    //check info here
+                    if(buffer[0] != (byte)PacketType.ClientInfoMessage)
+                        return;
+
+                    int packetSize = BitConverter.ToInt32(buffer, 1);
+                    if (packetSize <= 0)
+                        return;
+
+                    ClientInfo info = new ClientInfo();
+                    info.clientName = Encoding.UTF8.GetString(buffer, 5, packetSize);
+                    ClientConnected(info);
+
+                    // everything is ok, start working
                     sendingThreadStopped.Reset();
                     sendingWorker = new Thread(SendingWorker);
                     sendingWorker.Start();
@@ -223,11 +231,6 @@ namespace NetworkLayer
                     receivingThreadStopped.Reset();
                     receivingWorker = new Thread(ReceivingWorker);
                     receivingWorker.Start();
-
-                    clientInfoReceived.WaitOne();
-
-                    ClientInfo info = this.info;
-                    ClientConnected(info);
                 }
             }
         }
@@ -237,7 +240,6 @@ namespace NetworkLayer
         private void ClientInfoReceived(ClientInfo e)
         {
             info = e;
-            clientInfoReceived.Set();
         }
 
         public event ClientConnectionHandler ClientConnected = delegate { };
