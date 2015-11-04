@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
-    public class InternetClientConnectionInterface : IClientConnectionInterface
+    public class InternetClientConnectionInterface : IClientConnectionInterface, IDisposable
     {
         string address = string.Empty;
         int port = -1;
@@ -96,6 +96,12 @@ namespace NetworkLayer
             if (sender.Poll(-1, SelectMode.SelectWrite))
                 count = sender.Receive(data, offset, size, SocketFlags.None);
             return count;
+        }
+
+        public void Dispose()
+        {
+            if(sender != null)
+                sender.Close();
         }
     }
 }

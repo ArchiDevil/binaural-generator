@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
-    public delegate void ClientConnectedHandler();
+    public delegate void ClientConnectedHandler(object sender, EventArgs e);
 
     public interface IServerConnectionInterface
     {

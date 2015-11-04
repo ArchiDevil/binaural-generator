@@ -81,7 +81,7 @@ namespace Tests
             bool flag = false;
 
             StartServer();
-            server.ClientConnected += () => { flag = true; };
+            server.ClientConnected += (s, e) => { flag = true; };
 
             StartClient();
 

@@ -74,34 +74,34 @@ namespace Tests
         [TestMethod]
         public void ProtocolEventOnClientConnected()
         {
-            ManualResetEvent e = new ManualResetEvent(false);
+            ManualResetEvent ev = new ManualResetEvent(false);
 
             protocol.Bind("localhost");
-            protocol.ClientConnected += (args) => e.Set();
+            protocol.ClientConnected += (s, e) => ev.Set();
             client.Connect("localhost", protocolPort);
 
             // client info packet
             client.Send(CreateInfoPacket());
 
-            if (!e.WaitOne(50000))
+            if (!ev.WaitOne(50000))
                 Assert.Fail();
         }
 
         [TestMethod]
         public void ProtocolEventOnClientConnectedCheckInfo()
         {
-            ManualResetEvent e = new ManualResetEvent(false);
-            ClientInfo receivedInfo = null;
+            ManualResetEvent ev = new ManualResetEvent(false);
+            ClientInfoEventArgs receivedInfo = null;
 
             protocol.Bind("localhost");
-            protocol.ClientConnected += (info) => { e.Set(); receivedInfo = info; };
+            protocol.ClientConnected += (s, e) => { ev.Set(); receivedInfo = e; };
             client.Connect("localhost", protocolPort);
 
             // client info packet
             string message = "Test client";
             client.Send(CreateInfoPacket());
 
-            if (!e.WaitOne(5000))
+            if (!ev.WaitOne(5000))
                 Assert.Fail();
 
             Assert.AreNotEqual(null, receivedInfo);
@@ -111,14 +111,14 @@ namespace Tests
         [TestMethod]
         public void ProtocolSendChatMessage()
         {
-            ManualResetEvent e = new ManualResetEvent(false);
+            ManualResetEvent ev = new ManualResetEvent(false);
 
             protocol.Bind("localhost");
-            protocol.ClientConnected += (args) => e.Set();
+            protocol.ClientConnected += (s, e) => ev.Set();
             client.Connect("localhost", protocolPort);
             client.Send(CreateInfoPacket());
 
-            if (!e.WaitOne(5000))
+            if (!ev.WaitOne(5000))
                 Assert.Fail();
 
             Assert.IsTrue(protocol.SendChatMessage("Hello"));
@@ -136,14 +136,14 @@ namespace Tests
         [TestMethod]
         public void ProtocolSendSensorsData()
         {
-            ManualResetEvent e = new ManualResetEvent(false);
+            ManualResetEvent ev = new ManualResetEvent(false);
 
             protocol.Bind("localhost");
-            protocol.ClientConnected += (args) => e.Set();
+            protocol.ClientConnected += (s, e) => ev.Set();
             client.Connect("localhost", protocolPort);
             client.Send(CreateInfoPacket());
 
-            SensorsData sensorsData = new SensorsData
+            SensorsDataEventArgs sensorsData = new SensorsDataEventArgs
             {
                 motionValue = 1.0,
                 pulseValue = 64.0,
@@ -151,7 +151,7 @@ namespace Tests
                 temperatureValue = 36.6
             };
 
-            if (!e.WaitOne(5000))
+            if (!ev.WaitOne(5000))
                 Assert.Fail();
 
             Assert.IsTrue(protocol.SendSensorsData(sensorsData));
@@ -161,7 +161,7 @@ namespace Tests
         public void ProtocolSendSensorsDataFailed()
         {
             protocol.Bind("localhost");
-            SensorsData sensorsData = new SensorsData
+            SensorsDataEventArgs sensorsData = new SensorsDataEventArgs
             {
                 motionValue = 1.0,
                 pulseValue = 64.0,
@@ -176,20 +176,20 @@ namespace Tests
         [TestMethod]
         public void ProtocolSendVoiceWindow()
         {
-            ManualResetEvent e = new ManualResetEvent(false);
+            ManualResetEvent ev = new ManualResetEvent(false);
 
             protocol.Bind("localhost");
-            protocol.ClientConnected += (args) => e.Set();
+            protocol.ClientConnected += (s, e) => ev.Set();
             client.Connect("localhost", protocolPort);
             client.Send(CreateInfoPacket());
 
-            VoiceWindowData voiceData = new VoiceWindowData();
+            VoiceWindowDataEventArgs voiceData = new VoiceWindowDataEventArgs();
             for(int i = 0; i < voiceData.data.Length; ++i)
             {
                 voiceData.data[i] = (byte)i;
             }
 
-            if (!e.WaitOne(5000))
+            if (!ev.WaitOne(5000))
                 Assert.Fail();
 
             Assert.IsTrue(protocol.SendVoiceWindow(voiceData));
@@ -199,7 +199,7 @@ namespace Tests
         public void ProtocolSendVoiceWindowFailed()
         {
             protocol.Bind("localhost");
-            VoiceWindowData voiceData = new VoiceWindowData();
+            VoiceWindowDataEventArgs voiceData = new VoiceWindowDataEventArgs();
             for (int i = 0; i < voiceData.data.Length; ++i)
             {
                 voiceData.data[i] = (byte)i;

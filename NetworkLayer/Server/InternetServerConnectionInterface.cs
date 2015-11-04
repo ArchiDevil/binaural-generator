@@ -53,7 +53,7 @@ namespace NetworkLayer
                     throw new Exception("Wrong startup message");
                 }
 
-                ClientConnected();
+                ClientConnected(this, new EventArgs());
             }
             catch (Exception exc)
             {
@@ -121,7 +121,6 @@ namespace NetworkLayer
             {
                 foreach (var socket in listenerSockets)
                 {
-                    socket.Close();
                     socket.Dispose();
                 }
 

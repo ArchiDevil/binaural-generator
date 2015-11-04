@@ -17,10 +17,10 @@ namespace NetworkLayer
         Thread receivingWorker = null;
 
         public const int protocolPort = 31012;
-        public delegate void ClientConnectionHandler(ClientInfo e);
-        public delegate void SettingsReceiveHandler(SettingsData e);
-        public delegate void VoiceWindowReceiveHandler(VoiceWindowData e);
-        public delegate void ChatMessageReceiveHandler(string e);
+        public delegate void ClientConnectionHandler(object sender, ClientInfoEventArgs e);
+        public delegate void SettingsReceiveHandler(object sender, SettingsDataEventArgs e);
+        public delegate void VoiceWindowReceiveHandler(object sender, VoiceWindowDataEventArgs e);
+        public delegate void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e);
 
         ManualResetEvent sendingThreadStopped = new ManualResetEvent(false);
         ManualResetEvent receivingThreadStopped = new ManualResetEvent(false);
@@ -85,7 +85,7 @@ namespace NetworkLayer
                         case PacketType.ChatMessage:
                             break;
                         case PacketType.ClientInfoMessage:
-                            ClientInfoReceived((ClientInfo)b.Deserialize(m));
+                            ClientInfoReceived((ClientInfoEventArgs)b.Deserialize(m));
                             break;
                         case PacketType.ProtocolInfoMessage:
                             break;
@@ -146,7 +146,7 @@ namespace NetworkLayer
             }
         }
 
-        public bool SendSensorsData(SensorsData data)
+        public bool SendSensorsData(SensorsDataEventArgs data)
         {
             if (data == null)
                 return false;
@@ -161,7 +161,7 @@ namespace NetworkLayer
             return SendPacket(PacketType.SensorsMessage, packetData);
         }
 
-        public bool SendVoiceWindow(VoiceWindowData data)
+        public bool SendVoiceWindow(VoiceWindowDataEventArgs data)
         {
             if (data == null || data.data == null)
                 return false;
@@ -196,7 +196,7 @@ namespace NetworkLayer
             return true;
         }
 
-        private void ClientConnectedEvent()
+        private void ClientConnectedEvent(object sender, EventArgs e)
         {
             ProtocolInfo protocolInfo = new ProtocolInfo();
             BinaryFormatter formatter = new BinaryFormatter();
@@ -219,9 +219,9 @@ namespace NetworkLayer
                     if (packetSize <= 0)
                         return;
 
-                    ClientInfo info = new ClientInfo();
+                    ClientInfoEventArgs info = new ClientInfoEventArgs();
                     info.clientName = Encoding.UTF8.GetString(buffer, 5, packetSize);
-                    ClientConnected(info);
+                    ClientConnected(this, info);
 
                     // everything is ok, start working
                     sendingThreadStopped.Reset();
@@ -235,9 +235,9 @@ namespace NetworkLayer
             }
         }
 
-        ClientInfo info = null;
+        ClientInfoEventArgs info = null;
 
-        private void ClientInfoReceived(ClientInfo e)
+        private void ClientInfoReceived(ClientInfoEventArgs e)
         {
             info = e;
         }

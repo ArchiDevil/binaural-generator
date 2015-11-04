@@ -64,7 +64,7 @@ namespace NetworkLayer
     /// This information needed to identify client and store logs with unique
     /// identificator to classify experiments and subjects.
     /// </summary>
-    public class ClientInfo
+    public class ClientInfoEventArgs : EventArgs
     {
         public string clientName = null;
     }
@@ -74,14 +74,14 @@ namespace NetworkLayer
     /// binaural waves set, noise set, additional sounds if needed.
     /// This class is managed by experimenter and applied directly to sound core.
     /// </summary>
-    public class SettingsData
+    public class SettingsDataEventArgs : EventArgs
     {
     }
 
     /// <summary>
     /// This class contains all sensors data.
     /// </summary>
-    public class SensorsData
+    public class SensorsDataEventArgs : EventArgs
     {
         public double temperatureValue { get; set; } = 0.0;
         public double skinResistanceValue { get; set; } = 0.0;
@@ -92,8 +92,13 @@ namespace NetworkLayer
     /// <summary>
     /// This class contains samples from microphone to send it to another side.
     /// </summary>
-    public class VoiceWindowData
+    public class VoiceWindowDataEventArgs : EventArgs
     {
         public byte[] data = new byte[44100]; // sampling rate is 44100 Hz
+    }
+
+    public class ClientChatMessageEventArgs : EventArgs
+    {
+        string message = "";
     }
 }
