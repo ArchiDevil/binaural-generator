@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
@@ -48,8 +46,9 @@ namespace NetworkLayer
                     return false;
                 }
             }
-            catch (Exception)
+            catch (Exception /*e*/)
             {
+                //Debug.Assert(false, e.Message);
                 return false;
             }
 
@@ -60,7 +59,11 @@ namespace NetworkLayer
         {
             if (sender != null)
             {
-                sender.Close();
+                if (sender.IsConnected() && sender.Connected)
+                {
+                    sender.Shutdown(SocketShutdown.Both);
+                    sender.Close();
+                }
                 sender = null;
             }
         }
@@ -82,7 +85,18 @@ namespace NetworkLayer
                 return 0;
 
             int count = 0;
-            if (sender.Poll(-1, SelectMode.SelectWrite))
+            if (sender.Poll(-1, SelectMode.SelectRead))
+                count = sender.Receive(data);
+            return count;
+        }
+
+        public int Receive(byte[] data, int millisecondsTimeout)
+        {
+            if (sender == null)
+                return 0;
+
+            int count = 0;
+            if (sender.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead))
                 count = sender.Receive(data);
             return count;
         }
@@ -100,7 +114,7 @@ namespace NetworkLayer
 
         public void Dispose()
         {
-            if(sender != null)
+            if (sender != null)
                 sender.Close();
         }
     }

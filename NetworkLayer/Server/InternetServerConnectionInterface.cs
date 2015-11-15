@@ -10,14 +10,27 @@ using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
+    public static class SocketExtensions
+    {
+        public static bool IsConnected(this Socket socket)
+        {
+            try
+            {
+                return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
+            }
+            catch (SocketException) { return false; }
+        }
+    }
+
     public class InternetServerConnectionInterface : IServerConnectionInterface
     {
         string bindingPoint = string.Empty;
-        int port = -1;
+        ushort port = 0;
         List<Socket> listenerSockets = null;
         Socket client = null;
 
-        public event ClientConnectedHandler ClientConnected = delegate { };
+        public event ClientConnectedHandler ClientConnected = delegate
+        { };
 
         private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
@@ -63,12 +76,12 @@ namespace NetworkLayer
             }
         }
 
-        public bool StartListening(int port)
+        public bool StartListening(ushort port)
         {
             return StartListening("", port);
         }
 
-        public bool StartListening(string bindingPoint, int port)
+        public bool StartListening(string bindingPoint, ushort port)
         {
             Shutdown();
             this.bindingPoint = bindingPoint;
@@ -137,10 +150,8 @@ namespace NetworkLayer
             int count = 0;
             try
             {
-                if (client.Poll(-1, SelectMode.SelectRead))
+                if (client.Poll(-1, SelectMode.SelectRead) && client.IsConnected())
                     count = client.Receive(data);
-                else
-                    count = 0;
             }
             catch (SocketException e)
             {
@@ -151,7 +162,7 @@ namespace NetworkLayer
             return count;
         }
 
-        public int Receive(byte[] data, int timeout)
+        public int Receive(byte[] data, int millisecondsTimeout)
         {
             if (client == null)
                 return 0;
@@ -159,10 +170,8 @@ namespace NetworkLayer
             int count = 0;
             try
             {
-                if (client.Poll(timeout * 1000, SelectMode.SelectRead))
+                if (client.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead) && client.IsConnected())
                     count = client.Receive(data);
-                else
-                    count = 0;
             }
             catch (SocketException e)
             {
@@ -181,10 +190,8 @@ namespace NetworkLayer
             int count = 0;
             try
             {
-                if (client.Poll(-1, SelectMode.SelectWrite))
+                if (client.IsConnected())
                     count = client.Send(data);
-                else
-                    count = 0;
             }
             catch (SocketException e)
             {

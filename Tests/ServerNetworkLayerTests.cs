@@ -1,5 +1,5 @@
 ﻿using System.Text;
-
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NetworkLayer;
@@ -11,7 +11,7 @@ namespace Tests
     {
         InternetServerConnectionInterface server = null;
         InternetClientConnectionInterface client = null;
-        int port = 11000;
+        ushort port = 11000;
 
         public void StartServer(string bindingPoint = "localhost")
         {
@@ -78,19 +78,16 @@ namespace Tests
         [TestMethod]
         public void ServerClientConnectedEventTest()
         {
-            bool flag = false;
+            ManualResetEvent ev = new ManualResetEvent(false);
 
             StartServer();
-            server.ClientConnected += (s, e) => { flag = true; };
+            server.ClientConnected += (s, e) => { ev.Set(); };
 
             StartClient();
 
             // wait till event receive
-            for(int i = 0; i < 1000000; ++i)
-                if (flag)
-                    break;
-
-            Assert.IsTrue(flag);
+            if (!ev.WaitOne(5000))
+                Assert.Fail();
 
             EndClient();
             EndServer();
@@ -294,7 +291,7 @@ namespace Tests
         {
             StartServer();
             StartClient();
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 client.Disconnect();
                 Assert.IsTrue(client.Connect("localhost", port));

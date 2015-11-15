@@ -11,7 +11,7 @@ namespace Tests
     {
         InternetServerConnectionInterface server = null;
         InternetClientConnectionInterface client = null;
-        int port = 11000;
+        ushort port = 11000;
 
         public void StartServer(string bindingPoint = "localhost")
         {
@@ -122,6 +122,26 @@ namespace Tests
 
             byte[] received = new byte[1024];
             int count = client.Receive(received);
+
+            Assert.AreEqual(message.Length, count);
+            if (Encoding.ASCII.GetString(received).IndexOf(message) == -1)
+                Assert.Fail();
+
+            EndServer();
+            EndClient();
+        }
+
+        [TestMethod]
+        public void ClientReceivingTimeoutTest()
+        {
+            StartServer();
+            StartClient();
+
+            string message = "Hello";
+            server.Send(Encoding.ASCII.GetBytes(message));
+
+            byte[] received = new byte[1024];
+            int count = client.Receive(received, 1000);
 
             Assert.AreEqual(message.Length, count);
             if (Encoding.ASCII.GetString(received).IndexOf(message) == -1)

@@ -31,6 +31,13 @@ namespace NetworkLayer
         bool sendingTerminate = false;
         bool receivingTerminate = false;
 
+        string serverName = null;
+
+        public ServerProtocol(string serverName)
+        {
+            this.serverName = serverName;
+        }
+
         private void SendingWorker()
         {
             while (true)
@@ -64,18 +71,19 @@ namespace NetworkLayer
                     break;
 
                 byte[] temporalBuffer = new byte[1024];
-                int receivedCount = connectionInterface.Receive(temporalBuffer);
+                int receivedCount = connectionInterface.Receive(temporalBuffer, 100);
                 receivedBuffer.AddRange(temporalBuffer.Take(receivedCount));
 
                 while (receivedBuffer.Count > 0)
                 {
-                    PacketType type = (PacketType)receivedBuffer[0];
-                    int packetDataSize = BitConverter.ToInt32(receivedBuffer.Skip(1).Take(sizeof(int)).ToArray(), 0);
+                    byte[] protocolHeader = receivedBuffer.Take(sizeof(PacketType) + sizeof(int)).ToArray();
+                    PacketType type = (PacketType)protocolHeader[0];
+                    int packetDataSize = BitConverter.ToInt32(protocolHeader, 1);
 
                     if (receivedBuffer.Count < 1 + sizeof(int) + packetDataSize)
                         break;
 
-                    byte[] packetData = receivedBuffer.Skip(1 + sizeof(int)).Take(packetDataSize).ToArray();
+                    byte[] packetData = receivedBuffer.Skip(sizeof(PacketType) + sizeof(int)).Take(packetDataSize).ToArray();
                     receivedBuffer.RemoveRange(0, 1 + sizeof(int) + packetDataSize);
                     MemoryStream m = new MemoryStream(packetData);
                     BinaryFormatter b = new BinaryFormatter();
@@ -83,18 +91,28 @@ namespace NetworkLayer
                     switch (type)
                     {
                         case PacketType.ChatMessage:
-                            break;
-                        case PacketType.ClientInfoMessage:
-                            ClientInfoReceived((ClientInfoEventArgs)b.Deserialize(m));
-                            break;
+                            {
+                                ClientChatMessageEventArgs args = null;
+                                args = (ClientChatMessageEventArgs)b.Deserialize(m);
+                                ChatMessageReceive(this, args);
+                                break;
+                            }
                         case PacketType.ProtocolInfoMessage:
                             break;
-                        case PacketType.SensorsMessage:
-                            break;
                         case PacketType.SettingsMessage:
-                            break;
+                            {
+                                SettingsDataEventArgs args = null;
+                                args = (SettingsDataEventArgs)b.Deserialize(m);
+                                SettingsReceive(this, args);
+                                break;
+                            }
                         case PacketType.VoiceMessage:
-                            break;
+                            {
+                                VoiceWindowDataEventArgs args = null;
+                                args = (VoiceWindowDataEventArgs)b.Deserialize(m);
+                                VoiceWindowReceive(this, args);
+                                break;
+                            }
                         case PacketType.Unknown:
                         default:
                             throw new Exception("Unknown protocol message");
@@ -151,14 +169,10 @@ namespace NetworkLayer
             if (data == null)
                 return false;
 
-            // 4 double fields
-            byte[] packetData = new byte[sizeof(double) * 4];
-            BitConverter.GetBytes(data.temperatureValue).CopyTo(packetData, sizeof(double) * 0);
-            BitConverter.GetBytes(data.skinResistanceValue).CopyTo(packetData, sizeof(double) * 1);
-            BitConverter.GetBytes(data.motionValue).CopyTo(packetData, sizeof(double) * 2);
-            BitConverter.GetBytes(data.pulseValue).CopyTo(packetData, sizeof(double) * 3);
-
-            return SendPacket(PacketType.SensorsMessage, packetData);
+            MemoryStream m = new MemoryStream();
+            BinaryFormatter b = new BinaryFormatter();
+            b.Serialize(m, data);
+            return SendPacket(PacketType.SensorsMessage, m.GetBuffer());
         }
 
         public bool SendVoiceWindow(VoiceWindowDataEventArgs data)
@@ -166,7 +180,10 @@ namespace NetworkLayer
             if (data == null || data.data == null)
                 return false;
 
-            return SendPacket(PacketType.VoiceMessage, data.data);
+            MemoryStream m = new MemoryStream();
+            BinaryFormatter b = new BinaryFormatter();
+            b.Serialize(m, data);
+            return SendPacket(PacketType.SensorsMessage, m.GetBuffer());
         }
 
         public bool SendChatMessage(string message)
@@ -174,8 +191,12 @@ namespace NetworkLayer
             if (message == null)
                 return false;
 
-            byte[] msgData = Encoding.UTF8.GetBytes(message);
-            return SendPacket(PacketType.ChatMessage, msgData);
+            MemoryStream m = new MemoryStream();
+            BinaryFormatter b = new BinaryFormatter();
+            ClientChatMessageEventArgs msg = new ClientChatMessageEventArgs();
+            msg.message = message;
+            b.Serialize(m, msg);
+            return SendPacket(PacketType.SensorsMessage, m.GetBuffer());
         }
 
         public void Dispose()
@@ -212,7 +233,7 @@ namespace NetworkLayer
                 if (count > 0)
                 {
                     //check info here
-                    if(buffer[0] != (byte)PacketType.ClientInfoMessage)
+                    if (buffer[0] != (byte)PacketType.ClientInfoMessage)
                         return;
 
                     int packetSize = BitConverter.ToInt32(buffer, 1);
@@ -222,6 +243,11 @@ namespace NetworkLayer
                     ClientInfoEventArgs info = new ClientInfoEventArgs();
                     info.clientName = Encoding.UTF8.GetString(buffer, 5, packetSize);
                     ClientConnected(this, info);
+
+                    ServerInfoEventArgs serverInfo = new ServerInfoEventArgs { serverName = this.serverName };
+                    stream = new MemoryStream();
+                    formatter.Serialize(stream, serverInfo);
+                    SendPacket(PacketType.ServerInfoMessage, stream.GetBuffer());
 
                     // everything is ok, start working
                     sendingThreadStopped.Reset();
@@ -235,16 +261,13 @@ namespace NetworkLayer
             }
         }
 
-        ClientInfoEventArgs info = null;
-
-        private void ClientInfoReceived(ClientInfoEventArgs e)
-        {
-            info = e;
-        }
-
-        public event ClientConnectionHandler ClientConnected = delegate { };
-        public event SettingsReceiveHandler SettingsReceive = delegate { };
-        public event VoiceWindowReceiveHandler VoiceWindowReceive = delegate { };
-        public event ChatMessageReceiveHandler ChatMessageReceive = delegate { };
+        public event ClientConnectionHandler ClientConnected = delegate
+        { };
+        public event SettingsReceiveHandler SettingsReceive = delegate
+        { };
+        public event VoiceWindowReceiveHandler VoiceWindowReceive = delegate
+        { };
+        public event ChatMessageReceiveHandler ChatMessageReceive = delegate
+        { };
     }
 }
