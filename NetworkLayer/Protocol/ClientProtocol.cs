@@ -4,15 +4,49 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetworkLayer
+namespace NetworkLayer.Protocol
 {
     public class ClientProtocol
     {
+        public delegate void SensorsReceiveHandler(object sender, SensorsDataEventArgs e);
+        public delegate void VoiceWindowReceiveHandler(object sender, VoiceWindowDataEventArgs e);
+        public delegate void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e);
+
         IClientConnectionInterface connectionInterface = null;
 
-        ClientProtocol(IClientConnectionInterface connectionInterface)
+        public ClientProtocol(string clientName)
         {
-            this.connectionInterface = connectionInterface;
         }
+
+        public bool Connect(string address)
+        {
+            return false;
+        }
+
+        public void Disconnect()
+        {
+        }
+
+        public bool SendSignalSettings(SensorsDataEventArgs data)
+        {
+            return false;
+        }
+
+        public bool SendVoiceWindow(VoiceWindowDataEventArgs data)
+        {
+            return false;
+        }
+
+        public bool SendChatMessage(string message)
+        {
+            return false;
+        }
+
+        public event SensorsReceiveHandler SensorsReceive = delegate
+        { };
+        public event VoiceWindowReceiveHandler VoiceWindowReceive = delegate
+        { };
+        public event ChatMessageReceiveHandler ChatMessageReceive = delegate
+        { };
     }
 }
