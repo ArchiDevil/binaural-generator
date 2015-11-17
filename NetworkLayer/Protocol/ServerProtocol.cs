@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace NetworkLayer
+namespace NetworkLayer.Protocol
 {
     public class ServerProtocol : IDisposable
     {
@@ -16,7 +14,6 @@ namespace NetworkLayer
         Thread sendingWorker = null;
         Thread receivingWorker = null;
 
-        public const int protocolPort = 31012;
         public delegate void ClientConnectionHandler(object sender, ClientInfoEventArgs e);
         public delegate void SettingsReceiveHandler(object sender, SettingsDataEventArgs e);
         public delegate void VoiceWindowReceiveHandler(object sender, VoiceWindowDataEventArgs e);
@@ -131,7 +128,7 @@ namespace NetworkLayer
                 return false;
 
             connectionInterface.ClientConnected += ClientConnectedEvent;
-            bool result = connectionInterface.StartListening(host, protocolPort);
+            bool result = connectionInterface.StartListening(host, ProtocolShared.protocolPort);
 
             return result;
         }
@@ -164,24 +161,30 @@ namespace NetworkLayer
             }
         }
 
-        public bool SendSensorsData(SensorsDataEventArgs data)
+        public bool SendSensorsData(double temperatureValue, double skinResistanceValue, double motionValue, double pulseValue)
         {
-            if (data == null)
-                return false;
-
             MemoryStream m = new MemoryStream();
             BinaryFormatter b = new BinaryFormatter();
+
+            SensorsDataEventArgs data = new SensorsDataEventArgs {
+                motionValue = motionValue,
+                skinResistanceValue = skinResistanceValue,
+                pulseValue = pulseValue,
+                temperatureValue = temperatureValue
+            };
+
             b.Serialize(m, data);
             return SendPacket(PacketType.SensorsMessage, m.GetBuffer());
         }
 
-        public bool SendVoiceWindow(VoiceWindowDataEventArgs data)
+        public bool SendVoiceWindow(byte[] voiceData)
         {
-            if (data == null || data.data == null)
+            if (voiceData == null)
                 return false;
 
             MemoryStream m = new MemoryStream();
             BinaryFormatter b = new BinaryFormatter();
+            VoiceWindowDataEventArgs data = new VoiceWindowDataEventArgs { data = voiceData };
             b.Serialize(m, data);
             return SendPacket(PacketType.SensorsMessage, m.GetBuffer());
         }

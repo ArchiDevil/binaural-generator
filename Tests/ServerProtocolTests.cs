@@ -8,6 +8,7 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NetworkLayer;
+using NetworkLayer.Protocol;
 
 namespace Tests
 {
@@ -17,7 +18,7 @@ namespace Tests
         ServerProtocol protocol = null;
         InternetClientConnectionInterface client = null;
 
-        int protocolPort = ServerProtocol.protocolPort;
+        int protocolPort = 31012;
         int waitingTimeout = 5000;
         string serverName = "MyName";
 
@@ -141,32 +142,15 @@ namespace Tests
             Assert.IsTrue(client.Connect("localhost", protocolPort));
             Assert.IsTrue(client.Send(CreateInfoPacket()) > 0);
 
-            SensorsDataEventArgs sensorsData = new SensorsDataEventArgs
-            {
-                motionValue = 1.0,
-                pulseValue = 64.0,
-                skinResistanceValue = 100500.0,
-                temperatureValue = 36.6
-            };
-
             Assert.IsTrue(ev.WaitOne(waitingTimeout));
-            Assert.IsTrue(protocol.SendSensorsData(sensorsData));
+            Assert.IsTrue(protocol.SendSensorsData(motionValue: 1.0, pulseValue: 64.0, skinResistanceValue: 100500.0, temperatureValue: 36.6));
         }
 
         [TestMethod]
         public void ProtocolSendSensorsDataFailed()
         {
             Assert.IsTrue(protocol.Bind("localhost"));
-            SensorsDataEventArgs sensorsData = new SensorsDataEventArgs
-            {
-                motionValue = 1.0,
-                pulseValue = 64.0,
-                skinResistanceValue = 100500.0,
-                temperatureValue = 36.6
-            };
-
-            Assert.IsFalse(protocol.SendSensorsData(null));
-            Assert.IsFalse(protocol.SendSensorsData(sensorsData));
+            Assert.IsFalse(protocol.SendSensorsData(motionValue: 1.0, pulseValue: 64.0, skinResistanceValue: 100500.0, temperatureValue: 36.6));
         }
 
         [TestMethod]
@@ -179,9 +163,9 @@ namespace Tests
             Assert.IsTrue(client.Connect("localhost", protocolPort));
             Assert.IsTrue(client.Send(CreateInfoPacket()) > 0);
 
-            VoiceWindowDataEventArgs voiceData = new VoiceWindowDataEventArgs();
-            for (int i = 0; i < voiceData.data.Length; ++i)
-                voiceData.data[i] = (byte)i;
+            byte[] voiceData = new byte[44100];
+            for (int i = 0; i < voiceData.Length; ++i)
+                voiceData[i] = (byte)i;
 
             Assert.IsTrue(ev.WaitOne(waitingTimeout));
             Assert.IsTrue(protocol.SendVoiceWindow(voiceData));
@@ -191,14 +175,11 @@ namespace Tests
         public void ProtocolSendVoiceWindowFailed()
         {
             Assert.IsTrue(protocol.Bind("localhost"));
-            VoiceWindowDataEventArgs voiceData = new VoiceWindowDataEventArgs();
-            for (int i = 0; i < voiceData.data.Length; ++i)
-                voiceData.data[i] = (byte)i;
+            byte[] voiceData = new byte[44100];
+            for (int i = 0; i < voiceData.Length; ++i)
+                voiceData[i] = (byte)i;
 
             Assert.IsFalse(protocol.SendVoiceWindow(null));
-            Assert.IsFalse(protocol.SendVoiceWindow(voiceData));
-
-            voiceData.data = null;
             Assert.IsFalse(protocol.SendVoiceWindow(voiceData));
         }
 
