@@ -1,0 +1,41 @@
+﻿<Window x:Class="SubjectUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SubjectUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Border Margin="5" Grid.RowSpan="4" BorderThickness="1" BorderBrush="#FFABADB3">
+            <FlowDocumentScrollViewer x:Name="chatViewer" VerticalScrollBarVisibility="Auto">
+                <FlowDocument>
+                    <Table x:Name="table">
+                        <Table.Columns>
+                            <TableColumn/>
+                            <TableColumn/>
+                        </Table.Columns>
+
+                        <TableRowGroup/>
+                    </Table>
+                </FlowDocument>
+            </FlowDocumentScrollViewer>
+        </Border>
+        <TextBox x:Name="chatType" Grid.Row="4" Margin="5" Padding="5" PreviewKeyDown="TextBox_PreviewKeyDown"/>
+        
+        
+    </Grid>
+</Window>
