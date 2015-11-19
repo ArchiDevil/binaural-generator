@@ -20,41 +20,51 @@ namespace SubjectUI
     /// </summary>
     public partial class MainWindow : Window
     {
+        SubjectUIModel model = new SubjectUIModel();
+
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = model;
         }
 
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e == null)
+            if (e == null || e.Key != Key.Enter)
                 return;
 
-            if (e.Key == Key.Enter)
+            string message = chatType.Text;
+            DateTime messageTime = DateTime.Now;
+
+            // does it need to be checked?
+            model.SendChatMessage(message, messageTime);
+            chatType.Text = "";
+
+            Paragraph timeString = new Paragraph(new Run(messageTime.ToLongTimeString()))
             {
-                Paragraph timeString = new Paragraph(new Run(DateTime.Now.ToLongTimeString()));
-                Paragraph messageString = new Paragraph(new Run(chatType.Text));
+                FontSize = 11,
+                FontFamily = new FontFamily("Arial")
+            };
 
-                timeString.FontSize = 11;
-                timeString.FontFamily = new FontFamily("Arial");
+            Paragraph messageString = new Paragraph(new Run(message))
+            {
+                FontSize = 12,
+                FontFamily = new FontFamily("Arial")
+            };
 
-                messageString.FontSize = 12;
-                messageString.FontFamily = new FontFamily("Arial");
+            TableRow row = new TableRow();
+            TableCell timeCell = new TableCell();
+            TableCell messageCell = new TableCell();
 
-                TableRow row = new TableRow();
-                TableCell timeCell = new TableCell();
-                TableCell messageCell = new TableCell();
+            timeCell.Blocks.Add(timeString);
+            messageCell.Blocks.Add(messageString);
 
-                timeCell.Blocks.Add(timeString);
-                messageCell.Blocks.Add(messageString);
+            row.Cells.Add(timeCell);
+            row.Cells.Add(messageCell);
 
-                row.Cells.Add(timeCell);
-                row.Cells.Add(messageCell);
-
-                table.RowGroups.First().Rows.Add(row);
-                chatType.Text = "";
-                e.Handled = true;
-            }
+            table.RowGroups.First().Rows.Add(row);
+            
+            e.Handled = true;
         }
     }
 }

@@ -5,16 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SubjectUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="SubjectUI" Height="350" Width="525">
     <Window.Resources>
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="5"/>
         </Style>
 
-        <Style TargetType="Border">
-            <Setter Property="Margin" Value="5"/>
-        </Style>
-        
         <Style TargetType="CheckBox">
             <Setter Property="Margin" Value="5"/>
         </Style>
@@ -39,7 +35,7 @@
                 <FlowDocument>
                     <Table x:Name="table">
                         <Table.Columns>
-                            <TableColumn/>
+                            <TableColumn Width="50"/>
                             <TableColumn/>
                         </Table.Columns>
                         <TableRowGroup/>
@@ -47,6 +43,7 @@
                 </FlowDocument>
             </FlowDocumentScrollViewer>
         </Border>
+
         <TextBox x:Name="chatType" Grid.Row="4" Padding="5" PreviewKeyDown="TextBox_PreviewKeyDown"/>
 
         <Grid Grid.Column="1" Grid.RowSpan="2">
@@ -66,17 +63,18 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            
+
             <TextBlock Text="Connection status: "/>
-            <TextBlock Grid.Column="1" Text="UNKNOWN"/>
-            <CheckBox Grid.Row="1" Grid.ColumnSpan="2" IsChecked="True" Content="Enable microphone"/>
-            <CheckBox Grid.Row="2" Grid.ColumnSpan="2" IsChecked="True" Content="Enable experimenter's voice"/>
-            <CheckBox Grid.Row="3" Grid.ColumnSpan="2" IsChecked="True" Content="Enable signals"/>
-            <TextBlock Grid.Row="4"/> <!--empty-->
-            <CheckBox Grid.Row="5" Grid.ColumnSpan="2" IsChecked="True" IsEnabled="False" Content="Sensors status"/>
-            <CheckBox Grid.Row="6" Grid.ColumnSpan="2" IsChecked="True" IsEnabled="False" Content="Headphones status"/>
-            <CheckBox Grid.Row="7" Grid.ColumnSpan="2" IsChecked="True" IsEnabled="False" Content="Voice status"/>
-            <CheckBox Grid.Row="8" Grid.ColumnSpan="2" IsChecked="True" IsEnabled="False" Content="Chat status"/>
+            <TextBlock Grid.Column="1" Text="{Binding ConnectionStatus, Mode=OneWay}"/>
+            <CheckBox Grid.Row="1" Grid.ColumnSpan="2" IsChecked="{Binding EnableMicrophone}" Content="Enable microphone"/>
+            <CheckBox Grid.Row="2" Grid.ColumnSpan="2" IsChecked="{Binding EnableVoice}" Content="Enable experimenter's voice"/>
+            <CheckBox Grid.Row="3" Grid.ColumnSpan="2" IsChecked="{Binding EnableSignals}" Content="Enable signals"/>
+            <TextBlock Grid.Row="4"/>
+            <!--empty-->
+            <CheckBox Grid.Row="5" Grid.ColumnSpan="2" IsChecked="{Binding SensorsStatus, Mode=OneWay}" IsEnabled="False" Content="Sensors status"/>
+            <CheckBox Grid.Row="6" Grid.ColumnSpan="2" IsChecked="{Binding HeadphonesStatus, Mode=OneWay}" IsEnabled="False" Content="Headphones status"/>
+            <CheckBox Grid.Row="7" Grid.ColumnSpan="2" IsChecked="{Binding VoiceStatus, Mode=OneWay}" IsEnabled="False" Content="Voice status"/>
+            <CheckBox Grid.Row="8" Grid.ColumnSpan="2" IsChecked="{Binding ChatStatus, Mode=OneWay}" IsEnabled="False" Content="Chat status"/>
         </Grid>
     </Grid>
 </Window>
