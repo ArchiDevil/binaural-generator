@@ -1,13 +1,5 @@
-/BWGenerator/bin/
-/BWGenerator/obj/
-/BWSitterGenerator/bin/
-/BWSitterGenerator/obj/
-/NetworkLayer/bin/
-/NetworkLayer/obj/
-/SharedContent/bin/
-/SharedContent/obj/
-/Tests/bin/
-/Tests/obj/
+/*/bin/
+/*/obj/
 /packages/
 *.user
 /.vs/
