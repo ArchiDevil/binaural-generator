@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SubjectUI"
         mc:Ignorable="d"
-        Title="SubjectUI" Height="350" Width="525">
+        Title="SubjectUI" Height="350" Width="525"
+        Loaded="Window_Loaded">
     <Window.Resources>
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="5"/>
@@ -52,11 +53,6 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -69,12 +65,6 @@
             <CheckBox Grid.Row="1" Grid.ColumnSpan="2" IsChecked="{Binding EnableMicrophone}" Content="Enable microphone"/>
             <CheckBox Grid.Row="2" Grid.ColumnSpan="2" IsChecked="{Binding EnableVoice}" Content="Enable experimenter's voice"/>
             <CheckBox Grid.Row="3" Grid.ColumnSpan="2" IsChecked="{Binding EnableSignals}" Content="Enable signals"/>
-            <TextBlock Grid.Row="4"/>
-            <!--empty-->
-            <CheckBox Grid.Row="5" Grid.ColumnSpan="2" IsChecked="{Binding SensorsStatus, Mode=OneWay}" IsEnabled="False" Content="Sensors status"/>
-            <CheckBox Grid.Row="6" Grid.ColumnSpan="2" IsChecked="{Binding HeadphonesStatus, Mode=OneWay}" IsEnabled="False" Content="Headphones status"/>
-            <CheckBox Grid.Row="7" Grid.ColumnSpan="2" IsChecked="{Binding VoiceStatus, Mode=OneWay}" IsEnabled="False" Content="Voice status"/>
-            <CheckBox Grid.Row="8" Grid.ColumnSpan="2" IsChecked="{Binding ChatStatus, Mode=OneWay}" IsEnabled="False" Content="Chat status"/>
         </Grid>
     </Grid>
 </Window>

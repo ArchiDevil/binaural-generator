@@ -63,8 +63,13 @@ namespace SubjectUI
             row.Cells.Add(messageCell);
 
             table.RowGroups.First().Rows.Add(row);
-            
+
             e.Handled = true;
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // start connection
         }
     }
 }
