@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="Client\IClientConnectionInterface.cs" />
     <Compile Include="Client\InternetClientConnectionInterface.cs" />
-    <Compile Include="Misc.cs" />
     <Compile Include="Protocol\ProtocolShared.cs" />
     <Compile Include="Protocol\ServerProtocol.cs" />
     <Compile Include="Server\IServerConnectionInterface.cs" />
