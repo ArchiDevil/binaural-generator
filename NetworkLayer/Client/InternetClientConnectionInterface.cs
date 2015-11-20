@@ -112,6 +112,11 @@ namespace NetworkLayer
             return count;
         }
 
+        public bool IsConnected()
+        {
+            return sender != null && sender.IsConnected();
+        }
+
         public void Dispose()
         {
             if (sender != null)

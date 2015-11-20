@@ -55,6 +55,16 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ClientCheckConnectedTest()
+        {
+            StartServer();
+            StartClient();
+            Assert.IsTrue(client.IsConnected());
+            EndClient();
+            EndServer();
+        }
+
+        [TestMethod]
         public void ClientMultiStartTest()
         {
             StartServer("");

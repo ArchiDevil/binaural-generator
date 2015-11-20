@@ -51,5 +51,11 @@ namespace NetworkLayer
         /// <param name="size">Size of receiving buffer</param>
         /// <returns>count of sent bytes, -1 on error</returns>
         int Receive(byte[] data, int offset, int size);
+
+        /// <summary>
+        /// This method provides information about connection status.
+        /// </summary>
+        /// <returns>true if connected, false otherwise</returns>
+        bool IsConnected();
     }
 }
