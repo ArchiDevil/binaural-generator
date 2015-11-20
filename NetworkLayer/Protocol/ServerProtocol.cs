@@ -20,13 +20,13 @@ namespace NetworkLayer.Protocol
         public delegate void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e);
 
         ManualResetEvent sendingThreadStopped = new ManualResetEvent(false);
+        ManualResetEvent sendingThreadTerminate = new ManualResetEvent(false);
+
         ManualResetEvent receivingThreadStopped = new ManualResetEvent(false);
+        ManualResetEvent receivingThreadTerminate = new ManualResetEvent(false);
 
         Queue<Packet> sendingQueue = new Queue<Packet>();
         Queue<Packet> receivedQueue = new Queue<Packet>();
-
-        bool sendingTerminate = false;
-        bool receivingTerminate = false;
 
         string serverName = null;
 
@@ -39,10 +39,9 @@ namespace NetworkLayer.Protocol
         {
             while (true)
             {
-                if (connectionInterface == null ||
-                    !connectionInterface.IsListening() ||
+                if (!connectionInterface.IsListening() ||
                     !connectionInterface.IsClientConnected() ||
-                    sendingTerminate)
+                    sendingThreadTerminate.WaitOne(0))
                     break;
 
                 if (sendingQueue.Count == 0)
@@ -52,7 +51,6 @@ namespace NetworkLayer.Protocol
                 connectionInterface.Send(packetToSend.SerializedData);
             }
 
-            sendingTerminate = false;
             sendingThreadStopped.Set();
         }
 
@@ -61,10 +59,9 @@ namespace NetworkLayer.Protocol
             List<byte> receivedBuffer = new List<byte>(1024);
             while (true)
             {
-                if (connectionInterface == null ||
-                    !connectionInterface.IsListening() ||
+                if (!connectionInterface.IsListening() ||
                     !connectionInterface.IsClientConnected() ||
-                    receivingTerminate)
+                    receivingThreadTerminate.WaitOne(0))
                     break;
 
                 byte[] temporalBuffer = new byte[1024];
@@ -117,7 +114,6 @@ namespace NetworkLayer.Protocol
                 }
             }
 
-            receivingTerminate = false;
             receivingThreadStopped.Set();
         }
 
@@ -137,18 +133,20 @@ namespace NetworkLayer.Protocol
         {
             if (sendingWorker != null)
             {
-                sendingTerminate = true;
+                sendingThreadTerminate.Set();
                 sendingThreadStopped.WaitOne();
                 sendingWorker.Abort();
                 sendingWorker = null;
+                sendingThreadTerminate.Reset();
             }
 
             if (receivingWorker != null)
             {
-                receivingTerminate = true;
+                receivingThreadTerminate.Set();
                 receivingThreadStopped.WaitOne();
                 receivingWorker.Abort();
                 receivingWorker = null;
+                receivingThreadTerminate.Reset();
             }
 
             if (connectionInterface != null)
