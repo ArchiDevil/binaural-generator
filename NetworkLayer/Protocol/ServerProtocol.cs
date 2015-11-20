@@ -184,7 +184,7 @@ namespace NetworkLayer.Protocol
             BinaryFormatter b = new BinaryFormatter();
             VoiceWindowDataEventArgs data = new VoiceWindowDataEventArgs { data = voiceData };
             b.Serialize(m, data);
-            return SendPacket(PacketType.SensorsMessage, m.GetBuffer());
+            return SendPacket(PacketType.VoiceMessage, m.GetBuffer());
         }
 
         public bool SendChatMessage(string message)
@@ -197,7 +197,7 @@ namespace NetworkLayer.Protocol
             ClientChatMessageEventArgs msg = new ClientChatMessageEventArgs();
             msg.message = message;
             b.Serialize(m, msg);
-            return SendPacket(PacketType.SensorsMessage, m.GetBuffer());
+            return SendPacket(PacketType.ChatMessage, m.GetBuffer());
         }
 
         public void Dispose()

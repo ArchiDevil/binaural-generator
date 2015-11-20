@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -114,13 +115,43 @@ namespace Tests
         public void ProtocolSendChatMessage()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
+            string messageToSend = "Hello";
 
             Assert.IsTrue(protocol.Bind("localhost"));
             protocol.ClientConnected += (s, e) => ev.Set();
             Assert.IsTrue(client.Connect("localhost", protocolPort));
             Assert.IsTrue(client.Send(CreateInfoPacket()) > 0);
             Assert.IsTrue(ev.WaitOne(waitingTimeout));
-            Assert.IsTrue(protocol.SendChatMessage("Hello"));
+            Assert.IsTrue(protocol.SendChatMessage(messageToSend));
+
+            byte[] msg = new byte[4096];
+            int totalCount = 0;
+            for (int i = 0; i < 5; ++i)
+            {
+                byte[] tmp = new byte[1024];
+                int count = client.Receive(tmp, 100);
+                if (count == 0)
+                    break;
+                tmp = tmp.Take(count).ToArray();
+                tmp.CopyTo(msg, totalCount);
+                totalCount += count;
+
+                // to ensure data receiving
+                Thread.Sleep(100);
+            }
+            msg = msg.Take(totalCount).ToArray();
+            Assert.IsTrue(totalCount > 0);
+
+            List<Packet> packets = TestShared.ParsePackets(msg);
+            Assert.AreEqual(3, packets.Count);
+            Assert.AreEqual(PacketType.ProtocolInfoMessage, packets[0].type);
+            Assert.AreEqual(PacketType.ServerInfoMessage, packets[1].type);
+            Assert.AreEqual(PacketType.ChatMessage, packets[2].type);
+
+            BinaryFormatter f = new BinaryFormatter();
+            MemoryStream m = new MemoryStream(packets[2].data);
+            ClientChatMessageEventArgs chatMessage = (ClientChatMessageEventArgs)f.Deserialize(m);
+            Assert.AreEqual(messageToSend, chatMessage.message);
         }
 
         [TestMethod]
@@ -136,6 +167,13 @@ namespace Tests
         public void ProtocolSendSensorsData()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
+            SensorsDataEventArgs sensorsData = new SensorsDataEventArgs
+            {
+                motionValue = 1.0,
+                pulseValue = 64.0,
+                skinResistanceValue = 100500.0,
+                temperatureValue = 36.6
+            };
 
             Assert.IsTrue(protocol.Bind("localhost"));
             protocol.ClientConnected += (s, e) => ev.Set();
@@ -143,7 +181,43 @@ namespace Tests
             Assert.IsTrue(client.Send(CreateInfoPacket()) > 0);
 
             Assert.IsTrue(ev.WaitOne(waitingTimeout));
-            Assert.IsTrue(protocol.SendSensorsData(motionValue: 1.0, pulseValue: 64.0, skinResistanceValue: 100500.0, temperatureValue: 36.6));
+            Assert.IsTrue(protocol.SendSensorsData(sensorsData.temperatureValue,
+                                                   sensorsData.skinResistanceValue,
+                                                   sensorsData.motionValue,
+                                                   sensorsData.pulseValue));
+
+            byte[] msg = new byte[4096];
+            int totalCount = 0;
+            for (int i = 0; i < 5; ++i)
+            {
+                byte[] tmp = new byte[1024];
+                int count = client.Receive(tmp, 100);
+                if (count == 0)
+                    break;
+                tmp = tmp.Take(count).ToArray();
+                tmp.CopyTo(msg, totalCount);
+                totalCount += count;
+
+                // to ensure data receiving
+                Thread.Sleep(100);
+            }
+            msg = msg.Take(totalCount).ToArray();
+            Assert.IsTrue(totalCount > 0);
+
+            List<Packet> packets = TestShared.ParsePackets(msg);
+            Assert.AreEqual(3, packets.Count);
+            Assert.AreEqual(PacketType.ProtocolInfoMessage, packets[0].type);
+            Assert.AreEqual(PacketType.ServerInfoMessage, packets[1].type);
+            Assert.AreEqual(PacketType.SensorsMessage, packets[2].type);
+
+            BinaryFormatter f = new BinaryFormatter();
+            MemoryStream m = new MemoryStream(packets[2].data);
+            SensorsDataEventArgs receivedData = (SensorsDataEventArgs)f.Deserialize(m);
+            double eps = 0.0001;
+            Assert.AreEqual(sensorsData.motionValue, receivedData.motionValue, eps);
+            Assert.AreEqual(sensorsData.pulseValue, receivedData.pulseValue, eps);
+            Assert.AreEqual(sensorsData.skinResistanceValue, receivedData.skinResistanceValue, eps);
+            Assert.AreEqual(sensorsData.temperatureValue, receivedData.temperatureValue, eps);
         }
 
         [TestMethod]
@@ -169,6 +243,39 @@ namespace Tests
 
             Assert.IsTrue(ev.WaitOne(waitingTimeout));
             Assert.IsTrue(protocol.SendVoiceWindow(voiceData));
+
+            byte[] msg = new byte[441000];
+            int totalCount = 0;
+            for (int i = 0; i < 5; ++i)
+            {
+                byte[] tmp = new byte[44100];
+                int count = client.Receive(tmp, 100);
+                if (count == 0)
+                    break;
+                tmp = tmp.Take(count).ToArray();
+                tmp.CopyTo(msg, totalCount);
+                totalCount += count;
+
+                // to ensure data receiving
+                Thread.Sleep(100);
+            }
+            msg = msg.Take(totalCount).ToArray();
+            Assert.IsTrue(totalCount > 0);
+
+            List<Packet> packets = TestShared.ParsePackets(msg);
+            Assert.AreEqual(3, packets.Count);
+            Assert.AreEqual(PacketType.ProtocolInfoMessage, packets[0].type);
+            Assert.AreEqual(PacketType.ServerInfoMessage, packets[1].type);
+            Assert.AreEqual(PacketType.VoiceMessage, packets[2].type);
+
+            BinaryFormatter f = new BinaryFormatter();
+            MemoryStream m = new MemoryStream(packets[2].data);
+            VoiceWindowDataEventArgs receivedData = (VoiceWindowDataEventArgs)f.Deserialize(m);
+            for (int i = 0; i < receivedData.data.Length; ++i)
+            {
+                if (voiceData[i] != receivedData.data[i])
+                    Assert.Fail();
+            }
         }
 
         [TestMethod]
@@ -268,13 +375,12 @@ namespace Tests
             Assert.IsTrue(client.Send(CreateInfoPacket()) > 0);
             Assert.IsTrue(ev.WaitOne(waitingTimeout));
 
-            // here protocol information and client name should be
-            byte[] msg = new byte[1024];
+            byte[] msg = new byte[4096];
             int totalCount = 0;
             for (int i = 0; i < 5; ++i)
             {
                 byte[] tmp = new byte[1024];
-                int count = client.Receive(tmp, 1000);
+                int count = client.Receive(tmp, 100);
                 if (count == 0)
                     break;
                 tmp = tmp.Take(count).ToArray();
@@ -287,25 +393,13 @@ namespace Tests
             msg = msg.Take(totalCount).ToArray();
             Assert.IsTrue(totalCount > 0);
 
-            Debug.Print("Total count: " + totalCount.ToString());
+            List<Packet> packets = TestShared.ParsePackets(msg);
+            Assert.AreEqual(2, packets.Count);
+            Assert.AreEqual(PacketType.ProtocolInfoMessage, packets[0].type);
+            Assert.AreEqual(PacketType.ServerInfoMessage, packets[1].type);
 
             BinaryFormatter f = new BinaryFormatter();
-            // try to read packets
-            byte packetType = msg[0];
-            Assert.IsTrue(packetType == 1); // ProtocolInfo packet
-            int packetSize = BitConverter.ToInt32(msg, 1);
-            Assert.IsTrue(packetSize > 0);
-
-            MemoryStream m = new MemoryStream(msg, 5, packetSize);
-
-            // reading next packet...
-            msg = msg.Skip(1 + sizeof(int) + packetSize).Take(totalCount - 1 - sizeof(int) - packetSize).ToArray();
-            packetType = msg[0];
-            Assert.IsTrue(packetType == 3, "Wrong packet type: " + packetType.ToString()); // ServerInfo packet
-            packetSize = BitConverter.ToInt32(msg, 1);
-            Assert.IsTrue(packetSize > 0);
-
-            m = new MemoryStream(msg, 5, packetSize);
+            MemoryStream m = new MemoryStream(packets[1].data);
             ServerInfoEventArgs serverInfo = (ServerInfoEventArgs)f.Deserialize(m);
             Assert.AreEqual(serverName, serverInfo.serverName);
         }
