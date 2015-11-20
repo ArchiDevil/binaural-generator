@@ -28,48 +28,14 @@ namespace SubjectUI
             DataContext = model;
         }
 
-        private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e == null || e.Key != Key.Enter)
-                return;
-
-            string message = chatType.Text;
-            DateTime messageTime = DateTime.Now;
-
-            // does it need to be checked?
-            model.SendChatMessage(message, messageTime);
-            chatType.Text = "";
-
-            Paragraph timeString = new Paragraph(new Run(messageTime.ToLongTimeString()))
-            {
-                FontSize = 11,
-                FontFamily = new FontFamily("Arial")
-            };
-
-            Paragraph messageString = new Paragraph(new Run(message))
-            {
-                FontSize = 12,
-                FontFamily = new FontFamily("Arial")
-            };
-
-            TableRow row = new TableRow();
-            TableCell timeCell = new TableCell();
-            TableCell messageCell = new TableCell();
-
-            timeCell.Blocks.Add(timeString);
-            messageCell.Blocks.Add(messageString);
-
-            row.Cells.Add(timeCell);
-            row.Cells.Add(messageCell);
-
-            table.RowGroups.First().Rows.Add(row);
-
-            e.Handled = true;
-        }
-
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // start connection
+        }
+
+        private void ChatWindow_ChatMessage(string message, DateTime time)
+        {
+            model.SendChatMessage(message, time);
         }
     }
 }

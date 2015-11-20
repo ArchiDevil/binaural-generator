@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SubjectUI"
         mc:Ignorable="d"
+        xmlns:shared="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
         Title="SubjectUI" Height="350" Width="525"
         Loaded="Window_Loaded">
     <Window.Resources>
@@ -26,28 +27,10 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="5*"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
 
-        <Border Margin="5" BorderThickness="1" BorderBrush="#FFABADB3">
-            <FlowDocumentScrollViewer x:Name="chatViewer" VerticalScrollBarVisibility="Auto">
-                <FlowDocument>
-                    <Table x:Name="table">
-                        <Table.Columns>
-                            <TableColumn Width="50"/>
-                            <TableColumn/>
-                        </Table.Columns>
-                        <TableRowGroup/>
-                    </Table>
-                </FlowDocument>
-            </FlowDocumentScrollViewer>
-        </Border>
+        <shared:ChatWindow ChatMessage="ChatWindow_ChatMessage"/>
 
-        <TextBox x:Name="chatType" Grid.Row="4" Padding="5" PreviewKeyDown="TextBox_PreviewKeyDown"/>
-
-        <Grid Grid.Column="1" Grid.RowSpan="2">
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
