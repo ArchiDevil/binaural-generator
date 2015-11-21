@@ -74,7 +74,7 @@ namespace NetworkLayer
                 return 0;
 
             int count = 0;
-            if (sender.Poll(-1, SelectMode.SelectWrite))
+            if (sender.Poll(-1, SelectMode.SelectWrite) && sender.IsConnected())
                 count = sender.Send(data);
             return count;
         }
@@ -85,7 +85,7 @@ namespace NetworkLayer
                 return 0;
 
             int count = 0;
-            if (sender.Poll(-1, SelectMode.SelectRead))
+            if (sender.Poll(-1, SelectMode.SelectRead) && sender.IsConnected())
                 count = sender.Receive(data);
             return count;
         }
@@ -96,7 +96,7 @@ namespace NetworkLayer
                 return 0;
 
             int count = 0;
-            if (sender.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead))
+            if (sender.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead) && sender.IsConnected())
                 count = sender.Receive(data);
             return count;
         }
@@ -107,7 +107,7 @@ namespace NetworkLayer
                 return 0;
 
             int count = 0;
-            if (sender.Poll(-1, SelectMode.SelectWrite))
+            if (sender.Poll(-1, SelectMode.SelectWrite) && sender.IsConnected())
                 count = sender.Receive(data, offset, size, SocketFlags.None);
             return count;
         }

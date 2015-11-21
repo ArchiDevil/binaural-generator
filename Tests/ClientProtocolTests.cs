@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Text;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Runtime.Serialization.Formatters.Binary;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NetworkLayer;
 using NetworkLayer.Protocol;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace Tests
 {
@@ -72,7 +71,7 @@ namespace Tests
                 protocol.Disconnect();
                 protocol.Disconnect();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Assert.Fail();
             }
@@ -224,6 +223,84 @@ namespace Tests
 
             Assert.IsFalse(protocol.SendChatMessage(null));
             Assert.IsFalse(protocol.SendChatMessage(""));
+        }
+
+        [TestMethod]
+        public void ClientReceivesSensorsMessage()
+        {
+            ManualResetEvent messageReceived = new ManualResetEvent(false);
+            SensorsDataEventArgs args = null;
+            MemoryStream m = new MemoryStream();
+            BinaryFormatter b = new BinaryFormatter();
+
+            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(protocol.Connect("localhost"));
+
+            protocol.SensorsReceive += (s, e) => { messageReceived.Set(); args = e; };
+
+            // create chat message packet
+            SensorsDataEventArgs sentArgs = new SensorsDataEventArgs { motionValue = 100500.0, pulseValue = 60.0, skinResistanceValue = 1000.0, temperatureValue = 36.6 };
+            b.Serialize(m, sentArgs);
+
+            Packet p = new Packet(PacketType.SensorsMessage, m.GetBuffer());
+            Assert.IsTrue(server.Send(p.SerializedData) > 0);
+            Assert.IsTrue(messageReceived.WaitOne(waitingTimeout));
+            Assert.AreEqual(sentArgs.motionValue, args.motionValue, 0.0001);
+            Assert.AreEqual(sentArgs.pulseValue, args.pulseValue, 0.0001);
+            Assert.AreEqual(sentArgs.skinResistanceValue, args.skinResistanceValue, 0.0001);
+            Assert.AreEqual(sentArgs.temperatureValue, args.temperatureValue, 0.0001);
+        }
+
+        [TestMethod]
+        public void ClientReceivesVoiceMessage()
+        {
+            ManualResetEvent messageReceived = new ManualResetEvent(false);
+            VoiceWindowDataEventArgs args = null;
+            MemoryStream m = new MemoryStream();
+            BinaryFormatter b = new BinaryFormatter();
+
+            byte[] voiceData = new byte[44100];
+            for (int i = 0; i < voiceData.Length; ++i)
+                voiceData[i] = (byte)i;
+
+            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(protocol.Connect("localhost"));
+
+            protocol.VoiceWindowReceive += (s, e) => { messageReceived.Set(); args = e; };
+
+            // create chat message packet
+            VoiceWindowDataEventArgs sentArgs = new VoiceWindowDataEventArgs { data = voiceData };
+            b.Serialize(m, sentArgs);
+
+            Packet p = new Packet(PacketType.VoiceMessage, m.GetBuffer());
+            Assert.IsTrue(server.Send(p.SerializedData) > 0);
+            Assert.IsTrue(messageReceived.WaitOne(waitingTimeout));
+            for (int i = 0; i < args.data.Length; ++i)
+                Assert.AreEqual(sentArgs.data[i], args.data[i]);
+        }
+
+        [TestMethod]
+        public void ClientReceivesChatMessage()
+        {
+            ManualResetEvent messageReceived = new ManualResetEvent(false);
+            ClientChatMessageEventArgs args = null;
+            MemoryStream m = new MemoryStream();
+            BinaryFormatter b = new BinaryFormatter();
+            string chatMessage = "Hello";
+
+            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(protocol.Connect("localhost"));
+
+            protocol.ChatMessageReceive += (s, e) => { messageReceived.Set(); args = e; };
+
+            // create chat message packet
+            ClientChatMessageEventArgs sentArgs = new ClientChatMessageEventArgs { message = chatMessage };
+            b.Serialize(m, sentArgs);
+
+            Packet p = new Packet(PacketType.ChatMessage, m.GetBuffer());
+            Assert.IsTrue(server.Send(p.SerializedData) > 0);
+            Assert.IsTrue(messageReceived.WaitOne(waitingTimeout));
+            Assert.AreEqual(sentArgs.message, args.message);
         }
     }
 }
