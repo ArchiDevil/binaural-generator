@@ -10,18 +10,6 @@ using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
-    public static class SocketExtensions
-    {
-        public static bool IsConnected(this Socket socket)
-        {
-            try
-            {
-                return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
-            }
-            catch (SocketException) { return false; }
-        }
-    }
-
     public class InternetServerConnectionInterface : IServerConnectionInterface
     {
         string bindingPoint = string.Empty;
@@ -126,7 +114,11 @@ namespace NetworkLayer
         {
             if (client != null)
             {
-                client.Close();
+                if(client.IsConnected() && client.Connected)
+                {
+                    client.Shutdown(SocketShutdown.Both);
+                    client.Close();
+                }
                 client = null;
             }
 

@@ -112,7 +112,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void ProtocolSendChatMessage()
+        public void ProtocolSendsChatMessage()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
             string messageToSend = "Hello";
@@ -164,7 +164,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void ProtocolSendSensorsData()
+        public void ProtocolSendsSensorsData()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
             SensorsDataEventArgs sensorsData = new SensorsDataEventArgs
@@ -228,7 +228,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void ProtocolSendVoiceWindow()
+        public void ProtocolSendsVoiceWindow()
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
@@ -291,7 +291,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void ProtocolReceiveChatMessage()
+        public void ProtocolReceivesChatMessage()
         {
             ManualResetEvent connected = new ManualResetEvent(false);
             ManualResetEvent messageReceived = new ManualResetEvent(false);
@@ -313,11 +313,8 @@ namespace Tests
             ClientChatMessageEventArgs sentArgs = new ClientChatMessageEventArgs { message = message };
             b.Serialize(m, sentArgs);
 
-            byte[] msg = new byte[sizeof(byte) + sizeof(int) + m.GetBuffer().Length];
-            msg[0] = 4; // chat message packet
-            BitConverter.GetBytes(m.GetBuffer().Length).CopyTo(msg, 1);
-            m.GetBuffer().CopyTo(msg, 5);
-            Assert.IsTrue(client.Send(msg) > 0);
+            Packet packet = new Packet(PacketType.ChatMessage, m.GetBuffer());
+            Assert.IsTrue(client.Send(packet.SerializedData) > 0);
             Assert.IsTrue(messageReceived.WaitOne(waitingTimeout));
             Assert.AreEqual(message, args.message);
         }
@@ -328,7 +325,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void ProtocolReceiveVoiceWindow()
+        public void ProtocolReceivesVoiceWindow()
         {
             ManualResetEvent connected = new ManualResetEvent(false);
             ManualResetEvent voiceReceived = new ManualResetEvent(false);
@@ -352,12 +349,8 @@ namespace Tests
             VoiceWindowDataEventArgs sentArgs = new VoiceWindowDataEventArgs { data = voiceData };
             b.Serialize(m, sentArgs);
 
-            byte[] msg = new byte[1 + 4 + m.GetBuffer().Length];
-            msg[0] = 5; // voice message packet
-            BitConverter.GetBytes(m.GetBuffer().Length).CopyTo(msg, 1);
-            m.GetBuffer().CopyTo(msg, 5);
-
-            Assert.IsTrue(client.Send(msg) > 0);
+            Packet packet = new Packet(PacketType.VoiceMessage, m.GetBuffer());
+            Assert.IsTrue(client.Send(packet.SerializedData) > 0);
             Assert.IsTrue(voiceReceived.WaitOne(waitingTimeout));
             Assert.IsTrue(Enumerable.SequenceEqual(voiceData, args.data));
         }
