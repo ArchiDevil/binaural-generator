@@ -107,6 +107,18 @@ namespace NetworkLayer.Protocol
             receivingThreadStopped.Set();
         }
 
+        public bool Bind()
+        {
+            connectionInterface = new InternetServerConnectionInterface();
+            if (connectionInterface == null)
+                return false;
+
+            connectionInterface.ClientConnected += ClientConnectedEvent;
+            bool result = connectionInterface.StartListening(ProtocolShared.protocolPort);
+
+            return result;
+        }
+
         public bool Bind(string host)
         {
             connectionInterface = new InternetServerConnectionInterface();

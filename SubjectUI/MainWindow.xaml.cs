@@ -20,7 +20,7 @@ namespace SubjectUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        SubjectUIModel model = new SubjectUIModel();
+        SubjectApplicationModel model = new SubjectApplicationModel();
 
         public MainWindow()
         {
@@ -28,14 +28,14 @@ namespace SubjectUI
             DataContext = model;
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            // start connection
-        }
-
         private void ChatWindow_ChatMessage(string message, DateTime time)
         {
             model.SendChatMessage(message, time);
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            model.CheckSystems();
         }
     }
 }

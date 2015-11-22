@@ -13,9 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkLayer", "NetworkLaye
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{DE99B66F-CA9C-428B-B0FD-6E169B6A08D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubjectUI", "SubjectUI\SubjectUI.csproj", "{114FA5EB-3188-4F6E-BA71-E88FD38B4742}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubjectApplication", "SubjectUI\SubjectApplication.csproj", "{114FA5EB-3188-4F6E-BA71-E88FD38B4742}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExperimenterUI", "ExperimenterUI\ExperimenterUI.csproj", "{8B81D191-F7DB-4123-8087-9D44B3743068}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExperimenterApplication", "ExperimenterUI\ExperimenterApplication.csproj", "{8B81D191-F7DB-4123-8087-9D44B3743068}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
