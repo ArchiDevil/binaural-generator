@@ -1,5 +1,5 @@
 ﻿using System.Text;
-
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NetworkLayer;
@@ -11,7 +11,7 @@ namespace Tests
     {
         InternetServerConnectionInterface server = null;
         InternetClientConnectionInterface client = null;
-        int port = 11000;
+        ushort port = 11000;
 
         public void StartServer(string bindingPoint = "localhost")
         {
@@ -78,19 +78,16 @@ namespace Tests
         [TestMethod]
         public void ServerClientConnectedEventTest()
         {
-            bool flag = false;
+            ManualResetEvent ev = new ManualResetEvent(false);
 
             StartServer();
-            server.ClientConnected += () => { flag = true; };
+            server.ClientConnected += (s, e) => { ev.Set(); };
 
             StartClient();
 
             // wait till event receive
-            for(int i = 0; i < 1000000; ++i)
-                if (flag)
-                    break;
-
-            Assert.IsTrue(flag);
+            if (!ev.WaitOne(5000))
+                Assert.Fail();
 
             EndClient();
             EndServer();
@@ -185,6 +182,25 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ServerReceivingTimeoutTest()
+        {
+            StartServer();
+            StartClient();
+
+            string message = "Hello, World!";
+            byte[] msg = Encoding.ASCII.GetBytes(message);
+            int count = 0;
+            count = client.Send(msg);
+            Assert.AreEqual(message.Length, count);
+
+            count = server.Receive(msg, 1000);
+            Assert.AreEqual(message, Encoding.ASCII.GetString(msg));
+
+            EndClient();
+            EndServer();
+        }
+
+        [TestMethod]
         public void ServerHeavyReceivingTest()
         {
             StartServer();
@@ -260,11 +276,22 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ServerIsClientConnectedTest()
+        {
+            StartServer();
+            Assert.IsFalse(server.IsClientConnected());
+
+            StartClient();
+            System.Threading.Thread.Sleep(200);
+            Assert.IsTrue(server.IsClientConnected());
+        }
+
+        [TestMethod]
         public void ServerCanAcceptReconnections()
         {
             StartServer();
             StartClient();
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 client.Disconnect();
                 Assert.IsTrue(client.Connect("localhost", port));

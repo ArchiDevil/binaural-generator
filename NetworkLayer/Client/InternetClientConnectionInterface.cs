@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
-    public class InternetClientConnectionInterface : IClientConnectionInterface
+    public class InternetClientConnectionInterface : IClientConnectionInterface, IDisposable
     {
         string address = string.Empty;
         int port = -1;
@@ -48,8 +46,9 @@ namespace NetworkLayer
                     return false;
                 }
             }
-            catch (Exception)
+            catch (Exception /*e*/)
             {
+                //Debug.Assert(false, e.Message);
                 return false;
             }
 
@@ -60,25 +59,13 @@ namespace NetworkLayer
         {
             if (sender != null)
             {
-                sender.Close();
+                if (sender.IsConnected() && sender.Connected)
+                {
+                    sender.Shutdown(SocketShutdown.Both);
+                    sender.Close();
+                }
                 sender = null;
             }
-        }
-
-        public int Receive(byte[] data)
-        {
-            if (sender == null)
-                return 0;
-
-            return sender.Receive(data);
-        }
-
-        public int Receive(byte[] data, int offset, int size)
-        {
-            if (sender == null)
-                return 0;
-
-            return sender.Receive(data, offset, size, SocketFlags.None);
         }
 
         public int Send(byte[] data)
@@ -86,7 +73,54 @@ namespace NetworkLayer
             if (sender == null)
                 return 0;
 
-            return sender.Send(data);
+            int count = 0;
+            if (sender.Poll(-1, SelectMode.SelectWrite) && sender.IsConnected())
+                count = sender.Send(data);
+            return count;
+        }
+
+        public int Receive(byte[] data)
+        {
+            if (sender == null)
+                return 0;
+
+            int count = 0;
+            if (sender.Poll(-1, SelectMode.SelectRead) && sender.IsConnected())
+                count = sender.Receive(data);
+            return count;
+        }
+
+        public int Receive(byte[] data, int millisecondsTimeout)
+        {
+            if (sender == null)
+                return 0;
+
+            int count = 0;
+            if (sender.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead) && sender.IsConnected())
+                count = sender.Receive(data);
+            return count;
+        }
+
+        public int Receive(byte[] data, int offset, int size)
+        {
+            if (sender == null)
+                return 0;
+
+            int count = 0;
+            if (sender.Poll(-1, SelectMode.SelectWrite) && sender.IsConnected())
+                count = sender.Receive(data, offset, size, SocketFlags.None);
+            return count;
+        }
+
+        public bool IsConnected()
+        {
+            return sender != null && sender.IsConnected();
+        }
+
+        public void Dispose()
+        {
+            if (sender != null)
+                sender.Close();
         }
     }
 }
