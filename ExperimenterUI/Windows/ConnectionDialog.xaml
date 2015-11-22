@@ -5,8 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ExperimenterUI.Windows"
         mc:Ignorable="d"
-        Title="Connection dialog" SizeToContent="Height" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
-    <Grid>
+        Title="Connection dialog" 
+        SizeToContent="Height" 
+        Width="300" 
+        ResizeMode="NoResize" 
+        WindowStartupLocation="CenterOwner">
+    
+    <Grid FocusManager.FocusedElement="{Binding ElementName=textField}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
@@ -17,10 +22,33 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Connection address: " Margin="5" VerticalAlignment="Center"/>
-        <TextBox Grid.Column="1" Text="{Binding ConnectionAddress}" Margin="5" Padding="5" HorizontalAlignment="Stretch"/>
+        <TextBlock Text="Connection address: "
+                   Margin="5"
+                   VerticalAlignment="Center"/>
 
-        <Button Content="Connect" Grid.Column="0" Grid.Row="1" Margin="5" Padding="5" HorizontalAlignment="Right" Click="Connect_Button_Click"/>
-        <Button Content="Cancel" Grid.Column="1" Grid.Row="1" Margin="5" Padding="5" HorizontalAlignment="Left" IsCancel="True" Click="Close_Button_Click"/>
+        <TextBox x:Name="textField"
+                 Grid.Column="1"
+                 Text="{Binding ConnectionAddress}"
+                 Margin="5"
+                 Padding="5"
+                 HorizontalAlignment="Stretch"/>
+
+        <Button Content="Connect"
+                Grid.Column="0"
+                Grid.Row="1"
+                Margin="5"
+                Padding="5"
+                HorizontalAlignment="Right"
+                Click="Connect_Button_Click"
+                IsDefault="True"/>
+
+        <Button Content="Cancel"
+                Grid.Column="1"
+                Grid.Row="1"
+                Margin="5"
+                Padding="5"
+                HorizontalAlignment="Left"
+                IsCancel="True"
+                Click="Close_Button_Click"/>
     </Grid>
 </Window>
