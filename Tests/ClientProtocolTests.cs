@@ -18,7 +18,7 @@ namespace Tests
         ClientProtocol protocol = null;
         InternetServerConnectionInterface server = null;
 
-        ushort protocolPort = 31012;
+        ushort protocolPort = ProtocolShared.protocolPort;
         int waitingTimeout = 5000;
         string clientName = "MyName";
 
@@ -60,6 +60,7 @@ namespace Tests
             Assert.IsTrue(server.StartListening("localhost", protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
             protocol.Disconnect();
+            Thread.Sleep(10);
             Assert.AreEqual(0, server.Send(new byte[10]));
         }
 
@@ -107,25 +108,67 @@ namespace Tests
         }
 
         [TestMethod]
-        public void NOT_IMPLEMENTED_ClientSendsSignalSettings()
+        public void ClientSendsSignalSettings()
         {
-            //Assert.IsTrue(server.StartListening("localhost", protocolPort));
-            //Assert.IsTrue(protocol.Connect("localhost"));
-            //Assert.IsTrue(protocol.SendSignalSettings(36.6, 100500.0, 10.0, 60.0));
+            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(protocol.Connect("localhost"));
 
-            //byte[] buffer = new byte[4096];
-            //int count = server.Receive(buffer, 5000);
-            //Assert.IsTrue(count > 0);
-            //buffer = buffer.Take(count).ToArray();
-            //BinaryFormatter b = new BinaryFormatter();
-            //MemoryStream m = new MemoryStream(buffer);
-            //Signal args = (SettingsDataEventArgs)b.Deserialize(m);
-            //args
+            int channelsCount = 2;
+            ChannelDescription[] channelDesc = new ChannelDescription[channelsCount];
+            for(int i = 0; i < channelsCount; ++i)
+            {
+                channelDesc[i] = new ChannelDescription(440.0, 10.0, 1.0);
+            }
+            NoiseDescription noiseDesc = new NoiseDescription(10.0, 1.0);
+            Assert.IsTrue(protocol.SendSignalSettings(channelDesc, noiseDesc));
+
+            byte[] buffer = new byte[16384];
+            int totalCount = 0;
+            for (int i = 0; i < 5; ++i)
+            {
+                byte[] tmp = new byte[16384];
+                int count = server.Receive(tmp, 100);
+                if (count == 0)
+                    break;
+                tmp = tmp.Take(count).ToArray();
+                tmp.CopyTo(buffer, totalCount);
+                totalCount += count;
+
+                // to ensure data receiving
+                Thread.Sleep(100);
+            }
+
+            Assert.IsTrue(totalCount > 0);
+
+            List<Packet> packets = TestShared.ParsePackets(buffer);
+            Assert.AreEqual(2, packets.Count);
+            Assert.AreEqual(PacketType.ClientInfoMessage, packets[0].type);
+            Assert.AreEqual(PacketType.SettingsMessage, packets[1].type);
+
+            BinaryFormatter b = new BinaryFormatter();
+            MemoryStream m = new MemoryStream(packets[1].data);
+            SettingsDataEventArgs args = (SettingsDataEventArgs)b.Deserialize(m);
+            Assert.AreEqual(args.channels.Length, channelDesc.Length);
+            Assert.AreEqual(args.noise.smoothness, noiseDesc.smoothness, 0.0001);
+            Assert.AreEqual(args.noise.volume, noiseDesc.volume, 0.0001);
+
+            for(int i = 0; i < channelsCount; ++i)
+            {
+                Assert.AreEqual(args.channels[i].carrierFrequency, channelDesc[i].carrierFrequency, 0.0001);
+                Assert.AreEqual(args.channels[i].differenceFrequency, channelDesc[i].differenceFrequency, 0.0001);
+                Assert.AreEqual(args.channels[i].volume, channelDesc[i].volume, 0.0001);
+            }
         }
 
         [TestMethod]
-        public void NOT_IMPLEMENTED_ClientSendSignalSettingsFailed()
+        public void ClientSendSignalSettingsFailed()
         {
+            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(protocol.Connect("localhost"));
+
+            ChannelDescription[] desc = new ChannelDescription[0];
+            Assert.IsFalse(protocol.SendSignalSettings(null, new NoiseDescription()));
+            Assert.IsFalse(protocol.SendSignalSettings(desc, new NoiseDescription()));
         }
 
         [TestMethod]

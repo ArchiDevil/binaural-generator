@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NetworkLayer.Protocol
 {
@@ -52,6 +50,9 @@ namespace NetworkLayer.Protocol
         private void ReceivingWorker()
         {
             List<byte> receivedBuffer = new List<byte>(1024);
+            BinaryFormatter b = new BinaryFormatter();
+            const int headerSize = sizeof(PacketType) + sizeof(int);
+
             while (true)
             {
                 if (!connectionInterface.IsConnected() ||
@@ -64,37 +65,29 @@ namespace NetworkLayer.Protocol
 
                 while (receivedBuffer.Count > 0)
                 {
-                    byte[] protocolHeader = receivedBuffer.Take(sizeof(PacketType) + sizeof(int)).ToArray();
+                    byte[] protocolHeader = receivedBuffer.Take(headerSize).ToArray();
                     PacketType type = (PacketType)protocolHeader[0];
-                    int packetDataSize = BitConverter.ToInt32(protocolHeader, 1);
+                    int packetDataSize = BitConverter.ToInt32(protocolHeader, sizeof(PacketType));
 
-                    if (receivedBuffer.Count < 1 + sizeof(int) + packetDataSize)
+                    if (receivedBuffer.Count < headerSize + packetDataSize)
                         break;
 
-                    byte[] packetData = receivedBuffer.Skip(sizeof(PacketType) + sizeof(int)).Take(packetDataSize).ToArray();
-                    receivedBuffer.RemoveRange(0, 1 + sizeof(int) + packetDataSize);
+                    byte[] packetData = receivedBuffer.Skip(headerSize).Take(packetDataSize).ToArray();
+                    receivedBuffer.RemoveRange(0, headerSize + packetDataSize);
                     MemoryStream m = new MemoryStream(packetData);
-                    BinaryFormatter b = new BinaryFormatter();
                     object deserialized = b.Deserialize(m);
 
                     switch (type)
                     {
                         case PacketType.ChatMessage:
-                            {
-                                ChatMessageReceive(this, (ClientChatMessageEventArgs)deserialized);
-                                break;
-                            }
+                            ChatMessageReceive(this, (ClientChatMessageEventArgs)deserialized);
+                            break;
                         case PacketType.VoiceMessage:
-                            {
-                                VoiceWindowReceive(this, (VoiceWindowDataEventArgs)deserialized);
-                                break;
-                            }
+                            VoiceWindowReceive(this, (VoiceWindowDataEventArgs)deserialized);
+                            break;
                         case PacketType.SensorsMessage:
-                            {
-                                SensorsReceive(this, (SensorsDataEventArgs)deserialized);
-                                break;
-                            }
-                        case PacketType.Unknown:
+                            SensorsReceive(this, (SensorsDataEventArgs)deserialized);
+                            break;
                         default:
                             throw new Exception("Unknown protocol message");
                     }
@@ -186,9 +179,13 @@ namespace NetworkLayer.Protocol
             }
         }
 
-        public bool SendSignalSettings()
+        public bool SendSignalSettings(ChannelDescription[] channels, NoiseDescription noise)
         {
-            return false;
+            if (channels == null || channels.Length == 0)
+                return false;
+
+            SettingsDataEventArgs data = new SettingsDataEventArgs { channels = channels, noise = noise };
+            return SendStruct(PacketType.SettingsMessage, data);
         }
 
         public bool SendVoiceWindow(byte[] voiceData)

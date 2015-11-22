@@ -19,7 +19,7 @@ namespace Tests
         ServerProtocol protocol = null;
         InternetClientConnectionInterface client = null;
 
-        int protocolPort = 31012;
+        int protocolPort = ProtocolShared.protocolPort;
         int waitingTimeout = 5000;
         string serverName = "MyName";
 
@@ -246,7 +246,7 @@ namespace Tests
 
             byte[] msg = new byte[441000];
             int totalCount = 0;
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < 10; ++i)
             {
                 byte[] tmp = new byte[44100];
                 int count = client.Receive(tmp, 100);
@@ -272,10 +272,7 @@ namespace Tests
             MemoryStream m = new MemoryStream(packets[2].data);
             VoiceWindowDataEventArgs receivedData = (VoiceWindowDataEventArgs)f.Deserialize(m);
             for (int i = 0; i < receivedData.data.Length; ++i)
-            {
-                if (voiceData[i] != receivedData.data[i])
-                    Assert.Fail();
-            }
+                Assert.AreEqual(voiceData[i], receivedData.data[i]);
         }
 
         [TestMethod]
@@ -320,8 +317,46 @@ namespace Tests
         }
 
         [TestMethod]
-        public void NOT_IMPLEMENTED_ProtocolReceiveSettingsEvent()
+        public void ProtocolReceivesSettingsEvent()
         {
+            ManualResetEvent connected = new ManualResetEvent(false);
+            ManualResetEvent messageReceived = new ManualResetEvent(false);
+
+            SettingsDataEventArgs args = null;
+
+            Assert.IsTrue(protocol.Bind("localhost"));
+            protocol.ClientConnected += (s, e) => connected.Set();
+            protocol.SettingsReceive += (s, e) => { messageReceived.Set(); args = e; };
+
+            Assert.IsTrue(client.Connect("localhost", protocolPort));
+            Assert.IsTrue(client.Send(CreateInfoPacket()) > 0);
+            Assert.IsTrue(connected.WaitOne(waitingTimeout));
+
+            // create packet
+            MemoryStream m = new MemoryStream();
+            BinaryFormatter b = new BinaryFormatter();
+            int channelsCount = 2;
+            ChannelDescription[] channelDesc = new ChannelDescription[2];
+            for (int i = 0; i < channelsCount; ++i)
+                channelDesc[i] = new ChannelDescription(10.0, 20.0, 30.0);
+
+            NoiseDescription noiseDesc = new NoiseDescription(10.0, 20.0);
+            SettingsDataEventArgs sentArgs = new SettingsDataEventArgs { channels = channelDesc, noise = noiseDesc };
+            b.Serialize(m, sentArgs);
+
+            Packet packet = new Packet(PacketType.SettingsMessage, m.GetBuffer());
+            Assert.IsTrue(client.Send(packet.SerializedData) > 0);
+            Assert.IsTrue(messageReceived.WaitOne(waitingTimeout));
+
+            Assert.AreEqual(channelDesc.Length, args.channels.Length);
+            for(int i = 0; i < channelsCount; ++i)
+            {
+                Assert.AreEqual(channelDesc[i].carrierFrequency, args.channels[i].carrierFrequency, 0.0001);
+                Assert.AreEqual(channelDesc[i].differenceFrequency, args.channels[i].differenceFrequency, 0.0001);
+                Assert.AreEqual(channelDesc[i].volume, args.channels[i].volume, 0.0001);
+            }
+            Assert.AreEqual(noiseDesc.smoothness, args.noise.smoothness, 0.0001);
+            Assert.AreEqual(noiseDesc.volume, args.noise.volume, 0.0001);
         }
 
         [TestMethod]

@@ -74,7 +74,7 @@ namespace NetworkLayer.Protocol
     [Serializable]
     public class ClientInfoEventArgs : EventArgs
     {
-        public string clientName = null;
+        public string clientName = "";
     }
 
     /// <summary>
@@ -85,7 +85,35 @@ namespace NetworkLayer.Protocol
     [Serializable]
     public class ServerInfoEventArgs : EventArgs
     {
-        public string serverName = null;
+        public string serverName = "";
+    }
+
+    [Serializable]
+    public struct ChannelDescription
+    {
+        public double carrierFrequency;
+        public double differenceFrequency;
+        public double volume;
+
+        public ChannelDescription(double carrierFrequency, double differenceFrequency, double volume)
+        {
+            this.carrierFrequency = carrierFrequency;
+            this.differenceFrequency = differenceFrequency;
+            this.volume = volume;
+        }
+    }
+
+    [Serializable]
+    public struct NoiseDescription
+    {
+        public double smoothness;
+        public double volume;
+
+        public NoiseDescription(double smoothness, double volume)
+        {
+            this.smoothness = smoothness;
+            this.volume = volume;
+        }
     }
 
     /// <summary>
@@ -96,6 +124,8 @@ namespace NetworkLayer.Protocol
     [Serializable]
     public class SettingsDataEventArgs : EventArgs
     {
+        public ChannelDescription[] channels = new ChannelDescription[4];
+        public NoiseDescription noise = new NoiseDescription();
     }
 
     /// <summary>
@@ -104,14 +134,10 @@ namespace NetworkLayer.Protocol
     [Serializable]
     public class SensorsDataEventArgs : EventArgs
     {
-        public double temperatureValue
-        { get; set; } = 0.0;
-        public double skinResistanceValue
-        { get; set; } = 0.0;
-        public double motionValue
-        { get; set; } = 0.0;
-        public double pulseValue
-        { get; set; } = 0.0;
+        public double temperatureValue = 0.0;
+        public double skinResistanceValue = 0.0;
+        public double motionValue = 0.0;
+        public double pulseValue = 0.0;
     }
 
     /// <summary>
@@ -120,6 +146,7 @@ namespace NetworkLayer.Protocol
     [Serializable]
     public class VoiceWindowDataEventArgs : EventArgs
     {
+        public int samplingRate = 44100;
         public byte[] data = new byte[44100]; // sampling rate is 44100 Hz
     }
 
@@ -129,6 +156,7 @@ namespace NetworkLayer.Protocol
     [Serializable]
     public class ClientChatMessageEventArgs : EventArgs
     {
+        public DateTime sentTime = DateTime.Now;
         public string message = "";
     }
 }
