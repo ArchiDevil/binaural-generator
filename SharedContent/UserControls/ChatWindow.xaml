@@ -16,8 +16,14 @@
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1" BorderBrush="#FFABADB3" Margin="5">
+
+        <Border Grid.Row="0" 
+                Grid.Column="0" 
+                Grid.ColumnSpan="2" 
+                BorderThickness="1" 
+                BorderBrush="#FFABADB3" 
+                SnapsToDevicePixels="True" 
+                Margin="5">
             <FlowDocumentScrollViewer VerticalScrollBarVisibility="Auto">
                 <FlowDocument>
                     <Table x:Name="table">
@@ -31,7 +37,17 @@
             </FlowDocumentScrollViewer>
         </Border>
 
-        <TextBox x:Name="chatType" Grid.Row="1" Padding="5" Margin="5 0 5 5" TextWrapping="Wrap" PreviewKeyDown="chatType_PreviewKeyDown"/>
-        <Button x:Name="sendButton" Content="Send" Grid.Row="1" Grid.Column="1" Margin="0 0 5 5" Click="sendButton_Click"/>
+        <TextBox x:Name="chatType" 
+                 Grid.Row="1" 
+                 Padding="5" 
+                 Margin="5 0 5 5" 
+                 TextWrapping="Wrap" 
+                 PreviewKeyDown="chatType_PreviewKeyDown"/>
+        <Button x:Name="sendButton" 
+                Content="Send" 
+                Grid.Row="1" 
+                Grid.Column="1" 
+                Margin="0 0 5 5" 
+                Click="sendButton_Click"/>
     </Grid>
 </UserControl>
