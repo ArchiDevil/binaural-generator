@@ -53,8 +53,11 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ClientNetworkLayerTests.cs" />
+    <Compile Include="ClientProtocolTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerNetworkLayerTests.cs" />
+    <Compile Include="ServerProtocolTests.cs" />
+    <Compile Include="TestsShared.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetworkLayer\NetworkLayer.csproj">

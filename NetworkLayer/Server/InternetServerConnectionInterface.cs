@@ -13,11 +13,12 @@ namespace NetworkLayer
     public class InternetServerConnectionInterface : IServerConnectionInterface
     {
         string bindingPoint = string.Empty;
-        int port = -1;
+        ushort port = 0;
         List<Socket> listenerSockets = null;
         Socket client = null;
 
-        public event ClientConnectedHandler ClientConnected = delegate { };
+        public event ClientConnectedHandler ClientConnected = delegate
+        { };
 
         private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
@@ -53,21 +54,22 @@ namespace NetworkLayer
                     throw new Exception("Wrong startup message");
                 }
 
-                ClientConnected();
+                ClientConnected(this, new EventArgs());
             }
-            catch (Exception)
+            catch (Exception exc)
             {
+                Debug.Assert(false, exc.Message);
                 // unrecoverable error =(
                 Shutdown();
             }
         }
 
-        public bool StartListening(int port)
+        public bool StartListening(ushort port)
         {
             return StartListening("", port);
         }
 
-        public bool StartListening(string bindingPoint, int port)
+        public bool StartListening(string bindingPoint, ushort port)
         {
             Shutdown();
             this.bindingPoint = bindingPoint;
@@ -112,7 +114,11 @@ namespace NetworkLayer
         {
             if (client != null)
             {
-                client.Close();
+                if(client.IsConnected() && client.Connected)
+                {
+                    client.Shutdown(SocketShutdown.Both);
+                    client.Close();
+                }
                 client = null;
             }
 
@@ -120,7 +126,6 @@ namespace NetworkLayer
             {
                 foreach (var socket in listenerSockets)
                 {
-                    socket.Close();
                     socket.Dispose();
                 }
 
@@ -137,10 +142,32 @@ namespace NetworkLayer
             int count = 0;
             try
             {
-                count = client.Receive(data);
+                if (client.Poll(-1, SelectMode.SelectRead) && client.IsConnected())
+                    count = client.Receive(data);
             }
-            catch (SocketException)
+            catch (SocketException e)
             {
+                Debug.Assert(false, e.Message);
+                client.Close();
+                client = null;
+            }
+            return count;
+        }
+
+        public int Receive(byte[] data, int millisecondsTimeout)
+        {
+            if (client == null)
+                return 0;
+
+            int count = 0;
+            try
+            {
+                if (client.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead) && client.IsConnected())
+                    count = client.Receive(data);
+            }
+            catch (SocketException e)
+            {
+                Debug.Assert(false, e.Message);
                 client.Close();
                 client = null;
             }
@@ -155,10 +182,12 @@ namespace NetworkLayer
             int count = 0;
             try
             {
-                count = client.Send(data);
+                if (client.IsConnected())
+                    count = client.Send(data);
             }
-            catch (SocketException)
+            catch (SocketException e)
             {
+                Debug.Assert(false, e.Message);
                 client.Close();
                 client = null;
             }
@@ -171,6 +200,11 @@ namespace NetworkLayer
                 return false;
 
             return listenerSockets.Count > 0;
+        }
+
+        public bool IsClientConnected()
+        {
+            return client != null;
         }
     }
 }
