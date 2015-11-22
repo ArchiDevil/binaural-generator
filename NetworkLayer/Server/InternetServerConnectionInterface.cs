@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
-    public class InternetServerConnectionInterface : IServerConnectionInterface
+    public sealed class InternetServerConnectionInterface : IServerConnectionInterface
     {
         string bindingPoint = string.Empty;
         ushort port = 0;

@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace NetworkLayer.Protocol
 {
-    public class ClientProtocol
+    public sealed class ClientProtocol : IDisposable
     {
         public delegate void SensorsReceiveHandler(object sender, SensorsDataEventArgs e);
         public delegate void VoiceWindowReceiveHandler(object sender, VoiceWindowDataEventArgs e);
@@ -204,6 +204,15 @@ namespace NetworkLayer.Protocol
 
             ClientChatMessageEventArgs data = new ClientChatMessageEventArgs { message = message };
             return SendStruct(PacketType.ChatMessage, data);
+        }
+
+        public void Dispose()
+        {
+            Disconnect();
+            sendingThreadStopped.Dispose();
+            sendingThreadTerminate.Dispose();
+            receivingThreadStopped.Dispose();
+            receivingThreadTerminate.Dispose();
         }
 
         public event SensorsReceiveHandler SensorsReceive = delegate

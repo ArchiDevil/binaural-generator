@@ -7,7 +7,7 @@ using System.Text;
 
 namespace NetworkLayer
 {
-    public class InternetClientConnectionInterface : IClientConnectionInterface, IDisposable
+    public sealed class InternetClientConnectionInterface : IClientConnectionInterface, IDisposable
     {
         string address = string.Empty;
         int port = -1;
