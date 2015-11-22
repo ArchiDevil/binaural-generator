@@ -11,7 +11,7 @@ using SharedLibrary.Models;
 
 namespace SubjectUI
 {
-    public class SubjectApplicationModel : ModelBase
+    public sealed class SubjectApplicationModel : ModelBase, IDisposable
     {
         private bool _connectionStatus = false;
         private bool _enableMicrophone = true;
@@ -70,7 +70,11 @@ namespace SubjectUI
 
         public SubjectApplicationModel()
         {
+#if DEBUG
+            protocol.Bind("localhost");
+#else
             protocol.Bind();
+#endif
             protocol.ClientConnected += ClientConnectionHandler;
 
             // start checking microphone and sensors
@@ -106,6 +110,12 @@ namespace SubjectUI
             // now this is draft, until sensors audiocore won't be completed
             Thread.Sleep(2000);
             return true;
+        }
+
+        public void Dispose()
+        {
+            if (protocol != null)
+                protocol.Dispose();
         }
     }
 }

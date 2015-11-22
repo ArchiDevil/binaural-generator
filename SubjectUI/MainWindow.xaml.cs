@@ -18,7 +18,7 @@ namespace SubjectUI
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public sealed partial class MainWindow : Window, IDisposable
     {
         SubjectApplicationModel model = new SubjectApplicationModel();
 
@@ -26,6 +26,11 @@ namespace SubjectUI
         {
             InitializeComponent();
             DataContext = model;
+        }
+
+        public void Dispose()
+        {
+            model.Dispose();
         }
 
         private void ChatWindow_ChatMessage(string message, DateTime time)
@@ -36,6 +41,12 @@ namespace SubjectUI
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             model.CheckSystems();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            model.Dispose();
+            model = null;
         }
     }
 }

@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         xmlns:shared="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
         Title="Subject application" Height="350" Width="525"
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+        Closed="Window_Closed">
     <Window.Resources>
         <Style TargetType="TextBox">
             <Setter Property="Margin" 
