@@ -14,7 +14,7 @@ using NetworkLayer.Protocol;
 namespace Tests
 {
     [TestClass]
-    public class ServerProtocolTests
+    public sealed class ServerProtocolTests : IDisposable
     {
         ServerProtocol protocol = null;
         InternetClientConnectionInterface client = null;
@@ -430,6 +430,15 @@ namespace Tests
             MemoryStream m = new MemoryStream(packets[1].data);
             ServerInfoEventArgs serverInfo = (ServerInfoEventArgs)f.Deserialize(m);
             Assert.AreEqual(serverName, serverInfo.serverName);
+        }
+
+        public void Dispose()
+        {
+            if (protocol != null)
+                protocol.Dispose();
+
+            if (client != null)
+                client.Dispose();
         }
     }
 }

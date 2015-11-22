@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,7 +8,7 @@ using NetworkLayer;
 namespace Tests
 {
     [TestClass]
-    public class ServerNetworkLayerTests
+    public sealed class ServerNetworkLayerTests : IDisposable
     {
         InternetServerConnectionInterface server = null;
         InternetClientConnectionInterface client = null;
@@ -314,6 +315,15 @@ namespace Tests
 
             EndClient();
             EndServer();
+        }
+
+        public void Dispose()
+        {
+            if (client != null)
+                client.Dispose();
+
+            if (server != null)
+                server.Dispose();
         }
     }
 }

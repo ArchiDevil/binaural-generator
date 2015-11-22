@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace NetworkLayer.Protocol
 {
-    public class ServerProtocol : IDisposable
+    public sealed class ServerProtocol : IDisposable
     {
         IServerConnectionInterface connectionInterface = null;
         Thread sendingWorker = null;
@@ -39,6 +39,8 @@ namespace NetworkLayer.Protocol
         {
             while (true)
             {
+                Thread.Yield();
+
                 if (!connectionInterface.IsListening() ||
                     !connectionInterface.IsClientConnected() ||
                     sendingThreadTerminate.WaitOne(0))
@@ -62,6 +64,8 @@ namespace NetworkLayer.Protocol
 
             while (true)
             {
+                Thread.Yield();
+
                 if (!connectionInterface.IsListening() ||
                     !connectionInterface.IsClientConnected() ||
                     receivingThreadTerminate.WaitOne(0))
@@ -206,6 +210,11 @@ namespace NetworkLayer.Protocol
         public void Dispose()
         {
             Stop();
+
+            sendingThreadStopped.Dispose();
+            sendingThreadTerminate.Dispose();
+            receivingThreadStopped.Dispose();
+            receivingThreadTerminate.Dispose();
         }
 
         private bool SendPacket(PacketType type, byte[] data)

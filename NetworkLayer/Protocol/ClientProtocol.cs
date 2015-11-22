@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace NetworkLayer.Protocol
 {
-    public class ClientProtocol
+    public sealed class ClientProtocol : IDisposable
     {
         public delegate void SensorsReceiveHandler(object sender, SensorsDataEventArgs e);
         public delegate void VoiceWindowReceiveHandler(object sender, VoiceWindowDataEventArgs e);
@@ -32,6 +32,8 @@ namespace NetworkLayer.Protocol
         {
             while (true)
             {
+                Thread.Yield();
+
                 if (connectionInterface == null ||
                     !connectionInterface.IsConnected() ||
                     sendingThreadTerminate.WaitOne(0))
@@ -55,6 +57,8 @@ namespace NetworkLayer.Protocol
 
             while (true)
             {
+                Thread.Yield();
+
                 if (!connectionInterface.IsConnected() ||
                     receivingThreadTerminate.WaitOne(0))
                     break;
@@ -87,6 +91,10 @@ namespace NetworkLayer.Protocol
                             break;
                         case PacketType.SensorsMessage:
                             SensorsReceive(this, (SensorsDataEventArgs)deserialized);
+                            break;
+                        case PacketType.ProtocolInfoMessage:
+                            break;
+                        case PacketType.ServerInfoMessage:
                             break;
                         default:
                             throw new Exception("Unknown protocol message");
@@ -204,6 +212,19 @@ namespace NetworkLayer.Protocol
 
             ClientChatMessageEventArgs data = new ClientChatMessageEventArgs { message = message };
             return SendStruct(PacketType.ChatMessage, data);
+        }
+
+        public void Dispose()
+        {
+            sendingThreadTerminate.Set();
+            receivingThreadTerminate.Set();
+
+            Disconnect();
+
+            sendingThreadStopped.Dispose();
+            sendingThreadTerminate.Dispose();
+            receivingThreadStopped.Dispose();
+            receivingThreadTerminate.Dispose();
         }
 
         public event SensorsReceiveHandler SensorsReceive = delegate

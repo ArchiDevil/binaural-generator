@@ -13,7 +13,7 @@ using NetworkLayer.Protocol;
 namespace Tests
 {
     [TestClass]
-    public class ClientProtocolTests
+    public sealed class ClientProtocolTests : IDisposable
     {
         ClientProtocol protocol = null;
         InternetServerConnectionInterface server = null;
@@ -115,7 +115,7 @@ namespace Tests
 
             int channelsCount = 2;
             ChannelDescription[] channelDesc = new ChannelDescription[channelsCount];
-            for(int i = 0; i < channelsCount; ++i)
+            for (int i = 0; i < channelsCount; ++i)
             {
                 channelDesc[i] = new ChannelDescription(440.0, 10.0, 1.0);
             }
@@ -152,7 +152,7 @@ namespace Tests
             Assert.AreEqual(args.noise.smoothness, noiseDesc.smoothness, 0.0001);
             Assert.AreEqual(args.noise.volume, noiseDesc.volume, 0.0001);
 
-            for(int i = 0; i < channelsCount; ++i)
+            for (int i = 0; i < channelsCount; ++i)
             {
                 Assert.AreEqual(args.channels[i].carrierFrequency, channelDesc[i].carrierFrequency, 0.0001);
                 Assert.AreEqual(args.channels[i].differenceFrequency, channelDesc[i].differenceFrequency, 0.0001);
@@ -344,6 +344,15 @@ namespace Tests
             Assert.IsTrue(server.Send(p.SerializedData) > 0);
             Assert.IsTrue(messageReceived.WaitOne(waitingTimeout));
             Assert.AreEqual(sentArgs.message, args.message);
+        }
+
+        public void Dispose()
+        {
+            if (protocol != null)
+                protocol.Dispose();
+
+            if (server != null)
+                server.Dispose();
         }
     }
 }

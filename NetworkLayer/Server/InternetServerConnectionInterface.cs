@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
-    public class InternetServerConnectionInterface : IServerConnectionInterface
+    public sealed class InternetServerConnectionInterface : IServerConnectionInterface, IDisposable
     {
         string bindingPoint = string.Empty;
         ushort port = 0;
@@ -205,6 +205,11 @@ namespace NetworkLayer
         public bool IsClientConnected()
         {
             return client != null;
+        }
+
+        public void Dispose()
+        {
+            Shutdown();
         }
     }
 }
