@@ -123,18 +123,6 @@ namespace NetworkLayer.Protocol
             return result;
         }
 
-        public bool Bind(string host)
-        {
-            connectionInterface = new InternetServerConnectionInterface();
-            if (connectionInterface == null)
-                return false;
-
-            connectionInterface.ClientConnected += ClientConnectedEvent;
-            bool result = connectionInterface.StartListening(host, ProtocolShared.protocolPort);
-
-            return result;
-        }
-
         public void Stop()
         {
             if (sendingWorker != null)

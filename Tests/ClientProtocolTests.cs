@@ -42,14 +42,14 @@ namespace Tests
         [TestMethod]
         public void CanProtocolConnect()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
         }
 
         [TestMethod]
         public void CanProtocolConnectTwice()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
             Assert.IsTrue(protocol.Connect("localhost"));
         }
@@ -57,7 +57,7 @@ namespace Tests
         [TestMethod]
         public void CanProtocolDisconnect()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
             protocol.Disconnect();
             Thread.Sleep(10);
@@ -81,7 +81,7 @@ namespace Tests
         [TestMethod]
         public void CanProtocolReconnect()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
             protocol.Disconnect();
             Assert.IsTrue(protocol.Connect("localhost"));
@@ -90,7 +90,7 @@ namespace Tests
         [TestMethod]
         public void ClientSendsInfoAfterConnect()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             byte[] buffer = new byte[1024];
@@ -110,7 +110,7 @@ namespace Tests
         [TestMethod]
         public void ClientSendsSignalSettings()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             int channelsCount = 2;
@@ -163,7 +163,7 @@ namespace Tests
         [TestMethod]
         public void ClientSendSignalSettingsFailed()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             ChannelDescription[] desc = new ChannelDescription[0];
@@ -174,7 +174,7 @@ namespace Tests
         [TestMethod]
         public void ClientSendsVoiceWindow()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             byte[] voice = new byte[100];
@@ -212,7 +212,7 @@ namespace Tests
         [TestMethod]
         public void ClientSendVoiceWindowFailed()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             byte[] b = new byte[0];
@@ -223,7 +223,7 @@ namespace Tests
         [TestMethod]
         public void ClientSendsChatMessage()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             string message = "hello";
@@ -261,7 +261,7 @@ namespace Tests
         [TestMethod]
         public void ClientSendChatMessageFailed()
         {
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             Assert.IsFalse(protocol.SendChatMessage(null));
@@ -276,7 +276,7 @@ namespace Tests
             MemoryStream m = new MemoryStream();
             BinaryFormatter b = new BinaryFormatter();
 
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             protocol.SensorsReceive += (s, e) => { messageReceived.Set(); args = e; };
@@ -306,7 +306,7 @@ namespace Tests
             for (int i = 0; i < voiceData.Length; ++i)
                 voiceData[i] = (byte)i;
 
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             protocol.VoiceWindowReceive += (s, e) => { messageReceived.Set(); args = e; };
@@ -331,7 +331,7 @@ namespace Tests
             BinaryFormatter b = new BinaryFormatter();
             string chatMessage = "Hello";
 
-            Assert.IsTrue(server.StartListening("localhost", protocolPort));
+            Assert.IsTrue(server.StartListening(protocolPort));
             Assert.IsTrue(protocol.Connect("localhost"));
 
             protocol.ChatMessageReceive += (s, e) => { messageReceived.Set(); args = e; };
