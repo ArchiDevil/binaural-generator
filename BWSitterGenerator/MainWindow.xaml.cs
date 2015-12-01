@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 
 using BWSitterGenerator.Models;
 using SharedLibrary.AudioProviders;
+using NAudio.Wave;
 
 namespace BWSitterGenerator
 {
@@ -27,6 +28,7 @@ namespace BWSitterGenerator
         SignalModel[] signalModels = null;
         NoiseModel noiseModel = null;
         Playback playback = null;
+        Record record = null;
 
         public MainWindow()
         {
@@ -44,6 +46,7 @@ namespace BWSitterGenerator
             NoiseChannel.DataContext = noiseModel;
 
             playback = new Playback(new ConstantSampleProvider(signalModels, noiseModel));
+            record = new Record();
         }
 
         private void PlayMenu_Click(object sender, RoutedEventArgs e)
@@ -81,6 +84,16 @@ namespace BWSitterGenerator
         private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
+        }
+
+        private void RecordMenu_Click(object sender, RoutedEventArgs e)
+        {
+            record.StartRecording("record.wav");
+        }
+
+        private void MuteMenu_Click(object sender, RoutedEventArgs e)
+        {
+            record.StopRecording();
         }
     }
 }

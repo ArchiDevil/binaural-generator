@@ -66,6 +66,8 @@
             <MenuItem Header="Start" Click="PlayMenu_Click"/>
             <MenuItem Header="Pause" Click="PauseMenu_Click"/>
             <MenuItem Header="Stop" Click="StopMenu_Click"/>
+            <MenuItem Header="Record" Click="RecordMenu_Click" />
+            <MenuItem Header="Mute" Click="MuteMenu_Click" />
         </Menu>
 
         <GroupBox x:Name="Channel1" Grid.Row="1" Grid.RowSpan="3" Grid.Column="0">
