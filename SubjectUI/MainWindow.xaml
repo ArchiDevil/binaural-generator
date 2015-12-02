@@ -9,6 +9,7 @@
         Title="Subject application" Height="350" Width="525"
         Loaded="Window_Loaded"
         Closed="Window_Closed">
+    
     <Window.Resources>
         <Style TargetType="TextBox">
             <Setter Property="Margin" 
@@ -32,7 +33,8 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <shared:ChatWindow IsEnabled="{Binding IsConnected}" 
+        <shared:ChatWindow x:Name="chatWindow"
+                           IsEnabled="{Binding IsConnected}" 
                            ChatMessage="ChatWindow_ChatMessage"/>
 
         <Grid Grid.Column="1">
@@ -52,37 +54,37 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="Connection status: "/>
-            
+
             <TextBlock Grid.Column="1" 
                        Text="{Binding ConnectionStatus, Mode=OneWay}"/>
-            
+
             <CheckBox Grid.Row="1" 
                       Grid.ColumnSpan="2" 
                       IsEnabled="{Binding IsConnected}" 
                       IsChecked="{Binding EnableMicrophone}" 
                       Content="Enable microphone"/>
-            
+
             <CheckBox Grid.Row="2" Grid.ColumnSpan="2" 
                       IsEnabled="{Binding IsConnected}" 
                       IsChecked="{Binding EnableVoice}" 
                       Content="Enable experimenter's voice"/>
-            
+
             <CheckBox Grid.Row="3" 
                       Grid.ColumnSpan="2" 
                       IsEnabled="{Binding IsConnected}" 
                       IsChecked="{Binding EnableSignals}" 
                       Content="Enable signals"/>
-            
+
             <Separator Grid.Row="4" 
                        Grid.ColumnSpan="2"
                        Margin="5"/>
-            
+
             <CheckBox Grid.Row="5" 
                       Grid.ColumnSpan="2" 
                       IsEnabled="False" 
                       IsChecked="{Binding AreSensorsEnabled, Mode=OneWay}" 
                       Content="Sensors enabled"/>
-            
+
             <CheckBox Grid.Row="6" 
                       Grid.ColumnSpan="2" 
                       IsEnabled="False" 

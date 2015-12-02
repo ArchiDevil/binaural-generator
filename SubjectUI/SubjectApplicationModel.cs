@@ -20,16 +20,26 @@ namespace SubjectUI
 
         private bool _areSensorsEnabled = false;
         private bool _isMicrophoneEnabled = false;
+        private bool _areHeadphonesWorked = false;
 
         private ServerProtocol protocol = new ServerProtocol("Subject");
 
-        private void ClientConnectionHandler(object sender, ClientInfoEventArgs e)
+        public delegate void ChatMessageReceiveHandler(string message, DateTime time);
+        public event ChatMessageReceiveHandler ChatMessageReceivedEvent = delegate { };
+
+        private void ClientConnected(object sender, ClientInfoEventArgs e)
         {
             _connectionStatus = true;
             RaisePropertyChanged("ConnectionStatus");
             RaisePropertyChanged("IsConnected");
         }
 
+        private void ChatMessageReceived(object sender, ClientChatMessageEventArgs e)
+        {
+            ChatMessageReceivedEvent(e.message, e.sentTime);
+        }
+
+        #region Public Properties
         public string ConnectionStatus
         {
             get { return _connectionStatus ? "Connected" : "Waiting connection"; }
@@ -67,15 +77,13 @@ namespace SubjectUI
         {
             get { return _isMicrophoneEnabled; }
         }
+        #endregion
 
         public SubjectApplicationModel()
         {
-#if DEBUG
-            protocol.Bind("localhost");
-#else
             protocol.Bind();
-#endif
-            protocol.ClientConnected += ClientConnectionHandler;
+            protocol.ClientConnected += ClientConnected;
+            protocol.ChatMessageReceive += ChatMessageReceived;
 
             // start checking microphone and sensors
         }

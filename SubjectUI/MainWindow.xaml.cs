@@ -26,6 +26,12 @@ namespace SubjectUI
         {
             InitializeComponent();
             DataContext = model;
+            model.ChatMessageReceivedEvent += Model_ChatMessageReceivedEvent;
+        }
+
+        private void Model_ChatMessageReceivedEvent(string message, DateTime time)
+        {
+            chatWindow.PushChatMessage(message, time);
         }
 
         public void Dispose()
