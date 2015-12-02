@@ -338,7 +338,7 @@ namespace Tests
             int channelsCount = 2;
             ChannelDescription[] channelDesc = new ChannelDescription[2];
             for (int i = 0; i < channelsCount; ++i)
-                channelDesc[i] = new ChannelDescription(10.0, 20.0, 30.0);
+                channelDesc[i] = new ChannelDescription(10.0, 20.0, 30.0, true);
 
             NoiseDescription noiseDesc = new NoiseDescription(10.0, 20.0);
             SettingsDataEventArgs sentArgs = new SettingsDataEventArgs { channels = channelDesc, noise = noiseDesc };
@@ -354,6 +354,7 @@ namespace Tests
                 Assert.AreEqual(channelDesc[i].carrierFrequency, args.channels[i].carrierFrequency, 0.0001);
                 Assert.AreEqual(channelDesc[i].differenceFrequency, args.channels[i].differenceFrequency, 0.0001);
                 Assert.AreEqual(channelDesc[i].volume, args.channels[i].volume, 0.0001);
+                Assert.AreEqual(channelDesc[i].enabled, args.channels[i].enabled);
             }
             Assert.AreEqual(noiseDesc.smoothness, args.noise.smoothness, 0.0001);
             Assert.AreEqual(noiseDesc.volume, args.noise.volume, 0.0001);

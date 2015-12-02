@@ -78,6 +78,7 @@ namespace ExperimenterUI
                 channelDescs[i].carrierFrequency = signalModels[i].Frequency;
                 channelDescs[i].differenceFrequency = signalModels[i].Difference;
                 channelDescs[i].volume = signalModels[i].Gain;
+                channelDescs[i].enabled = signalModels[i].Enabled;
             }
 
             NoiseDescription noiseDesc = new NoiseDescription();

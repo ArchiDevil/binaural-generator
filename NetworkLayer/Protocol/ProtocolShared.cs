@@ -94,12 +94,14 @@ namespace NetworkLayer.Protocol
         public double carrierFrequency;
         public double differenceFrequency;
         public double volume;
+        public bool   enabled;
 
-        public ChannelDescription(double carrierFrequency, double differenceFrequency, double volume)
+        public ChannelDescription(double carrierFrequency, double differenceFrequency, double volume, bool enabled)
         {
             this.carrierFrequency = carrierFrequency;
             this.differenceFrequency = differenceFrequency;
             this.volume = volume;
+            this.enabled = enabled;
         }
     }
 

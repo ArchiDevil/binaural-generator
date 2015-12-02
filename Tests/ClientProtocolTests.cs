@@ -117,7 +117,7 @@ namespace Tests
             ChannelDescription[] channelDesc = new ChannelDescription[channelsCount];
             for (int i = 0; i < channelsCount; ++i)
             {
-                channelDesc[i] = new ChannelDescription(440.0, 10.0, 1.0);
+                channelDesc[i] = new ChannelDescription(440.0, 10.0, 1.0, true);
             }
             NoiseDescription noiseDesc = new NoiseDescription(10.0, 1.0);
             Assert.IsTrue(protocol.SendSignalSettings(channelDesc, noiseDesc));
@@ -157,6 +157,7 @@ namespace Tests
                 Assert.AreEqual(args.channels[i].carrierFrequency, channelDesc[i].carrierFrequency, 0.0001);
                 Assert.AreEqual(args.channels[i].differenceFrequency, channelDesc[i].differenceFrequency, 0.0001);
                 Assert.AreEqual(args.channels[i].volume, channelDesc[i].volume, 0.0001);
+                Assert.AreEqual(args.channels[i].enabled, channelDesc[i].enabled);
             }
         }
 
