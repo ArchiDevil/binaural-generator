@@ -37,8 +37,11 @@ namespace SharedLibrary.AudioProviders
 
         private void RecordingStopped(object sender, StoppedEventArgs e)
         {
-            writer.Close();
-            writer = null;
+            if (writer != null)
+            {
+                writer.Close();
+                writer = null;
+            }
         }
     }
 }
