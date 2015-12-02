@@ -6,15 +6,56 @@
         xmlns:local="clr-namespace:ExperimenterUI"
         mc:Ignorable="d"
         xmlns:shared="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
-        Title="MainWindow" Height="350" Width="525"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="Experimenter application"
+        Height="400"
         Closed="Window_Closed">
+
     <Window.Resources>
-        <Style TargetType="TextBox">
-            <Setter Property="Margin" Value="5"/>
-        </Style>
+        <sys:String x:Key="VolumeString">Volume, %</sys:String>
+        <sys:String x:Key="CarrierString">Tone, Hz</sys:String>
+        <sys:String x:Key="FreqString">Diff, Hz</sys:String>
+        <sys:String x:Key="SmoothString">Smoothness</sys:String>
 
         <Style TargetType="TextBlock">
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Margin"
+                    Value="5"/>
+        </Style>
+
+        <Style TargetType="Rectangle" x:Key="rectangleStatusStyle">
+            <Setter Property="Fill" Value="Red"/>
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="RadiusX" Value="12"/>
+            <Setter Property="RadiusY" Value="12"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsConnected}" 
+                             Value="True">
+                    <Setter Property="Fill" 
+                            Value="Green"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="Slider">
+            <Setter Property="Slider.TickPlacement" 
+                    Value="TopLeft"/>
+
+            <Setter Property="Slider.IsSnapToTickEnabled" 
+                    Value="True"/>
+
+            <Setter Property="Margin" 
+                    Value="5"/>
+
+            <Setter Property="Foreground" 
+                    Value="Blue"/>
+
+            <Setter Property="HorizontalAlignment" 
+                    Value="Center"/>
+
+            <Setter Property="Orientation" 
+                    Value="Vertical"/>
         </Style>
     </Window.Resources>
 
@@ -24,38 +65,149 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Menu>
+        <Menu Background="White">
             <MenuItem Header="Session">
-                <MenuItem Header="New session" IsEnabled="False"/>
-                <MenuItem Header="Open session" IsEnabled="False"/>
+                <MenuItem Header="New session"
+                          IsEnabled="False"/>
+                <MenuItem Header="Open session"
+                          IsEnabled="False"/>
             </MenuItem>
-            <MenuItem Header="Connect..." Click="ConnectMenuItem_Click"/>
-            <MenuItem Header="Exit" Click="ExitMenuItem_Click"/>
+
+            <MenuItem Click="ConnectMenuItem_Click">
+                <MenuItem.Header>
+                    <WrapPanel>
+                        <Rectangle x:Name="connectionStatusRectangle" 
+                                   Style="{StaticResource rectangleStatusStyle}"
+                                   Margin="3 0 3 0"/>
+                        <TextBlock Text="Connect..." Margin="1"/>
+                    </WrapPanel>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem Header="Exit"
+                      Click="ExitMenuItem_Click"/>
         </Menu>
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition MinWidth="200" 
+                                  Width="1*"/>
+                <ColumnDefinition MinWidth="200" 
+                                  Width="auto"/>
+                <ColumnDefinition MinWidth="130" 
+                                  Width="auto"/>
             </Grid.ColumnDefinitions>
 
-            <shared:ChatWindow IsEnabled="{Binding IsConnected}" ChatMessage="ChatWindow_ChatMessage"/>
+            <shared:ChatWindow x:Name="chatWindow"
+                               IsEnabled="{Binding IsConnected}"
+                               ChatMessage="ChatWindow_ChatMessage"/>
 
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
+            <ItemsControl x:Name="controlsPanel" 
+                          Grid.Column="1"
+                          ItemsSource="{Binding SignalModels}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <GroupBox>
+                            <GroupBox.Header>
+                                <CheckBox Content="{Binding SignalName}"
+                                          IsChecked="{Binding Enabled}"/>
+                            </GroupBox.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
 
-                <TextBlock Text="Connection status: " Grid.Column="0" Grid.Row="0"/>
-                <TextBlock Text="{Binding ConnectionStatus}" Grid.Column="1" Grid.Row="0"/>
-            </Grid>
+                                <TextBlock Text="{StaticResource VolumeString}" 
+                                           Margin="5"/>
+                                <Slider Maximum="{Binding MaxGain}" 
+                                        Minimum="{Binding MinGain}" 
+                                        Value="{Binding Gain}" 
+                                        Grid.Row="1"/>
+                                <shared:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" 
+                                                        Grid.Row="2"/>
+
+                                <TextBlock Text="{StaticResource CarrierString}" 
+                                           Grid.Column="1"
+                                           Margin="5"/>
+                                <Slider Grid.Column="1" 
+                                        Grid.Row="1" 
+                                        Maximum="{Binding MaxFrequency}" 
+                                        Minimum="{Binding MinFrequency}" 
+                                        Value="{Binding Frequency}" 
+                                        TickFrequency="{Binding FrequencyStep}"/>
+                                <shared:EditableTextBox Grid.Column="1" 
+                                                        Text="{Binding Frequency}" 
+                                                        Grid.Row="2"/>
+
+                                <TextBlock Text="{StaticResource FreqString}" 
+                                           Grid.Column="2"
+                                           Margin="5"/>
+                                <Slider Grid.Column="2" 
+                                        Grid.Row="1" 
+                                        Maximum="{Binding MaxDifference}" 
+                                        Minimum="{Binding MinDifference}" 
+                                        Value="{Binding Difference}" 
+                                        TickFrequency="{Binding DifferenceStep}"/>
+                                <shared:EditableTextBox Text="{Binding Difference}" 
+                                                        Grid.Column="2" 
+                                                        Grid.Row="2"/>
+                            </Grid>
+                        </GroupBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <GroupBox x:Name="noiseChannelPanel" 
+                      Grid.Column="2">
+                <GroupBox.Header>
+                    <CheckBox Content="{Binding Path=NoiseModel.SignalName}" 
+                              IsChecked="{Binding Path=NoiseModel.Enabled}"/>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="{StaticResource VolumeString}"/>
+                    <Slider Maximum="{Binding Path=NoiseModel.MaxGain}" 
+                            Minimum="{Binding Path=NoiseModel.MinGain}" 
+                            Value="{Binding Path=NoiseModel.Gain}" 
+                            Grid.Row="1"/>
+                    <shared:EditableTextBox Text="{Binding Path=NoiseModel.Gain}" 
+                                            Grid.Row="2"/>
+
+                    <TextBlock Text="{StaticResource SmoothString}" 
+                               Grid.Column="1"/>
+                    <Slider Grid.Column="1" 
+                            Maximum="{Binding Path=NoiseModel.MaxSmoothness}" 
+                            Minimum="{Binding Path=NoiseModel.MinSmoothness}" 
+                            Value="{Binding Path=NoiseModel.Smoothness}"
+                            Grid.Row="1" 
+                            TickFrequency="{Binding Path=NoiseModel.SmoothnessStep}"/>
+                    <shared:EditableTextBox Grid.Column="1" 
+                                            Text="{Binding Path=NoiseModel.Smoothness}" 
+                                            Grid.Row="2"/>
+                </Grid>
+            </GroupBox>
         </Grid>
     </Grid>
 </Window>

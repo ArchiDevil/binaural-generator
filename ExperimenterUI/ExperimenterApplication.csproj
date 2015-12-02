@@ -67,6 +67,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\BaseSignalModel.cs" />
+    <Compile Include="Models\NoiseViewModel.cs" />
     <Page Include="Windows\ConnectionDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -79,7 +81,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ExperimenterApplicationModel.cs" />
+    <Compile Include="Models\ExperimenterApplicationModel.cs" />
+    <Compile Include="Models\SignalViewModel.cs" />
     <Compile Include="Windows\ConnectionDialog.xaml.cs">
       <DependentUpon>ConnectionDialog.xaml</DependentUpon>
     </Compile>

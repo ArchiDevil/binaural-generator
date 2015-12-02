@@ -13,6 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using ExperimenterUI.Models;
+
+using NetworkLayer.Protocol;
+
 namespace ExperimenterUI.Windows
 {
     /// <summary>
@@ -20,12 +24,16 @@ namespace ExperimenterUI.Windows
     /// </summary>
     public sealed partial class MainWindow : Window, IDisposable
     {
-        ExperimenterApplicationModel model = new ExperimenterApplicationModel();
+        private ClientProtocol protocol = new ClientProtocol("TEST TEST TEST");
+        private ExperimenterApplicationModel model = null;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            model = new ExperimenterApplicationModel(protocol);
             DataContext = model;
+            model.ChatMessageReceived += ChatMessageReceiveHandler;
         }
 
         private void ChatWindow_ChatMessage(string message, DateTime time)
@@ -53,6 +61,11 @@ namespace ExperimenterUI.Windows
         {
             model.Dispose();
             model = null;
+        }
+
+        private void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e)
+        {
+            chatWindow.PushChatMessage(e.message, e.sentTime);
         }
     }
 }
