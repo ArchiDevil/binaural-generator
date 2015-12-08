@@ -115,7 +115,8 @@ namespace NetworkLayer.Protocol
 
         private bool SendPacket(PacketType type, byte[] data)
         {
-            if (!connectionInterface.IsConnected() ||
+            if (connectionInterface == null ||
+                !connectionInterface.IsConnected() ||
                 type == PacketType.Unknown ||
                 data.Length == 0)
                 return false;
