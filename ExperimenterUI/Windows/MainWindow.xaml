@@ -8,7 +8,8 @@
         xmlns:shared="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Experimenter application"
-        Height="400"
+        Height="650"
+        SizeToContent="Width"
         Closed="Window_Closed">
 
     <Window.Resources>
@@ -63,6 +64,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
 
         <Menu Background="White">
@@ -89,20 +91,67 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="200" 
-                                  Width="1*"/>
-                <ColumnDefinition MinWidth="200" 
-                                  Width="auto"/>
-                <ColumnDefinition MinWidth="130" 
-                                  Width="auto"/>
+                <ColumnDefinition MinWidth="250" 
+                                  MaxWidth="400" 
+                                  Width="325"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
             <shared:ChatWindow x:Name="chatWindow"
                                IsEnabled="{Binding IsConnected}"
                                ChatMessage="ChatWindow_ChatMessage"/>
 
-            <ItemsControl x:Name="controlsPanel" 
-                          Grid.Column="1"
+            <GridSplitter Grid.Column="1" 
+                          Width="3" 
+                          Margin="3" 
+                          HorizontalAlignment="Center"/>
+
+            <GroupBox Header="Session status"
+                      Grid.Column="2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Session time: " 
+                               Grid.Row="0" 
+                               Grid.Column="0"/>
+
+                    <TextBlock Text="{Binding SessionTime}" 
+                               Grid.Row="0" 
+                               Grid.Column="1"/>
+
+                    <TextBlock Text="Subject's name: " 
+                               Grid.Row="1" 
+                               Grid.Column="0"/>
+
+                    <TextBlock Text="{Binding SubjectName}" 
+                               Grid.Row="1" 
+                               Grid.Column="1"/>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="200" 
+                                  Width="auto"/>
+                <ColumnDefinition MinWidth="130" 
+                                  Width="auto"/>
+            </Grid.ColumnDefinitions>
+
+            <ItemsControl x:Name="controlsPanel"
                           ItemsSource="{Binding SignalModels}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -170,7 +219,7 @@
             </ItemsControl>
 
             <GroupBox x:Name="noiseChannelPanel" 
-                      Grid.Column="2">
+                      Grid.Column="1">
                 <GroupBox.Header>
                     <CheckBox Content="{Binding Path=NoiseModel.SignalName}" 
                               IsChecked="{Binding Path=NoiseModel.Enabled}"/>
