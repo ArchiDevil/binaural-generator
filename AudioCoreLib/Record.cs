@@ -1,7 +1,6 @@
 ﻿using NAudio.Wave;
-using System;
 
-namespace SharedLibrary.AudioProviders
+namespace AudioCoreLib
 {
     public class Record
     {

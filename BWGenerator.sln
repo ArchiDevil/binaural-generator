@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkLayer", "NetworkLaye
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{DE99B66F-CA9C-428B-B0FD-6E169B6A08D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioCoreLib", "AudioCoreLib\AudioCoreLib.csproj", "{B18C8FEE-CB53-498E-83D5-E2EBD5D989F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioLayer", "AudioLayer\AudioLayer.csproj", "{2A1C9284-805E-4A20-9EA2-044BBFC3B1D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{DE99B66F-CA9C-428B-B0FD-6E169B6A08D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE99B66F-CA9C-428B-B0FD-6E169B6A08D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE99B66F-CA9C-428B-B0FD-6E169B6A08D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B18C8FEE-CB53-498E-83D5-E2EBD5D989F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B18C8FEE-CB53-498E-83D5-E2EBD5D989F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B18C8FEE-CB53-498E-83D5-E2EBD5D989F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B18C8FEE-CB53-498E-83D5-E2EBD5D989F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A1C9284-805E-4A20-9EA2-044BBFC3B1D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A1C9284-805E-4A20-9EA2-044BBFC3B1D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A1C9284-805E-4A20-9EA2-044BBFC3B1D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A1C9284-805E-4A20-9EA2-044BBFC3B1D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
