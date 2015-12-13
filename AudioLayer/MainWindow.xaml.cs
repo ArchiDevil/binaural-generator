@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using AudioCoreLib;
+using NetworkLayer;
+using NetworkLayer.Protocol;
 
 namespace AudioLayer
 {
@@ -11,10 +13,28 @@ namespace AudioLayer
         Record record = null;
         bool recordState = false;
 
+        InternetServerConnectionInterface server = null;
+        InternetClientConnectionInterface client = null;
+
         public MainWindow()
         {
             InitializeComponent();
-            record = new Record();
+
+            server = new InternetServerConnectionInterface();
+            server.StartListening("localhost", 11000);
+
+            ClientProtocol protocol = new ClientProtocol("MyClient");
+            protocol.Connect("localhost");
+            //client = new InternetClientConnectionInterface();
+            //client.Connect("localhost", 11000);
+
+            record = new Record(protocol);
+        }
+
+        ~MainWindow()
+        {
+            //client.Disconnect();
+            server.Shutdown();
         }
 
         private void Recordbutton_Click(object sender, RoutedEventArgs e)
@@ -28,9 +48,14 @@ namespace AudioLayer
             else
             {
                 Recordbutton.Content = "Mute";
-                record.StartRecording("record.wav");
+                record.StartRecording();
                 recordState = true;
             }
+        }
+
+        private void RecordInput(object sender, WaveInEventArgs e)
+        {
+
         }
     }
 }

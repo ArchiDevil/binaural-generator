@@ -1,4 +1,6 @@
 ﻿using NAudio.Wave;
+using System;
+using NetworkLayer.Protocol;
 
 namespace AudioCoreLib
 {
@@ -8,6 +10,8 @@ namespace AudioCoreLib
         WaveFormat format = new WaveFormat(8000, 16, 1);
         WaveFileWriter writer = null;
 
+        ClientProtocol protocol = null;
+
         public Record()
         {
             input.WaveFormat = format;
@@ -15,9 +19,21 @@ namespace AudioCoreLib
             input.RecordingStopped += RecordingStopped;
         }
 
+        public Record(ClientProtocol argProtocol)
+        {
+            protocol = argProtocol;
+            input.WaveFormat = format;
+            input.DataAvailable += RecordInput;
+        }
+
         public void StartRecording(string outputFileName)
         {
             writer = new WaveFileWriter(outputFileName, format);
+            input.StartRecording();
+        }
+
+        public void StartRecording()
+        {
             input.StartRecording();
         }
 
@@ -31,6 +47,10 @@ namespace AudioCoreLib
             if (writer != null)
             {
                 writer.Write(e.Buffer, 0, e.BytesRecorded);
+            }
+            else
+            {
+                protocol.SendVoiceWindow(e.Buffer);
             }
         }
 
