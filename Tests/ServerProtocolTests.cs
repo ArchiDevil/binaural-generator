@@ -14,7 +14,7 @@ using NetworkLayer.Protocol;
 namespace Tests
 {
     [TestClass]
-    public class ServerProtocolTests
+    public sealed class ServerProtocolTests : IDisposable
     {
         ServerProtocol protocol = null;
         InternetClientConnectionInterface client = null;
@@ -53,14 +53,14 @@ namespace Tests
         [TestMethod]
         public void CanProtocolBind()
         {
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             Assert.IsTrue(client.Connect("localhost", protocolPort));
         }
 
         [TestMethod]
         public void CanProtocolStop()
         {
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             Assert.IsTrue(client.Connect("localhost", protocolPort));
             client.Disconnect();
             protocol.Stop();
@@ -72,7 +72,7 @@ namespace Tests
         {
             for (int i = 0; i < 5; ++i)
             {
-                Assert.IsTrue(protocol.Bind("localhost"));
+                Assert.IsTrue(protocol.Bind());
                 Assert.IsTrue(client.Connect("localhost", protocolPort));
                 client.Disconnect();
                 protocol.Stop();
@@ -84,7 +84,7 @@ namespace Tests
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             protocol.ClientConnected += (s, e) => ev.Set();
             Assert.IsTrue(client.Connect("localhost", protocolPort));
 
@@ -99,7 +99,7 @@ namespace Tests
             ManualResetEvent ev = new ManualResetEvent(false);
             ClientInfoEventArgs receivedInfo = null;
 
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             protocol.ClientConnected += (s, e) => { ev.Set(); receivedInfo = e; };
             Assert.IsTrue(client.Connect("localhost", protocolPort));
 
@@ -117,7 +117,7 @@ namespace Tests
             ManualResetEvent ev = new ManualResetEvent(false);
             string messageToSend = "Hello";
 
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             protocol.ClientConnected += (s, e) => ev.Set();
             Assert.IsTrue(client.Connect("localhost", protocolPort));
             Assert.IsTrue(client.Send(CreateInfoPacket()) > 0);
@@ -157,7 +157,7 @@ namespace Tests
         [TestMethod]
         public void ProtocolSendChatMessageFailed()
         {
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             Assert.IsFalse(protocol.SendChatMessage(null));
             Assert.IsFalse(protocol.SendChatMessage("Hello"));
             Assert.IsFalse(protocol.SendChatMessage(""));
@@ -175,7 +175,7 @@ namespace Tests
                 temperatureValue = 36.6
             };
 
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             protocol.ClientConnected += (s, e) => ev.Set();
             Assert.IsTrue(client.Connect("localhost", protocolPort));
             Assert.IsTrue(client.Send(CreateInfoPacket()) > 0);
@@ -223,7 +223,7 @@ namespace Tests
         [TestMethod]
         public void ProtocolSendSensorsDataFailed()
         {
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             Assert.IsFalse(protocol.SendSensorsData(motionValue: 1.0, pulseValue: 64.0, skinResistanceValue: 100500.0, temperatureValue: 36.6));
         }
 
@@ -232,7 +232,7 @@ namespace Tests
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             protocol.ClientConnected += (s, e) => ev.Set();
             Assert.IsTrue(client.Connect("localhost", protocolPort));
             Assert.IsTrue(client.Send(CreateInfoPacket()) > 0);
@@ -278,7 +278,7 @@ namespace Tests
         [TestMethod]
         public void ProtocolSendVoiceWindowFailed()
         {
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             byte[] voiceData = new byte[44100];
             for (int i = 0; i < voiceData.Length; ++i)
                 voiceData[i] = (byte)i;
@@ -295,7 +295,7 @@ namespace Tests
 
             ClientChatMessageEventArgs args = null;
 
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             protocol.ClientConnected += (s, e) => connected.Set();
             protocol.ChatMessageReceive += (s, e) => { messageReceived.Set(); args = e; };
 
@@ -324,7 +324,7 @@ namespace Tests
 
             SettingsDataEventArgs args = null;
 
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             protocol.ClientConnected += (s, e) => connected.Set();
             protocol.SettingsReceive += (s, e) => { messageReceived.Set(); args = e; };
 
@@ -338,7 +338,7 @@ namespace Tests
             int channelsCount = 2;
             ChannelDescription[] channelDesc = new ChannelDescription[2];
             for (int i = 0; i < channelsCount; ++i)
-                channelDesc[i] = new ChannelDescription(10.0, 20.0, 30.0);
+                channelDesc[i] = new ChannelDescription(10.0, 20.0, 30.0, true);
 
             NoiseDescription noiseDesc = new NoiseDescription(10.0, 20.0);
             SettingsDataEventArgs sentArgs = new SettingsDataEventArgs { channels = channelDesc, noise = noiseDesc };
@@ -354,6 +354,7 @@ namespace Tests
                 Assert.AreEqual(channelDesc[i].carrierFrequency, args.channels[i].carrierFrequency, 0.0001);
                 Assert.AreEqual(channelDesc[i].differenceFrequency, args.channels[i].differenceFrequency, 0.0001);
                 Assert.AreEqual(channelDesc[i].volume, args.channels[i].volume, 0.0001);
+                Assert.AreEqual(channelDesc[i].enabled, args.channels[i].enabled);
             }
             Assert.AreEqual(noiseDesc.smoothness, args.noise.smoothness, 0.0001);
             Assert.AreEqual(noiseDesc.volume, args.noise.volume, 0.0001);
@@ -366,7 +367,7 @@ namespace Tests
             ManualResetEvent voiceReceived = new ManualResetEvent(false);
             VoiceWindowDataEventArgs args = null;
 
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             protocol.ClientConnected += (s, e) => connected.Set();
             protocol.VoiceWindowReceive += (s, e) => { voiceReceived.Set(); args = e; };
 
@@ -395,7 +396,7 @@ namespace Tests
         {
             ManualResetEvent ev = new ManualResetEvent(false);
 
-            Assert.IsTrue(protocol.Bind("localhost"));
+            Assert.IsTrue(protocol.Bind());
             protocol.ClientConnected += (s, e) => ev.Set();
             Assert.IsTrue(client.Connect("localhost", protocolPort));
 
@@ -430,6 +431,15 @@ namespace Tests
             MemoryStream m = new MemoryStream(packets[1].data);
             ServerInfoEventArgs serverInfo = (ServerInfoEventArgs)f.Deserialize(m);
             Assert.AreEqual(serverName, serverInfo.serverName);
+        }
+
+        public void Dispose()
+        {
+            if (protocol != null)
+                protocol.Dispose();
+
+            if (client != null)
+                client.Dispose();
         }
     }
 }

@@ -32,6 +32,8 @@ namespace NetworkLayer.Protocol
         {
             while (true)
             {
+                Thread.Yield();
+
                 if (connectionInterface == null ||
                     !connectionInterface.IsConnected() ||
                     sendingThreadTerminate.WaitOne(0))
@@ -55,6 +57,8 @@ namespace NetworkLayer.Protocol
 
             while (true)
             {
+                Thread.Yield();
+
                 if (!connectionInterface.IsConnected() ||
                     receivingThreadTerminate.WaitOne(0))
                     break;
@@ -88,6 +92,10 @@ namespace NetworkLayer.Protocol
                         case PacketType.SensorsMessage:
                             SensorsReceive(this, (SensorsDataEventArgs)deserialized);
                             break;
+                        case PacketType.ProtocolInfoMessage:
+                            break;
+                        case PacketType.ServerInfoMessage:
+                            break;
                         default:
                             throw new Exception("Unknown protocol message");
                     }
@@ -107,7 +115,8 @@ namespace NetworkLayer.Protocol
 
         private bool SendPacket(PacketType type, byte[] data)
         {
-            if (!connectionInterface.IsConnected() ||
+            if (connectionInterface == null ||
+                !connectionInterface.IsConnected() ||
                 type == PacketType.Unknown ||
                 data.Length == 0)
                 return false;
@@ -208,7 +217,11 @@ namespace NetworkLayer.Protocol
 
         public void Dispose()
         {
+            sendingThreadTerminate.Set();
+            receivingThreadTerminate.Set();
+
             Disconnect();
+
             sendingThreadStopped.Dispose();
             sendingThreadTerminate.Dispose();
             receivingThreadStopped.Dispose();
