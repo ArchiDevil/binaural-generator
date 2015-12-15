@@ -154,7 +154,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SharedContent\SharedLibrary.csproj">
       <Project>{697f8cd6-f2a2-4a1b-a087-916a03c383ec}</Project>
-      <Name>SharedContent</Name>
+      <Name>SharedLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

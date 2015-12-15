@@ -39,6 +39,8 @@ namespace NetworkLayer.Protocol
         {
             while (true)
             {
+                Thread.Yield();
+
                 if (!connectionInterface.IsListening() ||
                     !connectionInterface.IsClientConnected() ||
                     sendingThreadTerminate.WaitOne(0))
@@ -62,6 +64,8 @@ namespace NetworkLayer.Protocol
 
             while (true)
             {
+                Thread.Yield();
+
                 if (!connectionInterface.IsListening() ||
                     !connectionInterface.IsClientConnected() ||
                     receivingThreadTerminate.WaitOne(0))
@@ -107,14 +111,14 @@ namespace NetworkLayer.Protocol
             receivingThreadStopped.Set();
         }
 
-        public bool Bind(string host)
+        public bool Bind()
         {
             connectionInterface = new InternetServerConnectionInterface();
             if (connectionInterface == null)
                 return false;
 
             connectionInterface.ClientConnected += ClientConnectedEvent;
-            bool result = connectionInterface.StartListening(host, ProtocolShared.protocolPort);
+            bool result = connectionInterface.StartListening(ProtocolShared.protocolPort);
 
             return result;
         }
@@ -194,6 +198,7 @@ namespace NetworkLayer.Protocol
         public void Dispose()
         {
             Stop();
+
             sendingThreadStopped.Dispose();
             sendingThreadTerminate.Dispose();
             receivingThreadStopped.Dispose();

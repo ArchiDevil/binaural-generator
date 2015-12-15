@@ -10,9 +10,8 @@ using System.Threading.Tasks;
 
 namespace NetworkLayer
 {
-    public sealed class InternetServerConnectionInterface : IServerConnectionInterface
+    public sealed class InternetServerConnectionInterface : IServerConnectionInterface, IDisposable
     {
-        string bindingPoint = string.Empty;
         ushort port = 0;
         List<Socket> listenerSockets = null;
         Socket client = null;
@@ -66,25 +65,22 @@ namespace NetworkLayer
 
         public bool StartListening(ushort port)
         {
-            return StartListening("", port);
-        }
-
-        public bool StartListening(string bindingPoint, ushort port)
-        {
             Shutdown();
-            this.bindingPoint = bindingPoint;
             this.port = port;
 
-            IPHostEntry ipHostInfo = null;
-            if (bindingPoint.Length != 0)
-                ipHostInfo = Dns.GetHostEntry(bindingPoint);
-            else
-                ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress[] addresses = null;
+            IPAddress[] localAddresses = null;
+            localAddresses = Dns.GetHostEntry("localhost").AddressList;
+            addresses = Dns.GetHostEntry(Dns.GetHostName()).AddressList;
+
+            IPAddress[] totalAddresses = new IPAddress[addresses.Length + localAddresses.Length];
+            addresses.CopyTo(totalAddresses, 0);
+            localAddresses.CopyTo(totalAddresses, addresses.Length);
 
             if (listenerSockets == null)
                 listenerSockets = new List<Socket>();
 
-            foreach (var address in ipHostInfo.AddressList)
+            foreach (var address in totalAddresses)
             {
                 if (address.AddressFamily != AddressFamily.InterNetwork)
                     continue;
@@ -114,7 +110,7 @@ namespace NetworkLayer
         {
             if (client != null)
             {
-                if(client.IsConnected() && client.Connected)
+                if (client.IsConnected() && client.Connected)
                 {
                     client.Shutdown(SocketShutdown.Both);
                     client.Close();
@@ -205,6 +201,11 @@ namespace NetworkLayer
         public bool IsClientConnected()
         {
             return client != null;
+        }
+
+        public void Dispose()
+        {
+            Shutdown();
         }
     }
 }

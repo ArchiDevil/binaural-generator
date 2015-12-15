@@ -25,16 +25,6 @@ namespace NetworkLayer
         bool StartListening(ushort port);
 
         /// <summary>
-        /// Starts listening and accepting connections on provided bind point.
-        /// When connection is accepting, ClientConnected event called.
-        /// This method is not blocking.
-        /// </summary>
-        /// <param name="bindPoint">Specific binding point</param>
-        /// <param name="port">Listening port</param>
-        /// <returns>true if accepting started successfully, false otherwise</returns>
-        bool StartListening(string bindPoint, ushort port);
-
-        /// <summary>
         /// Shuts down server and breaks all connections with all clients.
         /// </summary>
         void Shutdown();

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,22 +8,17 @@ using NetworkLayer;
 namespace Tests
 {
     [TestClass]
-    public class ServerNetworkLayerTests
+    public sealed class ServerNetworkLayerTests : IDisposable
     {
         InternetServerConnectionInterface server = null;
         InternetClientConnectionInterface client = null;
         ushort port = 11000;
 
-        public void StartServer(string bindingPoint = "localhost")
+        public void StartServer()
         {
             server = new InternetServerConnectionInterface();
-
             bool serverStartResult = false;
-            if (bindingPoint.Length != 0)
-                serverStartResult = server.StartListening(bindingPoint, port);
-            else
-                serverStartResult = server.StartListening(port);
-
+            serverStartResult = server.StartListening(port);
             Assert.IsTrue(serverStartResult);
         }
 
@@ -62,14 +58,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void ServerStartMultiBindTest()
-        {
-            StartServer("");
-            EndServer();
-        }
-
-        [TestMethod]
-        public void ServerStartSingleBindTest()
+        public void ServerStartBindingTest()
         {
             StartServer();
             EndServer();
@@ -309,11 +298,22 @@ namespace Tests
             client.Disconnect();
             server.Shutdown();
 
-            Assert.IsTrue(server.StartListening("localhost", port));
+            Thread.Sleep(1000);
+
+            Assert.IsTrue(server.StartListening(port));
             Assert.IsTrue(client.Connect("localhost", port));
 
             EndClient();
             EndServer();
+        }
+
+        public void Dispose()
+        {
+            if (client != null)
+                client.Dispose();
+
+            if (server != null)
+                server.Dispose();
         }
     }
 }

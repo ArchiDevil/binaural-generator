@@ -46,10 +46,10 @@ namespace NetworkLayer
                     return false;
                 }
             }
-            catch (Exception /*e*/)
+            catch (Exception e)
             {
                 //Debug.Assert(false, e.Message);
-                return false;
+                throw e;
             }
 
             return true;
@@ -119,8 +119,7 @@ namespace NetworkLayer
 
         public void Dispose()
         {
-            if (sender != null)
-                sender.Close();
+            Disconnect();
         }
     }
 }
