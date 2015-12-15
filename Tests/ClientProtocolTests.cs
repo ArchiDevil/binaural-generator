@@ -88,6 +88,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ProtocolSendFailed()
+        {
+            Assert.IsFalse(protocol.SendChatMessage("Test message"));
+        }
+
+        [TestMethod]
         public void ClientSendsInfoAfterConnect()
         {
             Assert.IsTrue(server.StartListening(protocolPort));

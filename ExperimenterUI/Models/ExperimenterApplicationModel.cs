@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 
 using ExperimenterUI.Models;
@@ -28,6 +29,8 @@ namespace ExperimenterUI
         private ClientProtocol protocol = null;
         private NoiseViewModel noiseModel = null;
         private SignalViewModel[] signalModels = null;
+        private TimeSpan _sessionTime = new TimeSpan(0, 0, 0);
+        private Timer _tickTimer = null;
 
         public NoiseViewModel NoiseModel
         {
@@ -43,6 +46,14 @@ namespace ExperimenterUI
         {
             get { return _connectionStatus == ConnectionStatus.Connected; }
         }
+
+        public TimeSpan SessionTime
+        {
+            get { return _sessionTime; }
+        }
+
+        public event ClientProtocol.ChatMessageReceiveHandler ChatMessageReceived = delegate
+        { };
 
         public ExperimenterApplicationModel(ClientProtocol protocol)
         {
@@ -60,6 +71,20 @@ namespace ExperimenterUI
 
             this.protocol = protocol;
             noiseModel.PropertyChanged += NoiseModelPropertyChanged;
+
+            _tickTimer = new Timer(1000);
+            _tickTimer.Elapsed += _tickTimer_Elapsed;
+            _tickTimer.AutoReset = true;
+            _tickTimer.Start();
+        }
+
+        private void _tickTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (_connectionStatus == ConnectionStatus.Connected)
+            {
+                _sessionTime += new TimeSpan(0, 0, 1);
+                RaisePropertyChanged("SessionTime");
+            }
         }
 
         private void SendNewSettings()
@@ -114,7 +139,7 @@ namespace ExperimenterUI
                     RaisePropertyChanged("IsConnected");
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 MessageBox.Show(e.Message);
                 _connectionErrorMessage = e.Message;
