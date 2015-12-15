@@ -29,11 +29,6 @@ namespace ExperimenterUI
         private NoiseViewModel noiseModel = null;
         private SignalViewModel[] signalModels = null;
 
-        private void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e)
-        {
-            ChatMessageReceived(this, e);
-        }
-
         public NoiseViewModel NoiseModel
         {
             get { return noiseModel; }
@@ -48,8 +43,6 @@ namespace ExperimenterUI
         {
             get { return _connectionStatus == ConnectionStatus.Connected; }
         }
-
-        public event ClientProtocol.ChatMessageReceiveHandler ChatMessageReceived = delegate { };
 
         public ExperimenterApplicationModel(ClientProtocol protocol)
         {
@@ -66,7 +59,6 @@ namespace ExperimenterUI
             }
 
             this.protocol = protocol;
-            protocol.ChatMessageReceive += ChatMessageReceiveHandler;
             noiseModel.PropertyChanged += NoiseModelPropertyChanged;
         }
 

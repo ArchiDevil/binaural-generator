@@ -33,7 +33,7 @@ namespace ExperimenterUI.Windows
 
             model = new ExperimenterApplicationModel(protocol);
             DataContext = model;
-            model.ChatMessageReceived += ChatMessageReceiveHandler;
+            protocol.ChatMessageReceive += ChatMessageReceiveHandler;
         }
 
         private void ChatWindow_ChatMessage(string message, DateTime time)
