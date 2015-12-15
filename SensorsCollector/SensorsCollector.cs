@@ -112,6 +112,8 @@ namespace SensorsLayer
 
             lock (connectedDevice)
             {
+                byte[] commandBuffer = Encoding.ASCII.GetBytes("STOP");
+                connectedDevice.Write(commandBuffer, 0, commandBuffer.Length);
                 connectedDevice.Close();
                 connectedDevice = null;
             }
