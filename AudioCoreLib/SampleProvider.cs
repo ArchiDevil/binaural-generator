@@ -1,10 +1,13 @@
 ﻿using NAudio.Wave;
 
-namespace SharedLibrary.AudioProviders
+namespace AudioCore
 {
     public abstract class SampleProvider : ISampleProvider
     {
         readonly protected WaveFormat waveFormat;
+
+        protected int nSample = 0;
+        protected double time = 0.0; // time in seconds
 
         public WaveFormat WaveFormat
         {

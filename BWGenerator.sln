@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BWGenerator", "BWGenerator\BWGenerator.csproj", "{31BF4457-C49C-428B-8E4B-A93958549FEB}"
 EndProject
@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkLayer", "NetworkLaye
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{DE99B66F-CA9C-428B-B0FD-6E169B6A08D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioCoreLib", "AudioCoreLib\AudioCoreLib.csproj", "{B18C8FEE-CB53-498E-83D5-E2EBD5D989F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioCore", "AudioCoreLib\AudioCore.csproj", "{B18C8FEE-CB53-498E-83D5-E2EBD5D989F1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioLayer", "AudioLayer\AudioLayer.csproj", "{2A1C9284-805E-4A20-9EA2-044BBFC3B1D5}"
 EndProject

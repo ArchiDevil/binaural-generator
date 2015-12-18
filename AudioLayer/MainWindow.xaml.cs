@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using AudioCoreLib;
+using AudioCore;
 using SharedLibrary.AudioProviders;
 using NetworkLayer.Protocol;
 

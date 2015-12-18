@@ -2,7 +2,7 @@
 using System;
 using NetworkLayer.Protocol;
 
-namespace AudioCoreLib
+namespace AudioCore
 {
     public class Record
     {
