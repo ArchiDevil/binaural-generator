@@ -1,9 +1,22 @@
-﻿using SharedLibrary.Models;
+﻿using System.ComponentModel;
+
+using AudioCore;
 
 namespace BWSitterGenerator.Models
 {
     class NoiseModel : BasicNoiseModel
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            var e = PropertyChanged;
+            if (e != null)
+            {
+                e(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
         public bool Enabled
         {
             get { return enabled; }

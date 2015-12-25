@@ -1,7 +1,10 @@
 ﻿using System;
+
 using NAudio.Wave;
 
-namespace SharedLibrary.AudioProviders
+using AudioCore.SampleProviders;
+
+namespace AudioCore
 {
     public class Playback
     {

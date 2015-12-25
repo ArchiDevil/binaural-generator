@@ -1,6 +1,7 @@
 ﻿using System.Windows;
+
 using AudioCore;
-using SharedLibrary.AudioProviders;
+
 using NetworkLayer.Protocol;
 
 namespace AudioLayer

@@ -4,24 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using SharedLibrary.Models;
-
-namespace SharedLibrary.AudioProviders
+namespace AudioCore.SampleProviders
 {
     public class ConstantSampleProvider : SampleProvider
     {
         private BasicSignalModel[] channelSignals = null;
         private BasicNoiseModel noiseSignal = null;
 
-        private NoiseGenerator noiseGenerator = null;
         private double lastSmoothness; // it's in indeterminate state to create generator on first use
 
-        readonly int samplesCount = 30;
+        private double previousLeftValue = 0.0;
+        private double previousRightValue = 0.0;
 
-        double previousLeftValue = 0.0;
-        double previousRightValue = 0.0;
+        public ConstantSampleProvider() : base()
+        {
+            channelSignals = new BasicSignalModel[4];
+            for (int i = 0; i < channelSignals.Length; ++i)
+                channelSignals[i] = new BasicSignalModel();
+
+            noiseSignal = new BasicNoiseModel();
+        }
 
         public ConstantSampleProvider(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal) : base()
+        {
+            this.channelSignals = channelSignals;
+            this.noiseSignal = noiseSignal;
+        }
+
+        public void SetSignals(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
         {
             this.channelSignals = channelSignals;
             this.noiseSignal = noiseSignal;
@@ -50,7 +60,7 @@ namespace SharedLibrary.AudioProviders
                 double leftSampleValue = 0.0;
                 double rightSampleValue = 0.0;
 
-                double multiple = SharedFuncs.TwoPi / waveFormat.SampleRate;
+                double multiple = UtilFuncs.TwoPi / waveFormat.SampleRate;
 
                 foreach (var signal in channelSignals)
                 {
@@ -89,10 +99,7 @@ namespace SharedLibrary.AudioProviders
                 return count;
 
             if (noiseSignal.smoothness != lastSmoothness)
-            {
                 lastSmoothness = noiseSignal.smoothness;
-                noiseGenerator = new NoiseGenerator(lastSmoothness, samplesCount);
-            }
 
             Random rand = new Random();
             double noiseLeftValue = 0.0;
@@ -105,7 +112,6 @@ namespace SharedLibrary.AudioProviders
 
             for (int i = 0; i < count / waveFormat.Channels; i++)
             {
-                // noiseValue = noiseGenerator.NextValue();
                 noiseLeftValue = rand.NextDouble() * 2.0 - 1.0;
                 noiseLeftValue = previousLeftValue * (noiseSignal.smoothness) + noiseLeftValue * (1.0 - noiseSignal.smoothness);
                 noiseLeftValue *= Gain * noiseSignal.gain / 100.0f;

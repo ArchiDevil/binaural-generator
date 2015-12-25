@@ -14,7 +14,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using BWSitterGenerator.Models;
-using SharedLibrary.AudioProviders;
+
+using AudioCore;
+using AudioCore.SampleProviders;
 
 namespace BWSitterGenerator
 {
@@ -44,6 +46,8 @@ namespace BWSitterGenerator
             NoiseChannel.DataContext = noiseModel;
 
             playback = new Playback(new ConstantSampleProvider(signalModels, noiseModel));
+
+            ResetSignals();
         }
 
         private void PlayMenu_Click(object sender, RoutedEventArgs e)
@@ -63,6 +67,16 @@ namespace BWSitterGenerator
 
         private void ResetMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            ResetSignals();
+        }
+
+        private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void ResetSignals()
+        {
             foreach (var signal in signalModels)
             {
                 signal.Enabled = false;
@@ -77,11 +91,5 @@ namespace BWSitterGenerator
             noiseModel.Enabled = false;
             noiseModel.Smoothness = 0.5;
         }
-
-        private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Shutdown();
-        }
-
     }
 }

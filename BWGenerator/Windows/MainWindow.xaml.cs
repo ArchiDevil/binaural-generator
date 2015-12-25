@@ -5,7 +5,8 @@ using System.Windows.Controls;
 
 using BWGenerator.Models;
 
-using SharedLibrary.AudioProviders;
+using AudioCore;
+using AudioCore.SampleProviders;
 
 using OxyPlot;
 using OxyPlot.Wpf;

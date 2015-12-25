@@ -1,9 +1,22 @@
-﻿using SharedLibrary.Models;
+﻿using System.ComponentModel;
+
+using AudioCore;
 
 namespace BWSitterGenerator.Models
 {
     class SignalModel : BasicSignalModel
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            var e = PropertyChanged;
+            if (e != null)
+            {
+                e(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
         public bool Enabled
         {
             get { return enabled; }
@@ -16,13 +29,13 @@ namespace BWSitterGenerator.Models
             set { gain = value; RaisePropertyChanged("Gain"); }
         }
 
-        public float Frequency
+        public double Frequency
         {
             get { return frequency; }
             set { frequency = value; RaisePropertyChanged("Frequency"); }
         }
 
-        public float Difference
+        public double Difference
         {
             get { return difference; }
             set { difference = value; RaisePropertyChanged("Difference"); }
