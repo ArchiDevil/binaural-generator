@@ -22,5 +22,6 @@ namespace AudioCore.SampleProviders
         }
 
         public abstract int Read(float[] buffer, int offset, int count);
+        public virtual void AddVoiceSamples() { }
     }
 }

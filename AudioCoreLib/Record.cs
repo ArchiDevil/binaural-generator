@@ -1,35 +1,15 @@
 ﻿using NAudio.Wave;
-using System;
-using NetworkLayer.Protocol;
 
 namespace AudioCore
 {
     public class Record
     {
-        WaveIn input = new WaveIn();
-        WaveFormat format = new WaveFormat(8000, 16, 1);
-        WaveFileWriter writer = null;
+        private WaveIn input = new WaveIn();
 
-        ClientProtocol protocol = null;
-
-        public Record()
+        public Record(int rate, int bits, int channels)
         {
-            input.WaveFormat = format;
-            input.DataAvailable += RecordInput;
-            input.RecordingStopped += RecordingStopped;
-        }
-
-        public Record(ClientProtocol argProtocol)
-        {
-            protocol = argProtocol;
-            input.WaveFormat = format;
-            input.DataAvailable += RecordInput;
-        }
-
-        public void StartRecording(string outputFileName)
-        {
-            writer = new WaveFileWriter(outputFileName, format);
-            input.StartRecording();
+            input.WaveFormat = new WaveFormat(rate, bits, channels);
+            input.DataAvailable += Input_DataAvailable;
         }
 
         public void StartRecording()
@@ -42,25 +22,12 @@ namespace AudioCore
             input.StopRecording();
         }
 
-        private void RecordInput(object sender, WaveInEventArgs e)
+        private void Input_DataAvailable(object sender, WaveInEventArgs e)
         {
-            if (writer != null)
-            {
-                writer.Write(e.Buffer, 0, e.BytesRecorded);
-            }
-            else
-            {
-                protocol.SendVoiceWindow(e.Buffer);
-            }
+            RecorderInput(sender, e);
         }
 
-        private void RecordingStopped(object sender, StoppedEventArgs e)
-        {
-            if (writer != null)
-            {
-                writer.Close();
-                writer = null;
-            }
-        }
+        public delegate void RecordInputHandler(object sender, WaveInEventArgs e);
+        public event RecordInputHandler RecorderInput = delegate { };
     }
 }
