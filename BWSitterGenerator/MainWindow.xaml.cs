@@ -14,7 +14,7 @@ namespace BWSitterGenerator
         const int signalsCount = 3;
         SignalModel[] signalModels = null;
         NoiseModel noiseModel = null;
-        AudioLayer audioLayer = null;
+        LocalAudioLayer audioLayer = null;
 
         public MainWindow()
         {
@@ -31,7 +31,7 @@ namespace BWSitterGenerator
             Channel3.DataContext = signalModels[2];
             NoiseChannel.DataContext = noiseModel;
 
-            audioLayer = new AudioLayer();
+            audioLayer = new LocalAudioLayer();
             audioLayer.SetSignalSettings(signalModels, noiseModel);
 
             ResetSignals();

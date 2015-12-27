@@ -6,7 +6,7 @@ using AudioCore.SampleProviders;
 
 namespace AudioCore
 {
-    internal class Playback
+    internal class Playback : IDisposable
     {
         IWavePlayer driverOut = new WaveOutEvent();
         SampleProvider sampleProvider = null;
@@ -42,6 +42,11 @@ namespace AudioCore
         internal void AddSamples(byte[] data)
         {
             bufferStream.AddSamples(data, 0, data.Length);
+        }
+
+        public void Dispose()
+        {
+            driverOut.Dispose();
         }
     }
 }

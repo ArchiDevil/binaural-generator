@@ -108,7 +108,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AudioCoreLib\AudioCore.csproj">
+    <ProjectReference Include="..\AudioCore\AudioCore.csproj">
       <Project>{b18c8fee-cb53-498e-83d5-e2ebd5d989f1}</Project>
       <Name>AudioCore</Name>
     </ProjectReference>

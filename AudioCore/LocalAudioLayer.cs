@@ -1,26 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AudioCore.SampleProviders;
+﻿using AudioCore.SampleProviders;
 
 namespace AudioCore
 {
-    public class AudioLayer
+    public class LocalAudioLayer
     {
-        private Record recorder = null;
-        private Playback playback = null;
-        private ConstantSampleProvider sampleProvider = null;
+        internal Record recorder = null;
+        internal Playback playback = null;
+        internal ConstantSampleProvider sampleProvider = null;
 
-        public AudioLayer()
+        public LocalAudioLayer()
         {
             recorder = new Record(44100, 16, 1);
             sampleProvider = new ConstantSampleProvider();
             playback = new Playback(sampleProvider);
         }
 
-        public void SetSignalSettings(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
+        public virtual void SetSignalSettings(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
         {
             sampleProvider.SetSignals(channelSignals, noiseSignal);
         }

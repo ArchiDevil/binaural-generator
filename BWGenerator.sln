@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkLayer", "NetworkLaye
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{DE99B66F-CA9C-428B-B0FD-6E169B6A08D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioCore", "AudioCoreLib\AudioCore.csproj", "{B18C8FEE-CB53-498E-83D5-E2EBD5D989F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioCore", "AudioCore\AudioCore.csproj", "{B18C8FEE-CB53-498E-83D5-E2EBD5D989F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

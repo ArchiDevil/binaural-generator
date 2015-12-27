@@ -46,17 +46,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioLayer.cs" />
+    <Compile Include="ClientAudioLayer.cs" />
+    <Compile Include="LocalAudioLayer.cs" />
     <Compile Include="SampleProviders\ConstantSampleProvider.cs" />
     <Compile Include="SampleProviders\ModelledSampleProvider.cs" />
     <Compile Include="Playback.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Record.cs" />
     <Compile Include="SampleProviders\SampleProvider.cs" />
+    <Compile Include="ServerAudioLayer.cs" />
     <Compile Include="SharedAudioContent.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetworkLayer\NetworkLayer.csproj">
