@@ -4,7 +4,6 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SensorsLayer
 {
@@ -20,15 +19,29 @@ namespace SensorsLayer
     {
         SerialPort connectedDevice = null;
         ManualResetEvent stopEvent = new ManualResetEvent(false);
-
-        public SensorsCollector()
-        {
-        }
+        byte[] receivingBuffer = new byte[4096];
+        int offset = 0;
 
         public bool ConnectToDevice()
         {
             // check all ports
-            List<string> allPorts = GetAllPorts();
+            if (!FindDevice() && connectedDevice == null)
+                return false;
+
+            // select responded device
+            byte[] commandBuffer = Encoding.ASCII.GetBytes("START");
+            connectedDevice.Write(commandBuffer, 0, commandBuffer.Length);
+
+            //start collector
+            Thread worker = new Thread(CollectHandler);
+            worker.Start();
+
+            return true;
+        }
+
+        private bool FindDevice()
+        {
+            List<string> allPorts = GetAllPortsList();
 
             foreach (string portName in allPorts)
             {
@@ -39,14 +52,7 @@ namespace SensorsLayer
                 port.BaudRate = 9600;
 
                 const int bufferSize = 6;
-                byte[] buffer = new byte[bufferSize];
-                buffer[0] = 4;
-                buffer[1] = 8;
-                buffer[2] = 15;
-                buffer[3] = 16;
-                buffer[4] = 23;
-                buffer[5] = 42;
-
+                byte[] buffer = new byte[bufferSize] { 4, 8, 15, 16, 23, 42 };
                 port.Write(buffer, 0, bufferSize);
 
                 // waiting 100 ms for each device to make sure it request processed correctly
@@ -61,35 +67,17 @@ namespace SensorsLayer
                 if (count != port.BytesToRead)
                     throw new SystemException("Internal error");
 
-                if (buffer[0] != 4 ||
-                    buffer[1] != 8 ||
-                    buffer[2] != 15 ||
-                    buffer[3] != 16 ||
-                    buffer[4] != 23 ||
-                    buffer[5] != 42)
+                if (readBuffer.SequenceEqual(buffer))
                     continue;
 
                 connectedDevice = port;
-                break;
+                return true;
             }
 
-            if (connectedDevice == null)
-                return false;
-
-            // select responded device
-            byte[] commandBuffer = Encoding.ASCII.GetBytes("START");
-            connectedDevice.Write(commandBuffer, 0, commandBuffer.Length);
-
-            //start collector
-            Thread worker = new Thread(CollectHandler);
-            worker.Start();
-
-            return true;
+            return false;
         }
 
-        public event SensorsDataReceiveHandler SensorsDataReceived = delegate
-        { };
-
+        public event SensorsDataReceiveHandler SensorsDataReceived = delegate { };
         public delegate void SensorsDataReceiveHandler(SensorsDataEventArgs e);
 
         private void CollectHandler()
@@ -101,12 +89,11 @@ namespace SensorsLayer
                     if (stopEvent.WaitOne(0))
                         break;
                 }
-                // collect data from device
+
                 SensorsDataEventArgs e = new SensorsDataEventArgs();
                 if (!CollectCurrentValues(ref e))
                     break;
 
-                // call the event
                 SensorsDataReceived(e);
             }
 
@@ -119,7 +106,7 @@ namespace SensorsLayer
             }
         }
 
-        private List<string> GetAllPorts()
+        private List<string> GetAllPortsList()
         {
             List<string> allPorts = new List<string>();
             foreach (string portName in SerialPort.GetPortNames())
@@ -130,7 +117,30 @@ namespace SensorsLayer
 
         private bool CollectCurrentValues(ref SensorsDataEventArgs e)
         {
-            return false;
+            int bytesToRead = connectedDevice.BytesToRead;
+            int dataSize = 32;
+            if (offset > dataSize)
+            {
+                e.motionValue = BitConverter.ToDouble(receivingBuffer, 0);
+                e.pulseValue = BitConverter.ToDouble(receivingBuffer, 8);
+                e.skinResistanceValue = BitConverter.ToDouble(receivingBuffer, 16);
+                e.temperatureValue = BitConverter.ToDouble(receivingBuffer, 24);
+
+                offset -= dataSize;
+                receivingBuffer.Skip(dataSize).Take(receivingBuffer.Length - dataSize);
+                return true;
+            }
+            try
+            {
+                int readCount = connectedDevice.Read(receivingBuffer, offset, bytesToRead);
+                if (readCount != bytesToRead)
+                    throw new Exception();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
