@@ -6,46 +6,40 @@ using AudioCore.SampleProviders;
 
 namespace AudioCore
 {
-    public class Playback
+    internal class Playback
     {
         IWavePlayer driverOut = new WaveOutEvent();
         SampleProvider sampleProvider = null;
         BufferedWaveProvider bufferStream = null;
 
-        public float Volume
+        internal float Volume
         {
             get { return sampleProvider.Gain; }
             set { sampleProvider.Gain = value; }
         }
 
-        public Playback(SampleProvider sampleProvider)
+        internal Playback(SampleProvider sampleProvider)
         {
             this.sampleProvider = sampleProvider;
             driverOut.Init(sampleProvider);
         }
 
-        public Playback(int rate, int bits, int channels)
-        {
-            bufferStream = new BufferedWaveProvider(new WaveFormat(rate, bits, channels));
-            driverOut.Init(bufferStream);
-        }
-
-        public void Play()
+        internal void Play()
         {
             driverOut.Play();
         }
 
-        public void Pause()
+        internal void Pause()
         {
             driverOut.Pause();
         }
 
-        public void Stop()
+        internal void Stop()
         {
             driverOut.Stop();
         }
 
-        public void AddSamples(byte[] data)
+        internal void AddSamples(byte[] data)
         {
             bufferStream.AddSamples(data, 0, data.Length);
         }

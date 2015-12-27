@@ -2,24 +2,32 @@
 
 namespace AudioCore
 {
-    public class Record
+    internal class Record
     {
         private WaveIn input = new WaveIn();
+        private bool recordingEnabled = false;
 
-        public Record(int rate, int bits, int channels)
+        internal Record(int rate, int bits, int channels)
         {
             input.WaveFormat = new WaveFormat(rate, bits, channels);
             input.DataAvailable += Input_DataAvailable;
         }
 
-        public void StartRecording()
+        internal void StartRecording()
         {
             input.StartRecording();
+            recordingEnabled = true;
         }
 
-        public void StopRecording()
+        internal void StopRecording()
         {
             input.StopRecording();
+            recordingEnabled = false;
+        }
+
+        internal bool IsRecordingEnabled()
+        {
+            return recordingEnabled;
         }
 
         private void Input_DataAvailable(object sender, WaveInEventArgs e)
@@ -27,7 +35,7 @@ namespace AudioCore
             RecorderInput(sender, e);
         }
 
-        public delegate void RecordInputHandler(object sender, WaveInEventArgs e);
-        public event RecordInputHandler RecorderInput = delegate { };
+        internal delegate void RecordInputHandler(object sender, WaveInEventArgs e);
+        internal event RecordInputHandler RecorderInput = delegate { };
     }
 }

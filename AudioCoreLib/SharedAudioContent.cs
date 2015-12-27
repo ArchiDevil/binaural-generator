@@ -1,6 +1,6 @@
 ﻿namespace AudioCore
 {
-    public static class UtilFuncs
+    internal static class UtilFuncs
     {
         internal static double TwoPi = 2 * 3.14159265;
     }

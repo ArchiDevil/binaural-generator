@@ -1,22 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
 
 using BWSitterGenerator.Models;
 
 using AudioCore;
-using AudioCore.SampleProviders;
 
 namespace BWSitterGenerator
 {
@@ -28,7 +14,7 @@ namespace BWSitterGenerator
         const int signalsCount = 3;
         SignalModel[] signalModels = null;
         NoiseModel noiseModel = null;
-        Playback playback = null;
+        AudioLayer audioLayer = null;
 
         public MainWindow()
         {
@@ -45,24 +31,20 @@ namespace BWSitterGenerator
             Channel3.DataContext = signalModels[2];
             NoiseChannel.DataContext = noiseModel;
 
-            playback = new Playback(new ConstantSampleProvider(signalModels, noiseModel));
+            audioLayer = new AudioLayer();
+            audioLayer.SetSignalSettings(signalModels, noiseModel);
 
             ResetSignals();
         }
 
         private void PlayMenu_Click(object sender, RoutedEventArgs e)
         {
-            playback.Play();
-        }
-
-        private void PauseMenu_Click(object sender, RoutedEventArgs e)
-        {
-            playback.Pause();
+            audioLayer.Start();
         }
 
         private void StopMenu_Click(object sender, RoutedEventArgs e)
         {
-            playback.Stop();
+            audioLayer.Stop();
         }
 
         private void ResetMenuItem_Click(object sender, RoutedEventArgs e)

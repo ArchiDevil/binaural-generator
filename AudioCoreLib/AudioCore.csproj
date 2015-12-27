@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioLayer.cs" />
     <Compile Include="SampleProviders\ConstantSampleProvider.cs" />
     <Compile Include="SampleProviders\ModelledSampleProvider.cs" />
     <Compile Include="Playback.cs" />
