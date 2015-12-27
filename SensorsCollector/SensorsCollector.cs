@@ -15,6 +15,18 @@ namespace SensorsLayer
         public double pulseValue = 0.0;
     }
 
+    internal enum BaudRates
+    {
+        Rate_4800 = 4800,
+        Rate_9600 = 9600,
+        Rate_14400 = 14400,
+        Rate_19200 = 19200,
+        Rate_28800 = 28800,
+        Rate_38400 = 38400,
+        Rate_57600 = 57600,
+        Rate_115200 = 115200
+    }
+
     public class SensorsCollector
     {
         SerialPort connectedDevice = null;
@@ -49,10 +61,10 @@ namespace SensorsLayer
                 if (!port.IsOpen)
                     port.Open();
 
-                port.BaudRate = 9600;
+                port.BaudRate = (int)BaudRates.Rate_9600;
 
                 const int bufferSize = 6;
-                byte[] buffer = new byte[bufferSize] { 4, 8, 15, 16, 23, 42 };
+                byte[] buffer = { 4, 8, 15, 16, 23, 42 };
                 port.Write(buffer, 0, bufferSize);
 
                 // waiting 100 ms for each device to make sure it request processed correctly
