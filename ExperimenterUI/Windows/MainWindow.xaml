@@ -10,20 +10,19 @@
         xmlns:oxy="http://oxyplot.org/wpf"
         Title="Experimenter application"
         Height="650"
-        SizeToContent="Width"
+        Width="1000"
         Closed="Window_Closed">
 
     <Window.Resources>
         <sys:String x:Key="VolumeString">Volume, %</sys:String>
         <sys:String x:Key="CarrierString">Tone, Hz</sys:String>
         <sys:String x:Key="FreqString">Diff, Hz</sys:String>
-        <sys:String x:Key="SmoothString">Smoothness</sys:String>
+        <sys:String x:Key="SmoothString">Flatness</sys:String>
 
         <Style TargetType="TextBlock">
             <Setter Property="Margin"
                     Value="5"/>
         </Style>
-
         <Style TargetType="Rectangle" x:Key="rectangleStatusStyle">
             <Setter Property="Fill" Value="Red"/>
             <Setter Property="Width" Value="12"/>
@@ -39,34 +38,31 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-
         <Style TargetType="Slider">
-            <Setter Property="Slider.TickPlacement" 
+            <Setter Property="Slider.TickPlacement"
                     Value="TopLeft"/>
-
-            <Setter Property="Slider.IsSnapToTickEnabled" 
+            <Setter Property="Slider.IsSnapToTickEnabled"
                     Value="True"/>
-
-            <Setter Property="Margin" 
+            <Setter Property="Margin"
                     Value="5"/>
-
-            <Setter Property="Foreground" 
+            <Setter Property="Foreground"
                     Value="Blue"/>
-
-            <Setter Property="HorizontalAlignment" 
+            <Setter Property="HorizontalAlignment"
                     Value="Center"/>
-
-            <Setter Property="Orientation" 
+            <Setter Property="Orientation"
                     Value="Vertical"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin"
+                    Value="5"/>
         </Style>
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
 
         <Menu Background="White">
@@ -96,24 +92,20 @@
                                   MaxWidth="400" 
                                   Width="325"/>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
-
             <shared:ChatWindow x:Name="chatWindow"
                                IsEnabled="{Binding IsConnected}"
                                ChatMessage="ChatWindow_ChatMessage"/>
-
             <GridSplitter Grid.Column="1" 
                           Width="3" 
                           Margin="3" 
                           HorizontalAlignment="Center"/>
-
             <GroupBox Header="Session status"
                       Grid.Column="2">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
@@ -143,125 +135,117 @@
                                Grid.Column="1"/>
                 </Grid>
             </GroupBox>
-        </Grid>
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="200" 
-                                  Width="auto"/>
-                <ColumnDefinition MinWidth="130" 
-                                  Width="auto"/>
-            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
 
-            <ItemsControl x:Name="controlsPanel"
-                          ItemsSource="{Binding SignalModels}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <GroupBox>
-                            <GroupBox.Header>
-                                <CheckBox Content="{Binding SignalName}"
-                                          IsChecked="{Binding Enabled}"/>
-                            </GroupBox.Header>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
 
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="auto"/>
-                                </Grid.RowDefinitions>
+                <ComboBox Grid.Row="0"
+                          x:Name="signalComboBox"
+                          ItemsSource="{Binding SignalModelNames}"
+                          SelectionChanged="ComboBox_SelectionChanged"/>
+                <GroupBox Grid.Row="1"
+                          DataContext="{Binding CurrentSignal}">
+                    <GroupBox.Header>
+                        <CheckBox Content="Enabled"
+                                  IsChecked="{Binding Enabled}"/>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="{StaticResource VolumeString}" 
-                                           Margin="5"/>
-                                <Slider Maximum="{Binding MaxGain}" 
-                                        Minimum="{Binding MinGain}" 
-                                        Value="{Binding Gain}" 
-                                        Grid.Row="1"/>
-                                <shared:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" 
-                                                        Grid.Row="2"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
 
-                                <TextBlock Text="{StaticResource CarrierString}" 
-                                           Grid.Column="1"
-                                           Margin="5"/>
-                                <Slider Grid.Column="1" 
-                                        Grid.Row="1" 
-                                        Maximum="{Binding MaxFrequency}" 
-                                        Minimum="{Binding MinFrequency}" 
-                                        Value="{Binding Frequency}" 
-                                        TickFrequency="{Binding FrequencyStep}"/>
-                                <shared:EditableTextBox Grid.Column="1" 
-                                                        Text="{Binding Frequency}" 
-                                                        Grid.Row="2"/>
+                        <TextBlock Text="{StaticResource VolumeString}"/>
+                        <Slider Maximum="{Binding MaxGain}"
+                                Minimum="{Binding MinGain}"
+                                Value="{Binding Gain}" 
+                                Grid.Row="1"/>
+                        <shared:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" 
+                                                Grid.Row="2"/>
 
-                                <TextBlock Text="{StaticResource FreqString}" 
-                                           Grid.Column="2"
-                                           Margin="5"/>
-                                <Slider Grid.Column="2" 
-                                        Grid.Row="1" 
-                                        Maximum="{Binding MaxDifference}" 
-                                        Minimum="{Binding MinDifference}" 
-                                        Value="{Binding Difference}" 
-                                        TickFrequency="{Binding DifferenceStep}"/>
-                                <shared:EditableTextBox Text="{Binding Difference}" 
-                                                        Grid.Column="2" 
-                                                        Grid.Row="2"/>
-                            </Grid>
-                        </GroupBox>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                        <TextBlock Text="{StaticResource CarrierString}"
+                                   Grid.Column="1"/>
+                        <Slider Grid.Column="1"
+                                Grid.Row="1"
+                                Maximum="{Binding MaxFrequency}"
+                                Minimum="{Binding MinFrequency}"
+                                Value="{Binding Frequency}"
+                                TickFrequency="{Binding FrequencyStep}"/>
+                        <shared:EditableTextBox Grid.Column="1"
+                                                Text="{Binding Frequency}"
+                                                Grid.Row="2"/>
 
-            <GroupBox x:Name="noiseChannelPanel" 
-                      Grid.Column="1">
-                <GroupBox.Header>
-                    <CheckBox Content="{Binding Path=NoiseModel.SignalName}" 
+                        <TextBlock Text="{StaticResource FreqString}"
+                                   Grid.Column="2"/>
+                        <Slider Grid.Column="2"
+                                Grid.Row="1"
+                                Maximum="{Binding MaxDifference}"
+                                Minimum="{Binding MinDifference}"
+                                Value="{Binding Difference}"
+                                TickFrequency="{Binding DifferenceStep}"/>
+                        <shared:EditableTextBox Text="{Binding Difference}"
+                                                Grid.Column="2"
+                                                Grid.Row="2"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox x:Name="noiseChannelPanel" 
+                          Grid.Column="1"
+                          Grid.RowSpan="2">
+                    <GroupBox.Header>
+                        <CheckBox Content="{Binding Path=NoiseModel.SignalName}" 
                               IsChecked="{Binding Path=NoiseModel.Enabled}"/>
-                </GroupBox.Header>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="auto"/>
-                    </Grid.RowDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Text="{StaticResource VolumeString}"/>
-                    <Slider Maximum="{Binding Path=NoiseModel.MaxGain}" 
+                        <TextBlock Text="{StaticResource VolumeString}"/>
+                        <Slider Maximum="{Binding Path=NoiseModel.MaxGain}" 
                             Minimum="{Binding Path=NoiseModel.MinGain}" 
                             Value="{Binding Path=NoiseModel.Gain}" 
                             Grid.Row="1"/>
-                    <shared:EditableTextBox Text="{Binding Path=NoiseModel.Gain}" 
+                        <shared:EditableTextBox Text="{Binding Path=NoiseModel.Gain}" 
                                             Grid.Row="2"/>
 
-                    <TextBlock Text="{StaticResource SmoothString}" 
+                        <TextBlock Text="{StaticResource SmoothString}" 
                                Grid.Column="1"/>
-                    <Slider Grid.Column="1" 
+                        <Slider Grid.Column="1" 
                             Maximum="{Binding Path=NoiseModel.MaxSmoothness}" 
                             Minimum="{Binding Path=NoiseModel.MinSmoothness}" 
                             Value="{Binding Path=NoiseModel.Smoothness}"
                             Grid.Row="1" 
                             TickFrequency="{Binding Path=NoiseModel.SmoothnessStep}"/>
-                    <shared:EditableTextBox Grid.Column="1" 
+                        <shared:EditableTextBox Grid.Column="1" 
                                             Text="{Binding Path=NoiseModel.Smoothness}" 
                                             Grid.Row="2"/>
-                </Grid>
-            </GroupBox>
+                    </Grid>
+                </GroupBox>
+            </Grid>
         </Grid>
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="2">
             <Grid.RowDefinitions>
-                <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>

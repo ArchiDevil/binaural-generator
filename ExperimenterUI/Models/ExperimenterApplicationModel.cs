@@ -26,6 +26,8 @@ namespace ExperimenterUI
         private ClientProtocol      _protocol = null;
         private NoiseViewModel      _noiseModel = null;
         private SignalViewModel[]   _signalModels = null;
+        private string[]            _signalModelNames = null;
+        private SignalViewModel     _currentSignal = null;
         private TimeSpan            _sessionTime = new TimeSpan(0, 0, 0);
         private string              _subjectName = "";
         private Timer               _tickTimer = new Timer(1000);
@@ -42,6 +44,12 @@ namespace ExperimenterUI
         public SignalViewModel[] SignalModels
         {
             get { return _signalModels; }
+        }
+
+        public string[] SignalModelNames
+        {
+            get { return _signalModelNames; }
+            private set { _signalModelNames = value; RaisePropertyChanged("SignalModelNames"); }
         }
 
         public bool IsConnected
@@ -79,6 +87,12 @@ namespace ExperimenterUI
             get { return _temperatureModel; }
         }
 
+        public SignalViewModel CurrentSignal
+        {
+            get { return _currentSignal; }
+            private set { _currentSignal = value; RaisePropertyChanged("CurrentSignal"); }
+        }
+
         public event ClientProtocol.ChatMessageReceiveHandler ChatMessageReceived = delegate
         { };
 
@@ -86,12 +100,16 @@ namespace ExperimenterUI
         {
             Contract.Requires(protocol != null, "protocol mustn't be null");
 
+            const int signalsCount = 4;
             _noiseModel = new NoiseViewModel("Noise channel", protocol);
-            _signalModels = new SignalViewModel[4];
-            for (int i = 0; i < _signalModels.Length; i++)
+            _signalModels = new SignalViewModel[signalsCount];
+            _signalModelNames = new string[signalsCount];
+            for (int i = 0; i < signalsCount; i++)
             {
-                _signalModels[i] = new SignalViewModel("Channel " + (i + 1).ToString(), protocol);
+                string signalName = "Channel " + (i + 1);
+                _signalModels[i] = new SignalViewModel(signalName, protocol);
                 _signalModels[i].PropertyChanged += SignalModelPropertyChanged;
+                _signalModelNames[i] = signalName;
             }
 
             _protocol = protocol;
@@ -144,7 +162,7 @@ namespace ExperimenterUI
             SendNewSettings();
         }
 
-        public async void Connect(string connectionAddress)
+        internal async void Connect(string connectionAddress)
         {
             _connectionStatus = ConnectionStatus.Connection;
             RaisePropertyChanged("IsConnected");
@@ -175,9 +193,14 @@ namespace ExperimenterUI
             }
         }
 
-        public bool SendChatMessage(string messageContent, DateTime messageTime)
+        internal bool SendChatMessage(string messageContent, DateTime messageTime)
         {
             return _protocol.SendChatMessage(messageContent);
+        }
+
+        internal void SelectChannel(int selectedIndex)
+        {
+            CurrentSignal = _signalModels[selectedIndex];
         }
 
         public void Dispose()
