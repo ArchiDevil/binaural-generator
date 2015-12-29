@@ -4,9 +4,22 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SensorsLayer
 {
+    public class ConnectedEventArgs
+    {
+        public string portName = null;
+        public ConnectedEventArgs(string portName) { this.portName = portName; }
+    }
+
+    public class DisconnectedEventArgs
+    {
+        public string portName = null;
+        public DisconnectedEventArgs(string portName) { this.portName = portName; }
+    }
+
     public class SensorsDataEventArgs
     {
         public double temperatureValue = 0.0;
@@ -29,26 +42,36 @@ namespace SensorsLayer
 
     public class SensorsCollector
     {
-        SerialPort connectedDevice = null;
-        ManualResetEvent stopEvent = new ManualResetEvent(false);
-        byte[] receivingBuffer = new byte[4096];
-        int offset = 0;
+        private SerialPort _devicePort = null;
+        private ManualResetEvent _stopEvent = new ManualResetEvent(false);
+        private byte[] _receivingBuffer = new byte[4096];
+        private int _offset = 0;
 
-        public bool ConnectToDevice()
+        public delegate void DeviceConnectedHandler(object sender, ConnectedEventArgs e);
+        public delegate void DeviceDisconnectedHandler(object sender, DisconnectedEventArgs e);
+
+        public event DeviceConnectedHandler DeviceConnected = delegate { };
+        public event DeviceDisconnectedHandler DeviceDisconnected = delegate { };
+
+        public async void StartDeviceExploring()
         {
-            // check all ports
-            if (!FindDevice() && connectedDevice == null)
-                return false;
+            Task t = new Task(() =>
+            {
+                // check all ports
+                if (!FindDevice() && _devicePort == null)
+                    return;
 
-            // select responded device
-            byte[] commandBuffer = Encoding.ASCII.GetBytes("START");
-            connectedDevice.Write(commandBuffer, 0, commandBuffer.Length);
+                // select responded device
+                byte[] commandBuffer = Encoding.ASCII.GetBytes("START");
+                _devicePort.Write(commandBuffer, 0, commandBuffer.Length);
 
-            //start collector
-            Thread worker = new Thread(CollectHandler);
-            worker.Start();
+                DeviceConnected(this, new ConnectedEventArgs(_devicePort.PortName));
 
-            return true;
+                //start collector
+                Thread worker = new Thread(CollectHandler);
+                worker.Start();
+            });
+            await t;
         }
 
         private bool FindDevice()
@@ -56,37 +79,40 @@ namespace SensorsLayer
             List<string> allPorts = GetAllPortsList();
 
             foreach (string portName in allPorts)
-            {
-                SerialPort port = new SerialPort(portName);
-                if (!port.IsOpen)
-                    port.Open();
-
-                port.BaudRate = (int)BaudRates.Rate_9600;
-
-                const int bufferSize = 6;
-                byte[] buffer = { 4, 8, 15, 16, 23, 42 };
-                port.Write(buffer, 0, bufferSize);
-
-                // waiting 100 ms for each device to make sure it request processed correctly
-                Thread.Sleep(100);
-
-                if (port.BytesToRead == 0)
-                    continue;
-
-                byte[] readBuffer = new byte[port.BytesToRead];
-                // read ALL data
-                int count = port.Read(readBuffer, 0, port.BytesToRead);
-                if (count != port.BytesToRead)
-                    throw new SystemException("Internal error");
-
-                if (readBuffer.SequenceEqual(buffer))
-                    continue;
-
-                connectedDevice = port;
-                return true;
-            }
+                if (CheckDevice(portName))
+                    return true;
 
             return false;
+        }
+
+        private bool CheckDevice(string portName)
+        {
+            SerialPort port = new SerialPort(portName);
+            if (!port.IsOpen)
+                port.Open();
+
+            port.BaudRate = (int)BaudRates.Rate_9600;
+
+            byte[] buffer = { 4, 8, 15, 16, 23, 42 };
+            port.Write(buffer, 0, buffer.Length);
+
+            // waiting 100 ms for each device to make sure it request processed correctly
+            Thread.Sleep(100);
+
+            if (port.BytesToRead == 0)
+                return false;
+
+            byte[] readBuffer = new byte[port.BytesToRead];
+            // read ALL data
+            int count = port.Read(readBuffer, 0, port.BytesToRead);
+            if (count != port.BytesToRead)
+                return false;
+
+            if (readBuffer.SequenceEqual(buffer))
+                return false;
+
+            _devicePort = port;
+            return true;
         }
 
         public event SensorsDataReceiveHandler SensorsDataReceived = delegate { };
@@ -96,9 +122,9 @@ namespace SensorsLayer
         {
             while (true)
             {
-                lock (stopEvent)
+                lock (_stopEvent)
                 {
-                    if (stopEvent.WaitOne(0))
+                    if (_stopEvent.WaitOne(0))
                         break;
                 }
 
@@ -109,12 +135,14 @@ namespace SensorsLayer
                 SensorsDataReceived(e);
             }
 
-            lock (connectedDevice)
+            lock (_devicePort)
             {
+                DeviceDisconnected(this, new DisconnectedEventArgs(_devicePort.PortName));
+
                 byte[] commandBuffer = Encoding.ASCII.GetBytes("STOP");
-                connectedDevice.Write(commandBuffer, 0, commandBuffer.Length);
-                connectedDevice.Close();
-                connectedDevice = null;
+                _devicePort.Write(commandBuffer, 0, commandBuffer.Length);
+                _devicePort.Close();
+                _devicePort = null;
             }
         }
 
@@ -129,30 +157,24 @@ namespace SensorsLayer
 
         private bool CollectCurrentValues(ref SensorsDataEventArgs e)
         {
-            int bytesToRead = connectedDevice.BytesToRead;
+            int bytesToRead = _devicePort.BytesToRead;
             int dataSize = 32;
-            if (offset > dataSize)
+            if (_offset > dataSize)
             {
-                e.motionValue = BitConverter.ToDouble(receivingBuffer, 0);
-                e.pulseValue = BitConverter.ToDouble(receivingBuffer, 8);
-                e.skinResistanceValue = BitConverter.ToDouble(receivingBuffer, 16);
-                e.temperatureValue = BitConverter.ToDouble(receivingBuffer, 24);
+                e.motionValue = BitConverter.ToDouble(_receivingBuffer, 0);
+                e.pulseValue = BitConverter.ToDouble(_receivingBuffer, 8);
+                e.skinResistanceValue = BitConverter.ToDouble(_receivingBuffer, 16);
+                e.temperatureValue = BitConverter.ToDouble(_receivingBuffer, 24);
 
-                offset -= dataSize;
-                receivingBuffer.Skip(dataSize).Take(receivingBuffer.Length - dataSize);
+                _offset -= dataSize;
+                _receivingBuffer.Skip(dataSize).Take(_receivingBuffer.Length - dataSize);
                 return true;
             }
-            try
-            {
-                int readCount = connectedDevice.Read(receivingBuffer, offset, bytesToRead);
-                if (readCount != bytesToRead)
-                    throw new Exception();
-                return true;
-            }
-            catch (Exception)
-            {
+
+            int readCount = _devicePort.Read(_receivingBuffer, _offset, bytesToRead);
+            if (readCount != bytesToRead)
                 return false;
-            }
+            return true;
         }
     }
 }
