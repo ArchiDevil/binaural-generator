@@ -56,6 +56,10 @@
             <Setter Property="Margin"
                     Value="5"/>
         </Style>
+        <Style TargetType="oxy:PlotView">
+            <Setter Property="Margin"
+                    Value="5"/>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -173,6 +177,7 @@
                         <Slider Maximum="{Binding MaxGain}"
                                 Minimum="{Binding MinGain}"
                                 Value="{Binding Gain}" 
+                                TickFrequency="{Binding GainStep}"
                                 Grid.Row="1"/>
                         <shared:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" 
                                                 Grid.Row="2"/>
@@ -225,6 +230,7 @@
                         <Slider Maximum="{Binding Path=NoiseModel.MaxGain}" 
                             Minimum="{Binding Path=NoiseModel.MinGain}" 
                             Value="{Binding Path=NoiseModel.Gain}" 
+                            TickFrequency="{Binding Path=NoiseModel.GainStep}"
                             Grid.Row="1"/>
                         <shared:EditableTextBox Text="{Binding Path=NoiseModel.Gain}" 
                                             Grid.Row="2"/>
@@ -248,9 +254,12 @@
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
             </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
 
             <oxy:PlotView x:Name="tempPlotView" 
                           Model="{Binding TemperatureModel}"
@@ -260,10 +269,12 @@
                           Grid.Row="1"/>
             <oxy:PlotView x:Name="pulsePlotView" 
                           Model="{Binding PulseModel}"
-                          Grid.Row="2"/>
+                          Grid.Row="0"
+                          Grid.Column="1"/>
             <oxy:PlotView x:Name="motionPlotView" 
                           Model="{Binding MotionModel}"
-                          Grid.Row="3"/>
+                          Grid.Row="1"
+                          Grid.Column="1"/>
         </Grid>
     </Grid>
 </Window>

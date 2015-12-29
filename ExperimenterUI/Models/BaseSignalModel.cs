@@ -11,6 +11,7 @@ namespace ExperimenterUI.Models
 
         private readonly double _maxGain = 100.0;
         private readonly double _minGain = 0.0;
+        private readonly double _gainStep = 1.0;
         private double _gain = 50.0;
 
         protected readonly ClientProtocol _protocol = null;
@@ -42,6 +43,11 @@ namespace ExperimenterUI.Models
             set { _gain = value; RaisePropertyChanged("Gain"); }
         }
 
+        public double GainStep
+        {
+            get { return _gainStep; }
+        }
+
         public BaseSignalModel(string signalName, ClientProtocol protocol)
         {
             _signalName = signalName;
@@ -51,12 +57,13 @@ namespace ExperimenterUI.Models
             _protocol = protocol;
         }
 
-        public BaseSignalModel(string signalName, ClientProtocol protocol, double minGain, double maxGain)
+        public BaseSignalModel(string signalName, ClientProtocol protocol, double minGain, double maxGain, double gainStep)
             : this(signalName, protocol)
         {
             _minGain = minGain;
             _maxGain = maxGain;
             _gain = maxGain;
+            _gainStep = gainStep;
         }
     }
 }

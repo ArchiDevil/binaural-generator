@@ -31,7 +31,7 @@ namespace ExperimenterUI.Models
         }
 
         public NoiseViewModel(string signalName, ClientProtocol protocol) 
-            : base(signalName, protocol)
+            : base(signalName, protocol, 0.0, 100.0, 2.5)
         {
         }
     }

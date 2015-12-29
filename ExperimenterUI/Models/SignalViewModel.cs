@@ -57,7 +57,7 @@ namespace ExperimenterUI.Models
         }
 
         public SignalViewModel(string signalName, ClientProtocol protocol) 
-            : base(signalName, protocol, 0.0, 25.0)
+            : base(signalName, protocol, 0.0, 20.0, 2.0)
         {
         }
     }

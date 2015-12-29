@@ -7,6 +7,8 @@ using System.Windows;
 using ExperimenterUI.Models;
 using NetworkLayer.Protocol;
 using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Series;
 using SharedLibrary.Models;
 
 namespace ExperimenterUI
@@ -35,6 +37,7 @@ namespace ExperimenterUI
         private PlotModel           _motionModel = new PlotModel();
         private PlotModel           _resistanceModel = new PlotModel();
         private PlotModel           _temperatureModel = new PlotModel();
+        private int                 _timestamp = 0;
 
         public NoiseViewModel NoiseModel
         {
@@ -113,16 +116,121 @@ namespace ExperimenterUI
             }
 
             _protocol = protocol;
+            _protocol.SensorsReceive += _protocol_SensorsReceive;
             _noiseModel.PropertyChanged += NoiseModelPropertyChanged;
 
             _tickTimer.Elapsed += _tickTimer_Elapsed;
             _tickTimer.AutoReset = true;
             _tickTimer.Start();
 
-            _pulseModel.Title = "Pulse value";
-            _motionModel.Title = "Motion value";
-            _resistanceModel.Title = "Resistance value";
-            _temperatureModel.Title = "Temperature value";
+            _pulseModel.Title = "Pulse";
+            _pulseModel.Axes.Add(new LinearAxis
+            {
+                Maximum = 120,
+                Minimum = 20,
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Solid,
+            });
+            _pulseModel.Axes.Add(new LinearAxis
+            {
+                Position = AxisPosition.Bottom,
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Solid,
+            });
+            _pulseModel.Series.Add(new LineSeries
+            {
+                Color = OxyColors.SkyBlue,
+                MarkerType = MarkerType.Square,
+                MarkerStroke = OxyColors.White,
+                MarkerFill = OxyColors.SkyBlue,
+            });
+
+            _motionModel.Title = "Motion";
+            _motionModel.Axes.Add(new LinearAxis
+            {
+                Maximum = 100,
+                Minimum = 0,
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Solid,
+            });
+            _motionModel.Axes.Add(new LinearAxis
+            {
+                Position = AxisPosition.Bottom,
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Solid,
+            });
+            _motionModel.Series.Add(new LineSeries
+            {
+                Color = OxyColors.SkyBlue,
+                MarkerType = MarkerType.Square,
+                MarkerStroke = OxyColors.White,
+                MarkerFill = OxyColors.SkyBlue,
+            });
+
+            _resistanceModel.Title = "Resistance";
+            _resistanceModel.Axes.Add(new LogarithmicAxis
+            {
+                Maximum = 10e9,
+                Minimum = 10e3,
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Solid,
+                StringFormat = "0.###E+0",
+            });
+            _resistanceModel.Axes.Add(new LinearAxis
+            {
+                Position = AxisPosition.Bottom,
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Solid,
+            });
+            _resistanceModel.Series.Add(new LineSeries
+            {
+                Color = OxyColors.SkyBlue,
+                MarkerType = MarkerType.Square,
+                MarkerStroke = OxyColors.White,
+                MarkerFill = OxyColors.SkyBlue,
+            });
+
+            _temperatureModel.Title = "Temperature";
+            _temperatureModel.Axes.Add(new LinearAxis
+            {
+                Maximum = 37.0,
+                Minimum = 35.0,
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Solid,
+            });
+            _temperatureModel.Axes.Add(new LinearAxis
+            {
+                Position = AxisPosition.Bottom,
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Solid,
+            });
+            _temperatureModel.Series.Add(new LineSeries
+            {
+                Color = OxyColors.SkyBlue,
+                MarkerType = MarkerType.Square,
+                MarkerStroke = OxyColors.White,
+                MarkerFill = OxyColors.SkyBlue,
+            });
+        }
+
+        private void _protocol_SensorsReceive(object sender, SensorsDataEventArgs e)
+        {
+            _timestamp += 1;
+            LineSeries s = _pulseModel.Series[0] as LineSeries;
+            s.Points.Add(new DataPoint(_timestamp, e.pulseValue));
+            _pulseModel.InvalidatePlot(false);
+
+            s = _motionModel.Series[0] as LineSeries;
+            s.Points.Add(new DataPoint(_timestamp, e.motionValue));
+            _motionModel.InvalidatePlot(false);
+
+            s = _resistanceModel.Series[0] as LineSeries;
+            s.Points.Add(new DataPoint(_timestamp, e.skinResistanceValue));
+            _resistanceModel.InvalidatePlot(false);
+
+            s = _temperatureModel.Series[0] as LineSeries;
+            s.Points.Add(new DataPoint(_timestamp, e.temperatureValue));
+            _temperatureModel.InvalidatePlot(false);
         }
 
         private void _tickTimer_Elapsed(object sender, ElapsedEventArgs e)
