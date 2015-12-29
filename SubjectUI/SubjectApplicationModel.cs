@@ -17,6 +17,8 @@ namespace SubjectUI
         private bool _areSensorsEnabled = false;
         private bool _isMicrophoneEnabled = false;
 
+        private string _sensorsDeviceStatus = "";
+
         private ServerProtocol _protocol = new ServerProtocol("Subject");
         private SensorsCollector _collector = new SensorsCollector();
 
@@ -64,23 +66,42 @@ namespace SubjectUI
             private set { _isMicrophoneEnabled = value; RaisePropertyChanged("IsMicrophoneEnabled"); }
         }
 
+        public string SensorsDeviceStatus
+        {
+            get { return _sensorsDeviceStatus; }
+            private set { _sensorsDeviceStatus = value; RaisePropertyChanged("SensorsDeviceStatus"); }
+        }
+
         public SubjectApplicationModel()
         {
             _protocol.Bind();
             _protocol.ClientConnected += ClientConnected;
             _protocol.ChatMessageReceive += ChatMessageReceived;
 
+            SensorsDeviceStatus = "Device disconnected";
+
             // start checking microphone and sensors
             _collector.SensorsDataReceived += SensorsDataReceived;
+            _collector.DeviceConnected += SensorsDeviceConnected;
+            _collector.DeviceDisconnected += SensorsDeviceDisconnected;
+            _collector.StartDeviceExploring();
+        }
+
+        private void SensorsDeviceConnected(object sender, ConnectedEventArgs e)
+        {
+            AreSensorsEnabled = true;
+            SensorsDeviceStatus = e.portName.Length > 0 ? "Device connected on port: " + e.portName : "Device connected";
+        }
+
+        private void SensorsDeviceDisconnected(object sender, DisconnectedEventArgs e)
+        {
+            AreSensorsEnabled = false;
+            SensorsDeviceStatus = "Device disconnected";
         }
 
         private void ClientConnected(object sender, ClientInfoEventArgs e)
         {
             IsConnected = true;
-            if(!_collector.ConnectToDevice())
-            {
-                throw new Exception("Unable to connect to device");
-            }
         }
 
         private void ChatMessageReceived(object sender, ClientChatMessageEventArgs e)
@@ -107,20 +128,9 @@ namespace SubjectUI
 
         public async void CheckSystems()
         {
-            Task<bool> task = new Task<bool>(CheckSensors);
-            task.Start();
-            AreSensorsEnabled = await task;
-
-            task = new Task<bool>(CheckMicrophone);
+            Task<bool> task = new Task<bool>(CheckMicrophone);
             task.Start();
             IsMicrophoneEnabled = await task;
-        }
-
-        public bool CheckSensors()
-        {
-            // now this is draft, until sensors subsystem won't be completed
-            Thread.Sleep(2000);
-            return true;
         }
 
         public bool CheckMicrophone()
