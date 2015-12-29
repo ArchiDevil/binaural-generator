@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
 using NetworkLayer.Protocol;
-
+using SensorsLayer;
 using SharedLibrary.Models;
 
 namespace SubjectUI
@@ -20,26 +16,13 @@ namespace SubjectUI
 
         private bool _areSensorsEnabled = false;
         private bool _isMicrophoneEnabled = false;
-        private bool _areHeadphonesWorked = false;
 
-        private ServerProtocol protocol = new ServerProtocol("Subject");
+        private ServerProtocol _protocol = new ServerProtocol("Subject");
+        private SensorsCollector _collector = new SensorsCollector();
 
         public delegate void ChatMessageReceiveHandler(string message, DateTime time);
         public event ChatMessageReceiveHandler ChatMessageReceivedEvent = delegate { };
 
-        private void ClientConnected(object sender, ClientInfoEventArgs e)
-        {
-            _connectionStatus = true;
-            RaisePropertyChanged("ConnectionStatus");
-            RaisePropertyChanged("IsConnected");
-        }
-
-        private void ChatMessageReceived(object sender, ClientChatMessageEventArgs e)
-        {
-            ChatMessageReceivedEvent(e.message, e.sentTime);
-        }
-
-        #region Public Properties
         public string ConnectionStatus
         {
             get { return _connectionStatus ? "Connected" : "Waiting connection"; }
@@ -48,6 +31,7 @@ namespace SubjectUI
         public bool IsConnected
         {
             get { return _connectionStatus; }
+            private set { _connectionStatus = value; RaisePropertyChanged("IsConnected"); RaisePropertyChanged("ConnectionStatus"); }
         }
 
         public bool EnableMicrophone
@@ -71,39 +55,65 @@ namespace SubjectUI
         public bool AreSensorsEnabled
         {
             get { return _areSensorsEnabled; }
+            private set { _areSensorsEnabled = value; RaisePropertyChanged("AreSensorsEnabled"); }
         }
 
         public bool IsMicrophoneEnabled
         {
             get { return _isMicrophoneEnabled; }
+            private set { _isMicrophoneEnabled = value; RaisePropertyChanged("IsMicrophoneEnabled"); }
         }
-        #endregion
 
         public SubjectApplicationModel()
         {
-            protocol.Bind();
-            protocol.ClientConnected += ClientConnected;
-            protocol.ChatMessageReceive += ChatMessageReceived;
+            _protocol.Bind();
+            _protocol.ClientConnected += ClientConnected;
+            _protocol.ChatMessageReceive += ChatMessageReceived;
 
             // start checking microphone and sensors
+            _collector.SensorsDataReceived += SensorsDataReceived;
+        }
+
+        private void ClientConnected(object sender, ClientInfoEventArgs e)
+        {
+            IsConnected = true;
+            if(!_collector.ConnectToDevice())
+            {
+                throw new Exception("Unable to connect to device");
+            }
+        }
+
+        private void ChatMessageReceived(object sender, ClientChatMessageEventArgs e)
+        {
+            ChatMessageReceivedEvent(e.message, e.sentTime);
+        }
+
+        private void SensorsDataReceived(SensorsLayer.SensorsDataEventArgs e)
+        {
+            if (!AreSensorsEnabled)
+                return;
+
+            if(!_protocol.SendSensorsData(e.temperatureValue, e.skinResistanceValue, e.motionValue, e.pulseValue))
+            {
+                //UNDONE: temporary here before correct error handling will be implemented
+                throw new Exception("Unable to send data");
+            }
         }
 
         public bool SendChatMessage(string messageContent, DateTime messageTime)
         {
-            return protocol.SendChatMessage(messageContent);
+            return _protocol.SendChatMessage(messageContent);
         }
 
         public async void CheckSystems()
         {
             Task<bool> task = new Task<bool>(CheckSensors);
             task.Start();
-            _areSensorsEnabled = await task;
-            RaisePropertyChanged("AreSensorsEnabled");
+            AreSensorsEnabled = await task;
 
             task = new Task<bool>(CheckMicrophone);
             task.Start();
-            _isMicrophoneEnabled = await task;
-            RaisePropertyChanged("IsMicrophoneEnabled");
+            IsMicrophoneEnabled = await task;
         }
 
         public bool CheckSensors()
@@ -122,8 +132,8 @@ namespace SubjectUI
 
         public void Dispose()
         {
-            if (protocol != null)
-                protocol.Dispose();
+            if (_protocol != null)
+                _protocol.Dispose();
         }
     }
 }

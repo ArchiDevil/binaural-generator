@@ -100,6 +100,10 @@
       <Project>{4e2a6554-b7ce-4c36-9aa3-025c5322e58a}</Project>
       <Name>NetworkLayer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SensorsCollector\SensorsLayer.csproj">
+      <Project>{196363dd-9e73-4e5d-b9af-6eab7d5f03ec}</Project>
+      <Name>SensorsLayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SharedContent\SharedLibrary.csproj">
       <Project>{697f8cd6-f2a2-4a1b-a087-916a03c383ec}</Project>
       <Name>SharedLibrary</Name>

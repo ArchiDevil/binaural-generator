@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:SubjectUI"
         mc:Ignorable="d"
         xmlns:shared="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
-        Title="Subject application" Height="350" Width="525"
+        Title="Subject application" 
+        Height="350" 
+        Width="525"
         Loaded="Window_Loaded"
         Closed="Window_Closed">
     
