@@ -12,24 +12,24 @@ namespace NetworkLayer
 {
     public sealed class InternetServerConnectionInterface : IServerConnectionInterface, IDisposable
     {
-        ushort port = 0;
-        List<Socket> listenerSockets = null;
-        Socket client = null;
+        private ushort _port = 0;
+        private List<Socket> _listenerSockets = null;
+        private Socket _client = null;
 
         public event ClientConnectedHandler ClientConnected = delegate
         { };
 
         private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
-            if (client != null)
+            if (_client != null)
             {
-                client.Close();
-                client = null;
+                _client.Close();
+                _client = null;
             }
 
-            client = e.AcceptSocket;
+            _client = e.AcceptSocket;
 
-            if (!client.Connected)
+            if (!_client.Connected)
                 return;
 
             SocketAsyncEventArgs args = new SocketAsyncEventArgs();
@@ -39,7 +39,7 @@ namespace NetworkLayer
             try
             {
                 byte[] buffer = new byte[1024];
-                int received = client.Receive(buffer);
+                int received = _client.Receive(buffer);
                 string message = Encoding.ASCII.GetString(buffer, 0, received);
                 if (message.IndexOf("<EOF>") == -1)
                 {
@@ -47,7 +47,7 @@ namespace NetworkLayer
                 }
 
                 buffer = Encoding.ASCII.GetBytes("<EOF>");
-                int sent = client.Send(buffer);
+                int sent = _client.Send(buffer);
                 if (sent == 0)
                 {
                     throw new Exception("Wrong startup message");
@@ -66,7 +66,7 @@ namespace NetworkLayer
         public bool StartListening(ushort port)
         {
             Shutdown();
-            this.port = port;
+            _port = port;
 
             IPAddress[] addresses = null;
             IPAddress[] localAddresses = null;
@@ -77,8 +77,11 @@ namespace NetworkLayer
             addresses.CopyTo(totalAddresses, 0);
             localAddresses.CopyTo(totalAddresses, addresses.Length);
 
-            if (listenerSockets == null)
-                listenerSockets = new List<Socket>();
+            if (_listenerSockets == null)
+                _listenerSockets = new List<Socket>();
+
+            if (localAddresses.Length == 0)
+                return false;
 
             foreach (var address in totalAddresses)
             {
@@ -87,7 +90,7 @@ namespace NetworkLayer
 
                 IPEndPoint localEndPoint = new IPEndPoint(address, port);
                 Socket listenerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                listenerSockets.Add(listenerSocket);
+                _listenerSockets.Add(listenerSocket);
                 try
                 {
                     listenerSocket.Bind(localEndPoint);
@@ -108,99 +111,99 @@ namespace NetworkLayer
 
         public void Shutdown()
         {
-            if (client != null)
+            if (_client != null)
             {
-                if (client.IsConnected() && client.Connected)
+                if (_client.IsConnected() && _client.Connected)
                 {
-                    client.Shutdown(SocketShutdown.Both);
-                    client.Close();
+                    _client.Shutdown(SocketShutdown.Both);
+                    _client.Close();
                 }
-                client = null;
+                _client = null;
             }
 
-            if (listenerSockets != null)
+            if (_listenerSockets != null)
             {
-                foreach (var socket in listenerSockets)
+                foreach (var socket in _listenerSockets)
                 {
                     socket.Dispose();
                 }
 
-                listenerSockets.Clear();
-                listenerSockets = null;
+                _listenerSockets.Clear();
+                _listenerSockets = null;
             }
         }
 
         public int Receive(byte[] data)
         {
-            if (client == null)
+            if (_client == null)
                 return 0;
 
             int count = 0;
             try
             {
-                if (client.Poll(-1, SelectMode.SelectRead) && client.IsConnected())
-                    count = client.Receive(data);
+                if (_client.Poll(-1, SelectMode.SelectRead) && _client.IsConnected())
+                    count = _client.Receive(data);
             }
             catch (SocketException e)
             {
                 Debug.Assert(false, e.Message);
-                client.Close();
-                client = null;
+                _client.Close();
+                _client = null;
             }
             return count;
         }
 
         public int Receive(byte[] data, int millisecondsTimeout)
         {
-            if (client == null)
+            if (_client == null)
                 return 0;
 
             int count = 0;
             try
             {
-                if (client.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead) && client.IsConnected())
-                    count = client.Receive(data);
+                if (_client.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead) && _client.IsConnected())
+                    count = _client.Receive(data);
             }
             catch (SocketException e)
             {
                 Debug.Assert(false, e.Message);
-                client.Close();
-                client = null;
+                _client.Close();
+                _client = null;
             }
             return count;
         }
 
         public int Send(byte[] data)
         {
-            if (client == null)
+            if (_client == null)
                 return 0;
 
             int count = 0;
             try
             {
-                if (client.IsConnected())
-                    count = client.Send(data);
+                if (_client.IsConnected())
+                    count = _client.Send(data);
             }
             catch (SocketException e)
             {
                 Debug.Assert(false, e.Message);
-                client.Close();
-                client = null;
+                _client.Close();
+                _client = null;
             }
             return count;
         }
 
         public bool IsListening()
         {
-            if (listenerSockets == null)
+            if (_listenerSockets == null)
                 return false;
 
-            return listenerSockets.Count > 0;
+            return _listenerSockets.Count > 0;
         }
 
         public bool IsClientConnected()
         {
-            return client != null;
+            return _client != null;
         }
 
         public void Dispose()

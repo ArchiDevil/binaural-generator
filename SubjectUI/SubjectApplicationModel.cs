@@ -74,7 +74,8 @@ namespace SubjectUI
 
         public SubjectApplicationModel()
         {
-            _protocol.Bind();
+            if(!_protocol.Bind())
+                throw new Exception("Unable to start server");
             _protocol.ClientConnected += ClientConnected;
             _protocol.ChatMessageReceive += ChatMessageReceived;
 
