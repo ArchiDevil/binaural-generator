@@ -5,30 +5,30 @@ namespace AudioCore
 {
     internal class Record : IDisposable
     {
-        private WaveIn input = new WaveIn();
-        private bool recordingEnabled = false;
+        private WaveIn _input = new WaveIn();
+        private bool _recordingEnabled = false;
 
         internal Record(int rate, int bits, int channels)
         {
-            input.WaveFormat = new WaveFormat(rate, bits, channels);
-            input.DataAvailable += Input_DataAvailable;
+            _input.WaveFormat = new WaveFormat(rate, bits, channels);
+            _input.DataAvailable += Input_DataAvailable;
         }
 
         private void StartRecording()
         {
-            input.StartRecording();
-            recordingEnabled = true;
+            _input.StartRecording();
+            _recordingEnabled = true;
         }
 
         private void StopRecording()
         {
-            input.StopRecording();
-            recordingEnabled = false;
+            _input.StopRecording();
+            _recordingEnabled = false;
         }
 
         internal bool Enabled
         {
-            get { return recordingEnabled; }
+            get { return _recordingEnabled; }
             set
             {
                 if (value)
@@ -45,7 +45,7 @@ namespace AudioCore
 
         public void Dispose()
         {
-            ((IDisposable)input).Dispose();
+            ((IDisposable)_input).Dispose();
         }
 
         internal delegate void RecordInputHandler(object sender, WaveInEventArgs e);

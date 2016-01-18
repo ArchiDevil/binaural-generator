@@ -4,32 +4,32 @@ namespace AudioCore
 {
     public class LocalAudioLayer
     {
-        internal Record recorder = null;
-        internal Playback playback = null;
-        internal ConstantSampleProvider sampleProvider = null;
+        internal Record _recorder = null;
+        internal Playback _playback = null;
+        internal ConstantSampleProvider _sampleProvider = null;
 
         public LocalAudioLayer()
         {
-            recorder = new Record(44100, 16, 1);
-            sampleProvider = new ConstantSampleProvider();
-            playback = new Playback(sampleProvider);
+            _recorder = new Record(44100, 16, 1);
+            _sampleProvider = new ConstantSampleProvider();
+            _playback = new Playback(_sampleProvider);
         }
 
         public virtual void SetSignalSettings(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
         {
-            sampleProvider.SetSignals(channelSignals, noiseSignal);
+            _sampleProvider.SetSignals(channelSignals, noiseSignal);
         }
 
         public bool PlaybackEnabled
         {
-            get { return playback.Enabled; }
-            set { playback.Enabled = value; }
+            get { return _playback.Enabled; }
+            set { _playback.Enabled = value; }
         }
 
         public bool RecordingEnabled
         {
-            get { return recorder.Enabled; }
-            set { recorder.Enabled = value; }
+            get { return _recorder.Enabled; }
+            set { _recorder.Enabled = value; }
         }
     }
 }

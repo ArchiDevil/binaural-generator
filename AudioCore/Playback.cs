@@ -6,41 +6,41 @@ namespace AudioCore
 {
     internal class Playback : IDisposable
     {
-        IWavePlayer driverOut = new WaveOutEvent();
-        SampleProvider sampleProvider = null;
-        BufferedWaveProvider bufferStream = null;
+        IWavePlayer _driverOut = new WaveOutEvent();
+        SampleProvider _sampleProvider = null;
+        BufferedWaveProvider _bufferStream = null;
 
         internal float Volume
         {
-            get { return sampleProvider.Gain; }
-            set { sampleProvider.Gain = value; }
+            get { return _sampleProvider.Gain; }
+            set { _sampleProvider.Gain = value; }
         }
 
         internal Playback(SampleProvider sampleProvider)
         {
-            this.sampleProvider = sampleProvider;
-            driverOut.Init(sampleProvider);
+            this._sampleProvider = sampleProvider;
+            _driverOut.Init(sampleProvider);
         }
 
         internal void AddSamples(byte[] data)
         {
-            bufferStream.AddSamples(data, 0, data.Length);
+            _bufferStream.AddSamples(data, 0, data.Length);
         }
 
         public void Dispose()
         {
-            driverOut.Dispose();
+            _driverOut.Dispose();
         }
 
         public bool Enabled
         {
-            get { return driverOut.PlaybackState == PlaybackState.Playing; }
+            get { return _driverOut.PlaybackState == PlaybackState.Playing; }
             set
             {
                 if (value)
-                    driverOut.Play();
+                    _driverOut.Play();
                 else
-                    driverOut.Stop();
+                    _driverOut.Stop();
             }
         }
     }

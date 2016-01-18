@@ -6,24 +6,24 @@ namespace AudioCore
 {
     public class ClientAudioLayer : LocalAudioLayer
     {
-        private ClientProtocol protocol = null;
+        private ClientProtocol _protocol = null;
 
         public ClientAudioLayer(ClientProtocol protocol) : base()
         {
             Contract.Requires(protocol != null, "protocol mustn't be null");
-            this.protocol = protocol;
+            this._protocol = protocol;
             protocol.VoiceWindowReceive += Protocol_VoiceWindowReceive;
-            recorder.RecorderInput += Recorder_RecorderInput;
+            _recorder.RecorderInput += Recorder_RecorderInput;
         }
 
         private void Recorder_RecorderInput(object sender, NAudio.Wave.WaveInEventArgs e)
         {
-            protocol.SendVoiceWindow(e.Buffer);
+            _protocol.SendVoiceWindow(e.Buffer);
         }
 
         private void Protocol_VoiceWindowReceive(object sender, VoiceWindowDataEventArgs e)
         {
-            playback.AddSamples(e.data);
+            _playback.AddSamples(e.data);
         }
 
         public override void SetSignalSettings(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
@@ -48,7 +48,7 @@ namespace AudioCore
             {
                 noise.volume = 0.0;
             }
-            protocol.SendSignalSettings(signals, noise);
+            _protocol.SendSignalSettings(signals, noise);
         }
     }
 }
