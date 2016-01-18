@@ -68,6 +68,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Logger.cs" />
+    <Compile Include="LoggerShared.cs" />
     <Compile Include="Models\BaseSignalModel.cs" />
     <Compile Include="Models\NoiseViewModel.cs" />
     <Page Include="Windows\ConnectionDialog.xaml">

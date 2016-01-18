@@ -1,87 +1,74 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using ExperimenterUI.Models;
 
 namespace ExperimenterUI
 {
-    public class SensorsData
-    {
-        public double temperatureValue = 0.0;
-        public double skinResistanceValue = 0.0;
-        public double motionValue = 0.0;
-        public double pulseValue = 0.0;
-    }
-
     public class Logger
     {
-        private DateTime _sessionStart;
-        private DateTime _sessionEnd;
-        private bool _sessionStarted = false;
-        private Dictionary<int, byte[]> _experimenterVoiceData = new Dictionary<int, byte[]>();
-        private Dictionary<int, byte[]> _subjectVoiceData = new Dictionary<int, byte[]>();
-        private Dictionary<int, SensorsData> _sensorsData = new Dictionary<int, SensorsData>();
-        private Dictionary<int, SignalViewModel[]> _signalsData = new Dictionary<int, SignalViewModel[]>();
-        private Dictionary<int, NoiseViewModel> _noiseData = new Dictionary<int, NoiseViewModel>();
+        LoggerData _data = new LoggerData();
 
         public void StartSession()
         {
-            _sessionStart = DateTime.Now;
-            _sessionStarted = true;
+            _data.sessionStart = DateTime.Now;
+            _data.sessionStarted = true;
         }
 
         public void EndSession()
         {
-            _sessionStarted = false;
-            _sessionEnd = DateTime.Now;
+            _data.sessionStarted = false;
+            _data.sessionEnd = DateTime.Now;
         }
 
         public void LogSensors(SensorsData sensorsData)
         {
             // log sensors data
-            if (!_sessionStarted)
+            if (!_data.sessionStarted)
                 return;
 
             DateTime eventTime = DateTime.Now;
-            TimeSpan delta = eventTime - _sessionStart;
-            this._sensorsData.Add(delta.Seconds, sensorsData);
+            TimeSpan delta = eventTime - _data.sessionStart;
+            _data.sensorsData.Add(delta.Seconds, sensorsData);
         }
 
         public void LogSubjectVoice(byte[] buffer)
         {
-            if (!_sessionStarted)
+            if (!_data.sessionStarted)
                 return;
 
             DateTime eventTime = DateTime.Now;
-            TimeSpan delta = eventTime - _sessionStart;
-            _subjectVoiceData.Add(delta.Seconds, buffer);
+            TimeSpan delta = eventTime - _data.sessionStart;
+            _data.subjectVoiceData.Add(delta.Seconds, buffer);
         }
 
         public void LogExperimenterVoice(byte[] buffer)
         {
-            if (!_sessionStarted)
+            if (!_data.sessionStarted)
                 return;
 
             DateTime eventTime = DateTime.Now;
-            TimeSpan delta = eventTime - _sessionStart;
-            _experimenterVoiceData.Add(delta.Seconds, buffer);
+            TimeSpan delta = eventTime - _data.sessionStart;
+            _data.experimenterVoiceData.Add(delta.Seconds, buffer);
         }
 
         public void LogSignalsChange(SignalViewModel[] signals, NoiseViewModel noise)
         {
-            if (!_sessionStarted)
+            if (!_data.sessionStarted)
                 return;
 
             DateTime eventTime = DateTime.Now;
-            TimeSpan delta = eventTime - _sessionStart;
-            _signalsData.Add(delta.Seconds, signals);
-            _noiseData.Add(delta.Seconds, noise);
+            TimeSpan delta = eventTime - _data.sessionStart;
+            _data.signalsData.Add(delta.Seconds, signals);
+            _data.noiseData.Add(delta.Seconds, noise);
         }
 
         public void DumpData(string filename)
         {
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(filename, FileMode.Create);
+            formatter.Serialize(stream, _data);
+            stream.Close();
         }
     }
 }
