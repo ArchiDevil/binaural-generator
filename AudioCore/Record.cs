@@ -14,21 +14,28 @@ namespace AudioCore
             input.DataAvailable += Input_DataAvailable;
         }
 
-        internal void StartRecording()
+        private void StartRecording()
         {
             input.StartRecording();
             recordingEnabled = true;
         }
 
-        internal void StopRecording()
+        private void StopRecording()
         {
             input.StopRecording();
             recordingEnabled = false;
         }
 
-        internal bool IsRecordingEnabled()
+        internal bool Enabled
         {
-            return recordingEnabled;
+            get { return recordingEnabled; }
+            set
+            {
+                if (value)
+                    StartRecording();
+                else
+                    StopRecording();
+            }
         }
 
         private void Input_DataAvailable(object sender, WaveInEventArgs e)

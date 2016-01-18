@@ -39,12 +39,12 @@ namespace BWSitterGenerator
 
         private void PlayMenu_Click(object sender, RoutedEventArgs e)
         {
-            audioLayer.Start();
+            audioLayer.PlaybackEnabled = true;
         }
 
         private void StopMenu_Click(object sender, RoutedEventArgs e)
         {
-            audioLayer.Stop();
+            audioLayer.PlaybackEnabled = false;
         }
 
         private void ResetMenuItem_Click(object sender, RoutedEventArgs e)

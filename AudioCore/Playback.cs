@@ -1,7 +1,5 @@
 ﻿using System;
-
 using NAudio.Wave;
-
 using AudioCore.SampleProviders;
 
 namespace AudioCore
@@ -24,21 +22,6 @@ namespace AudioCore
             driverOut.Init(sampleProvider);
         }
 
-        internal void Play()
-        {
-            driverOut.Play();
-        }
-
-        internal void Pause()
-        {
-            driverOut.Pause();
-        }
-
-        internal void Stop()
-        {
-            driverOut.Stop();
-        }
-
         internal void AddSamples(byte[] data)
         {
             bufferStream.AddSamples(data, 0, data.Length);
@@ -47,6 +30,18 @@ namespace AudioCore
         public void Dispose()
         {
             driverOut.Dispose();
+        }
+
+        public bool Enabled
+        {
+            get { return driverOut.PlaybackState == PlaybackState.Playing; }
+            set
+            {
+                if (value)
+                    driverOut.Play();
+                else
+                    driverOut.Stop();
+            }
         }
     }
 }

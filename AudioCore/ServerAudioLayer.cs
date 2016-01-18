@@ -8,7 +8,7 @@ namespace AudioCore
     {
         private ServerProtocol protocol = null;
 
-        public ServerAudioLayer(ServerProtocol protocol)
+        public ServerAudioLayer(ServerProtocol protocol) : base()
         {
             Contract.Requires(protocol != null, "protocol mustn't be null");
             this.protocol = protocol;

@@ -20,30 +20,16 @@ namespace AudioCore
             sampleProvider.SetSignals(channelSignals, noiseSignal);
         }
 
-        public void Start()
+        public bool PlaybackEnabled
         {
-            playback.Play();
-        }
-
-        public void Stop()
-        {
-            playback.Stop();
+            get { return playback.Enabled; }
+            set { playback.Enabled = value; }
         }
 
         public bool RecordingEnabled
         {
-            get
-            {
-                return recorder.IsRecordingEnabled();
-            }
-
-            set
-            {
-                if (value)
-                    recorder.StartRecording();
-                else
-                    recorder.StopRecording();
-            }
+            get { return recorder.Enabled; }
+            set { recorder.Enabled = value; }
         }
     }
 }
