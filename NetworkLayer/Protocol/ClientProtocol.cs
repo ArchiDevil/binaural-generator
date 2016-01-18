@@ -13,20 +13,20 @@ namespace NetworkLayer.Protocol
         public delegate void VoiceWindowReceiveHandler(object sender, VoiceWindowDataEventArgs e);
         public delegate void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e);
 
-        IClientConnectionInterface connectionInterface = null;
-        string clientName = "";
+        IClientConnectionInterface _connectionInterface = null;
+        string _clientName = "";
 
-        ManualResetEvent sendingThreadStopped = new ManualResetEvent(false);
-        ManualResetEvent sendingThreadTerminate = new ManualResetEvent(false);
+        ManualResetEvent _sendingThreadStopped = new ManualResetEvent(false);
+        ManualResetEvent _sendingThreadTerminate = new ManualResetEvent(false);
 
-        ManualResetEvent receivingThreadStopped = new ManualResetEvent(false);
-        ManualResetEvent receivingThreadTerminate = new ManualResetEvent(false);
+        ManualResetEvent _receivingThreadStopped = new ManualResetEvent(false);
+        ManualResetEvent _receivingThreadTerminate = new ManualResetEvent(false);
 
-        Thread sendingWorker = null;
-        Thread receivingWorker = null;
+        Thread _sendingWorker = null;
+        Thread _receivingWorker = null;
 
-        Queue<Packet> sendingQueue = new Queue<Packet>();
-        Queue<Packet> receivedQueue = new Queue<Packet>();
+        Queue<Packet> _sendingQueue = new Queue<Packet>();
+        Queue<Packet> _receivedQueue = new Queue<Packet>();
 
         private void SendingWorker()
         {
@@ -34,19 +34,19 @@ namespace NetworkLayer.Protocol
             {
                 Thread.Yield();
 
-                if (connectionInterface == null ||
-                    !connectionInterface.IsConnected() ||
-                    sendingThreadTerminate.WaitOne(0))
+                if (_connectionInterface == null ||
+                    !_connectionInterface.IsConnected() ||
+                    _sendingThreadTerminate.WaitOne(0))
                     break;
 
-                if (sendingQueue.Count == 0)
+                if (_sendingQueue.Count == 0)
                     continue;
 
-                Packet packetToSend = sendingQueue.Dequeue();
-                connectionInterface.Send(packetToSend.SerializedData);
+                Packet packetToSend = _sendingQueue.Dequeue();
+                _connectionInterface.Send(packetToSend.SerializedData);
             }
 
-            sendingThreadStopped.Set();
+            _sendingThreadStopped.Set();
         }
 
         private void ReceivingWorker()
@@ -59,12 +59,12 @@ namespace NetworkLayer.Protocol
             {
                 Thread.Yield();
 
-                if (!connectionInterface.IsConnected() ||
-                    receivingThreadTerminate.WaitOne(0))
+                if (!_connectionInterface.IsConnected() ||
+                    _receivingThreadTerminate.WaitOne(0))
                     break;
 
                 byte[] temporalBuffer = new byte[1024];
-                int receivedCount = connectionInterface.Receive(temporalBuffer, 100);
+                int receivedCount = _connectionInterface.Receive(temporalBuffer, 100);
                 receivedBuffer.AddRange(temporalBuffer.Take(receivedCount));
 
                 while (receivedBuffer.Count > 0)
@@ -102,7 +102,7 @@ namespace NetworkLayer.Protocol
                 }
             }
 
-            receivingThreadStopped.Set();
+            _receivingThreadStopped.Set();
         }
 
         private bool SendStruct(PacketType packetType, object structure)
@@ -115,34 +115,34 @@ namespace NetworkLayer.Protocol
 
         private bool SendPacket(PacketType type, byte[] data)
         {
-            if (connectionInterface == null ||
-                !connectionInterface.IsConnected() ||
+            if (_connectionInterface == null ||
+                !_connectionInterface.IsConnected() ||
                 type == PacketType.Unknown ||
                 data.Length == 0)
                 return false;
 
             Packet packetToSend = new Packet(type, data);
-            sendingQueue.Enqueue(packetToSend);
+            _sendingQueue.Enqueue(packetToSend);
             return true;
         }
 
         public ClientProtocol(string clientName)
         {
-            this.clientName = clientName;
+            this._clientName = clientName;
         }
 
         public bool Connect(string address)
         {
             Disconnect();
 
-            connectionInterface = new InternetClientConnectionInterface();
-            bool connectionStatus = connectionInterface.Connect(address, ProtocolShared.protocolPort);
+            _connectionInterface = new InternetClientConnectionInterface();
+            bool connectionStatus = _connectionInterface.Connect(address, ProtocolShared.protocolPort);
             if (!connectionStatus)
                 return false;
 
             MemoryStream m = new MemoryStream();
             BinaryFormatter b = new BinaryFormatter();
-            ClientInfoEventArgs data = new ClientInfoEventArgs { clientName = clientName };
+            ClientInfoEventArgs data = new ClientInfoEventArgs { clientName = _clientName };
             b.Serialize(m, data);
             if (!SendPacket(PacketType.ClientInfoMessage, m.GetBuffer()))
             {
@@ -150,41 +150,41 @@ namespace NetworkLayer.Protocol
                 return false;
             }
 
-            sendingThreadStopped.Reset();
-            sendingWorker = new Thread(SendingWorker);
-            sendingWorker.Start();
+            _sendingThreadStopped.Reset();
+            _sendingWorker = new Thread(SendingWorker);
+            _sendingWorker.Start();
 
-            receivingThreadStopped.Reset();
-            receivingWorker = new Thread(ReceivingWorker);
-            receivingWorker.Start();
+            _receivingThreadStopped.Reset();
+            _receivingWorker = new Thread(ReceivingWorker);
+            _receivingWorker.Start();
 
             return true;
         }
 
         public void Disconnect()
         {
-            if (sendingWorker != null)
+            if (_sendingWorker != null)
             {
-                sendingThreadTerminate.Set();
-                sendingThreadStopped.WaitOne();
-                sendingWorker.Abort();
-                sendingWorker = null;
-                sendingThreadTerminate.Reset();
+                _sendingThreadTerminate.Set();
+                _sendingThreadStopped.WaitOne();
+                _sendingWorker.Abort();
+                _sendingWorker = null;
+                _sendingThreadTerminate.Reset();
             }
 
-            if (receivingWorker != null)
+            if (_receivingWorker != null)
             {
-                receivingThreadTerminate.Set();
-                receivingThreadStopped.WaitOne();
-                receivingWorker.Abort();
-                receivingWorker = null;
-                receivingThreadTerminate.Reset();
+                _receivingThreadTerminate.Set();
+                _receivingThreadStopped.WaitOne();
+                _receivingWorker.Abort();
+                _receivingWorker = null;
+                _receivingThreadTerminate.Reset();
             }
 
-            if (connectionInterface != null)
+            if (_connectionInterface != null)
             {
-                connectionInterface.Disconnect();
-                connectionInterface = null;
+                _connectionInterface.Disconnect();
+                _connectionInterface = null;
             }
         }
 
@@ -217,15 +217,15 @@ namespace NetworkLayer.Protocol
 
         public void Dispose()
         {
-            sendingThreadTerminate.Set();
-            receivingThreadTerminate.Set();
+            _sendingThreadTerminate.Set();
+            _receivingThreadTerminate.Set();
 
             Disconnect();
 
-            sendingThreadStopped.Dispose();
-            sendingThreadTerminate.Dispose();
-            receivingThreadStopped.Dispose();
-            receivingThreadTerminate.Dispose();
+            _sendingThreadStopped.Dispose();
+            _sendingThreadTerminate.Dispose();
+            _receivingThreadStopped.Dispose();
+            _receivingThreadTerminate.Dispose();
         }
 
         public event SensorsReceiveHandler SensorsReceive = delegate

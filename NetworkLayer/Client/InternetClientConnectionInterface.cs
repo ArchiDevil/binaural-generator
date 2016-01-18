@@ -9,16 +9,16 @@ namespace NetworkLayer
 {
     public sealed class InternetClientConnectionInterface : IClientConnectionInterface, IDisposable
     {
-        string address = string.Empty;
-        int port = -1;
-        Socket sender = null;
+        string _address = string.Empty;
+        int _port = -1;
+        Socket _sender = null;
 
         public bool Connect(string address, int port)
         {
             Disconnect();
 
-            this.address = address;
-            this.port = port;
+            _address = address;
+            _port = port;
 
             IPHostEntry ipHostInfo = Dns.GetHostEntry(address);
             IPAddress ipAddress = ipHostInfo.AddressList.Where((a, i) => a.AddressFamily == AddressFamily.InterNetwork).First();
@@ -27,18 +27,18 @@ namespace NetworkLayer
                 return false;
 
             IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
-            sender = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _sender = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             try
             {
-                sender.Connect(remoteEP);
+                _sender.Connect(remoteEP);
 
                 byte[] msg = Encoding.ASCII.GetBytes("<EOF>");
-                sender.Send(msg);
+                _sender.Send(msg);
 
                 // waiting for the response...
                 msg = new byte[1024];
-                int count = sender.Receive(msg);
+                int count = _sender.Receive(msg);
 
                 string response = Encoding.ASCII.GetString(msg, 0, count);
                 if (response.IndexOf("<EOF>") == -1)
@@ -57,64 +57,64 @@ namespace NetworkLayer
 
         public void Disconnect()
         {
-            if (sender != null)
+            if (_sender != null)
             {
-                if (sender.IsConnected() && sender.Connected)
+                if (_sender.IsConnected() && _sender.Connected)
                 {
-                    sender.Shutdown(SocketShutdown.Both);
-                    sender.Close();
+                    _sender.Shutdown(SocketShutdown.Both);
+                    _sender.Close();
                 }
-                sender = null;
+                _sender = null;
             }
         }
 
         public int Send(byte[] data)
         {
-            if (sender == null)
+            if (_sender == null)
                 return 0;
 
             int count = 0;
-            if (sender.Poll(-1, SelectMode.SelectWrite) && sender.IsConnected())
-                count = sender.Send(data);
+            if (_sender.Poll(-1, SelectMode.SelectWrite) && _sender.IsConnected())
+                count = _sender.Send(data);
             return count;
         }
 
         public int Receive(byte[] data)
         {
-            if (sender == null)
+            if (_sender == null)
                 return 0;
 
             int count = 0;
-            if (sender.Poll(-1, SelectMode.SelectRead) && sender.IsConnected())
-                count = sender.Receive(data);
+            if (_sender.Poll(-1, SelectMode.SelectRead) && _sender.IsConnected())
+                count = _sender.Receive(data);
             return count;
         }
 
         public int Receive(byte[] data, int millisecondsTimeout)
         {
-            if (sender == null)
+            if (_sender == null)
                 return 0;
 
             int count = 0;
-            if (sender.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead) && sender.IsConnected())
-                count = sender.Receive(data);
+            if (_sender.Poll(millisecondsTimeout * 1000, SelectMode.SelectRead) && _sender.IsConnected())
+                count = _sender.Receive(data);
             return count;
         }
 
         public int Receive(byte[] data, int offset, int size)
         {
-            if (sender == null)
+            if (_sender == null)
                 return 0;
 
             int count = 0;
-            if (sender.Poll(-1, SelectMode.SelectWrite) && sender.IsConnected())
-                count = sender.Receive(data, offset, size, SocketFlags.None);
+            if (_sender.Poll(-1, SelectMode.SelectWrite) && _sender.IsConnected())
+                count = _sender.Receive(data, offset, size, SocketFlags.None);
             return count;
         }
 
         public bool IsConnected()
         {
-            return sender != null && sender.IsConnected();
+            return _sender != null && _sender.IsConnected();
         }
 
         public void Dispose()

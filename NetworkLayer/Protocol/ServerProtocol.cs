@@ -10,29 +10,29 @@ namespace NetworkLayer.Protocol
 {
     public sealed class ServerProtocol : IDisposable
     {
-        IServerConnectionInterface connectionInterface = null;
-        Thread sendingWorker = null;
-        Thread receivingWorker = null;
+        IServerConnectionInterface _connectionInterface = null;
+        Thread _sendingWorker = null;
+        Thread _receivingWorker = null;
 
         public delegate void ClientConnectionHandler(object sender, ClientInfoEventArgs e);
         public delegate void SettingsReceiveHandler(object sender, SettingsDataEventArgs e);
         public delegate void VoiceWindowReceiveHandler(object sender, VoiceWindowDataEventArgs e);
         public delegate void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e);
 
-        ManualResetEvent sendingThreadStopped = new ManualResetEvent(false);
-        ManualResetEvent sendingThreadTerminate = new ManualResetEvent(false);
+        ManualResetEvent _sendingThreadStopped = new ManualResetEvent(false);
+        ManualResetEvent _sendingThreadTerminate = new ManualResetEvent(false);
 
-        ManualResetEvent receivingThreadStopped = new ManualResetEvent(false);
-        ManualResetEvent receivingThreadTerminate = new ManualResetEvent(false);
+        ManualResetEvent _receivingThreadStopped = new ManualResetEvent(false);
+        ManualResetEvent _receivingThreadTerminate = new ManualResetEvent(false);
 
-        Queue<Packet> sendingQueue = new Queue<Packet>();
-        Queue<Packet> receivedQueue = new Queue<Packet>();
+        Queue<Packet> _sendingQueue = new Queue<Packet>();
+        Queue<Packet> _receivedQueue = new Queue<Packet>();
 
-        string serverName = null;
+        string _serverName = null;
 
         public ServerProtocol(string serverName)
         {
-            this.serverName = serverName;
+            this._serverName = serverName;
         }
 
         private void SendingWorker()
@@ -41,19 +41,19 @@ namespace NetworkLayer.Protocol
             {
                 Thread.Yield();
 
-                if (!connectionInterface.IsListening() ||
-                    !connectionInterface.IsClientConnected() ||
-                    sendingThreadTerminate.WaitOne(0))
+                if (!_connectionInterface.IsListening() ||
+                    !_connectionInterface.IsClientConnected() ||
+                    _sendingThreadTerminate.WaitOne(0))
                     break;
 
-                if (sendingQueue.Count == 0)
+                if (_sendingQueue.Count == 0)
                     continue;
 
-                Packet packetToSend = sendingQueue.Dequeue();
-                connectionInterface.Send(packetToSend.SerializedData);
+                Packet packetToSend = _sendingQueue.Dequeue();
+                _connectionInterface.Send(packetToSend.SerializedData);
             }
 
-            sendingThreadStopped.Set();
+            _sendingThreadStopped.Set();
         }
 
         private void ReceivingWorker()
@@ -66,13 +66,13 @@ namespace NetworkLayer.Protocol
             {
                 Thread.Yield();
 
-                if (!connectionInterface.IsListening() ||
-                    !connectionInterface.IsClientConnected() ||
-                    receivingThreadTerminate.WaitOne(0))
+                if (!_connectionInterface.IsListening() ||
+                    !_connectionInterface.IsClientConnected() ||
+                    _receivingThreadTerminate.WaitOne(0))
                     break;
 
                 byte[] temporalBuffer = new byte[1024];
-                int receivedCount = connectionInterface.Receive(temporalBuffer, 100);
+                int receivedCount = _connectionInterface.Receive(temporalBuffer, 100);
                 receivedBuffer.AddRange(temporalBuffer.Take(receivedCount));
 
                 while (receivedBuffer.Count > 0)
@@ -108,45 +108,45 @@ namespace NetworkLayer.Protocol
                 }
             }
 
-            receivingThreadStopped.Set();
+            _receivingThreadStopped.Set();
         }
 
         public bool Bind()
         {
-            connectionInterface = new InternetServerConnectionInterface();
-            if (connectionInterface == null)
+            _connectionInterface = new InternetServerConnectionInterface();
+            if (_connectionInterface == null)
                 return false;
 
-            connectionInterface.ClientConnected += ClientConnectedEvent;
-            return connectionInterface.StartListening(ProtocolShared.protocolPort);
+            _connectionInterface.ClientConnected += ClientConnectedEvent;
+            return _connectionInterface.StartListening(ProtocolShared.protocolPort);
         }
 
         public void Stop()
         {
-            if (sendingWorker != null)
+            if (_sendingWorker != null)
             {
-                sendingThreadTerminate.Set();
-                sendingThreadStopped.WaitOne();
-                sendingWorker.Abort();
-                sendingWorker = null;
-                sendingThreadTerminate.Reset();
+                _sendingThreadTerminate.Set();
+                _sendingThreadStopped.WaitOne();
+                _sendingWorker.Abort();
+                _sendingWorker = null;
+                _sendingThreadTerminate.Reset();
             }
 
-            if (receivingWorker != null)
+            if (_receivingWorker != null)
             {
-                receivingThreadTerminate.Set();
-                receivingThreadStopped.WaitOne();
-                receivingWorker.Abort();
-                receivingWorker = null;
-                receivingThreadTerminate.Reset();
+                _receivingThreadTerminate.Set();
+                _receivingThreadStopped.WaitOne();
+                _receivingWorker.Abort();
+                _receivingWorker = null;
+                _receivingThreadTerminate.Reset();
             }
 
-            if (connectionInterface != null)
+            if (_connectionInterface != null)
             {
-                lock (connectionInterface)
+                lock (_connectionInterface)
                 {
-                    connectionInterface.Shutdown();
-                    connectionInterface = null;
+                    _connectionInterface.Shutdown();
+                    _connectionInterface = null;
                 }
             }
         }
@@ -197,22 +197,22 @@ namespace NetworkLayer.Protocol
         {
             Stop();
 
-            sendingThreadStopped.Dispose();
-            sendingThreadTerminate.Dispose();
-            receivingThreadStopped.Dispose();
-            receivingThreadTerminate.Dispose();
+            _sendingThreadStopped.Dispose();
+            _sendingThreadTerminate.Dispose();
+            _receivingThreadStopped.Dispose();
+            _receivingThreadTerminate.Dispose();
         }
 
         private bool SendPacket(PacketType type, byte[] data)
         {
-            if (!connectionInterface.IsListening() ||
-                !connectionInterface.IsClientConnected() ||
+            if (!_connectionInterface.IsListening() ||
+                !_connectionInterface.IsClientConnected() ||
                 type == PacketType.Unknown ||
                 data.Length == 0)
                 return false;
 
             Packet packetToSend = new Packet(type, data);
-            sendingQueue.Enqueue(packetToSend);
+            _sendingQueue.Enqueue(packetToSend);
             return true;
         }
 
@@ -225,10 +225,10 @@ namespace NetworkLayer.Protocol
 
             SendPacket(PacketType.ProtocolInfoMessage, stream.GetBuffer());
 
-            lock (connectionInterface)
+            lock (_connectionInterface)
             {
                 byte[] buffer = new byte[1024];
-                int count = connectionInterface.Receive(buffer, 5000);
+                int count = _connectionInterface.Receive(buffer, 5000);
                 if (count > 0)
                 {
                     //check info here
@@ -243,19 +243,19 @@ namespace NetworkLayer.Protocol
                     info.clientName = Encoding.UTF8.GetString(buffer, 5, packetSize);
                     ClientConnected(this, info);
 
-                    ServerInfoEventArgs serverInfo = new ServerInfoEventArgs { serverName = this.serverName };
+                    ServerInfoEventArgs serverInfo = new ServerInfoEventArgs { serverName = this._serverName };
                     stream = new MemoryStream();
                     formatter.Serialize(stream, serverInfo);
                     SendPacket(PacketType.ServerInfoMessage, stream.GetBuffer());
 
                     // everything is ok, start working
-                    sendingThreadStopped.Reset();
-                    sendingWorker = new Thread(SendingWorker);
-                    sendingWorker.Start();
+                    _sendingThreadStopped.Reset();
+                    _sendingWorker = new Thread(SendingWorker);
+                    _sendingWorker.Start();
 
-                    receivingThreadStopped.Reset();
-                    receivingWorker = new Thread(ReceivingWorker);
-                    receivingWorker.Start();
+                    _receivingThreadStopped.Reset();
+                    _receivingWorker = new Thread(ReceivingWorker);
+                    _receivingWorker.Start();
                 }
             }
         }
