@@ -1,6 +1,6 @@
 ﻿using NAudio.Wave;
 
-namespace SharedLibrary.AudioProviders
+namespace AudioCore.SampleProviders
 {
     public abstract class SampleProvider : ISampleProvider
     {
@@ -22,5 +22,6 @@ namespace SharedLibrary.AudioProviders
         }
 
         public abstract int Read(float[] buffer, int offset, int count);
+        public virtual void AddVoiceSamples() { }
     }
 }

@@ -5,7 +5,8 @@ using System.Windows.Controls;
 
 using BWGenerator.Models;
 
-using SharedLibrary.AudioProviders;
+using AudioCore;
+using AudioCore.SampleProviders;
 
 using OxyPlot;
 using OxyPlot.Wpf;
@@ -89,12 +90,12 @@ namespace BWGenerator
             Preset = new PresetModel();
 
             DataContext = Preset;
-            playback = new Playback(new ModelledSampleProvider());
+            // playback = new Playback(new ModelledSampleProvider());
         }
 
         public PresetModel Preset { get; set; }
         public PlotController PlotsController { get; set; }
-        private Playback playback = null;
+        // private Playback playback = null;
 
         void SelectSignal(int signalId)
         {
@@ -137,17 +138,17 @@ namespace BWGenerator
 
         private void Play_Click(object sender, RoutedEventArgs e)
         {
-            playback.Play();
+            // playback.Play();
         }
 
         private void Pause_Click(object sender, RoutedEventArgs e)
         {
-            playback.Pause();
+            // playback.Pause();
         }
 
         private void Stop_Click(object sender, RoutedEventArgs e)
         {
-            playback.Stop();
+            // playback.Stop();
         }
 
         private void AddSignalButton_Click(object sender, RoutedEventArgs e)

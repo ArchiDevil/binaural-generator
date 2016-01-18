@@ -86,7 +86,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AudioProviders\OutputDataProvider.cs" />
     <Compile Include="Models\NoisePlotViewModel.cs" />
     <Compile Include="Models\SignalPlotViewModel.cs" />
     <Compile Include="Models\SignalViewModel.cs" />
@@ -152,6 +151,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AudioCore\AudioCore.csproj">
+      <Project>{b18c8fee-cb53-498e-83d5-e2ebd5d989f1}</Project>
+      <Name>AudioCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SharedContent\SharedLibrary.csproj">
       <Project>{697f8cd6-f2a2-4a1b-a087-916a03c383ec}</Project>
       <Name>SharedLibrary</Name>
