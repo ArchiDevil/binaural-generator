@@ -20,13 +20,13 @@ namespace SubjectUI
     /// </summary>
     public sealed partial class MainWindow : Window, IDisposable
     {
-        SubjectApplicationModel model = new SubjectApplicationModel();
+        SubjectApplicationModel _model = new SubjectApplicationModel();
 
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = model;
-            model.ChatMessageReceivedEvent += Model_ChatMessageReceivedEvent;
+            DataContext = _model;
+            _model.ChatMessageReceivedEvent += Model_ChatMessageReceivedEvent;
         }
 
         private void Model_ChatMessageReceivedEvent(string message, DateTime time)
@@ -36,23 +36,23 @@ namespace SubjectUI
 
         public void Dispose()
         {
-            model.Dispose();
+            _model.Dispose();
         }
 
         private void ChatWindow_ChatMessage(string message, DateTime time)
         {
-            model.SendChatMessage(message, time);
+            _model.SendChatMessage(message, time);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            model.CheckSystems();
+            _model.CheckSystems();
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            model.Dispose();
-            model = null;
+            _model.Dispose();
+            _model = null;
         }
     }
 }
