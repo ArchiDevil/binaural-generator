@@ -28,7 +28,7 @@
 
         <TextBox x:Name="textField"
                  Grid.Column="1"
-                 Text="{Binding ConnectionAddress}"
+                 Text="{Binding ConnectionAddress, UpdateSourceTrigger=PropertyChanged}"
                  Margin="5"
                  Padding="5"
                  HorizontalAlignment="Stretch"/>

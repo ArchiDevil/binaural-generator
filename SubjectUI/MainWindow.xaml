@@ -6,24 +6,53 @@
         xmlns:local="clr-namespace:SubjectUI"
         mc:Ignorable="d"
         xmlns:shared="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
-        Title="Subject application" Height="350" Width="525"
+        Title="Subject application"
+        Height="350"
+        Width="525"
         Loaded="Window_Loaded"
         Closed="Window_Closed">
     
     <Window.Resources>
         <Style TargetType="TextBox">
-            <Setter Property="Margin" 
-                    Value="5"/>
+            <Setter Property="Margin" Value="5"/>
         </Style>
 
         <Style TargetType="CheckBox">
-            <Setter Property="Margin" 
-                    Value="5"/>
+            <Setter Property="Margin" Value="5"/>
         </Style>
 
         <Style TargetType="TextBlock">
-            <Setter Property="Margin" 
-                    Value="5"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+
+        <Style TargetType="Rectangle" x:Key="sensorsRectStatusStyle">
+            <Setter Property="Fill" Value="Red"/>
+            <Setter Property="Width" Value="14"/>
+            <Setter Property="Height" Value="14"/>
+            <Setter Property="RadiusX" Value="14"/>
+            <Setter Property="RadiusY" Value="14"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding AreSensorsEnabled, Mode=OneWay}" Value="True">
+                    <Setter Property="Fill" Value="Green"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="Rectangle" x:Key="micRectStatusStyle">
+            <Setter Property="Fill" Value="Red"/>
+            <Setter Property="Width" Value="14"/>
+            <Setter Property="Height" Value="14"/>
+            <Setter Property="RadiusX" Value="14"/>
+            <Setter Property="RadiusY" Value="14"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMicrophoneEnabled, Mode=OneWay}" Value="True">
+                    <Setter Property="Fill" Value="Green"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
@@ -34,7 +63,7 @@
         </Grid.ColumnDefinitions>
 
         <shared:ChatWindow x:Name="chatWindow"
-                           IsEnabled="{Binding IsConnected}" 
+                           IsEnabled="{Binding IsConnected}"
                            ChatMessage="ChatWindow_ChatMessage"/>
 
         <Grid Grid.Column="1">
@@ -44,8 +73,8 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
+
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -58,38 +87,54 @@
             <TextBlock Grid.Column="1" 
                        Text="{Binding ConnectionStatus, Mode=OneWay}"/>
 
-            <CheckBox Grid.Row="1" 
-                      Grid.ColumnSpan="2" 
-                      IsEnabled="{Binding IsConnected}" 
-                      IsChecked="{Binding EnableMicrophone}" 
+            <CheckBox Grid.Row="1"
+                      Grid.ColumnSpan="2"
+                      IsEnabled="{Binding IsConnected}"
+                      IsChecked="{Binding EnableMicrophone}"
                       Content="Enable microphone"/>
 
-            <CheckBox Grid.Row="2" Grid.ColumnSpan="2" 
-                      IsEnabled="{Binding IsConnected}" 
-                      IsChecked="{Binding EnableVoice}" 
+            <CheckBox Grid.Row="2"
+                      Grid.ColumnSpan="2"
+                      IsEnabled="{Binding IsConnected}"
+                      IsChecked="{Binding EnableVoice}"
                       Content="Enable experimenter's voice"/>
 
-            <CheckBox Grid.Row="3" 
-                      Grid.ColumnSpan="2" 
-                      IsEnabled="{Binding IsConnected}" 
-                      IsChecked="{Binding EnableSignals}" 
+            <CheckBox Grid.Row="3"
+                      Grid.ColumnSpan="2"
+                      IsEnabled="{Binding IsConnected}"
+                      IsChecked="{Binding EnableSignals}"
                       Content="Enable signals"/>
 
-            <Separator Grid.Row="4" 
+            <Separator Grid.Row="4"
                        Grid.ColumnSpan="2"
                        Margin="5"/>
 
-            <CheckBox Grid.Row="5" 
-                      Grid.ColumnSpan="2" 
-                      IsEnabled="False" 
-                      IsChecked="{Binding AreSensorsEnabled, Mode=OneWay}" 
-                      Content="Sensors enabled"/>
+            <Grid Grid.Row="5"
+                  Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
 
-            <CheckBox Grid.Row="6" 
-                      Grid.ColumnSpan="2" 
-                      IsEnabled="False" 
-                      IsChecked="{Binding IsMicrophoneEnabled, Mode=OneWay}" 
-                      Content="Microphone enabled"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Rectangle Style="{StaticResource sensorsRectStatusStyle}"
+                           Margin="5"/>
+
+                <TextBlock Grid.Column="1"
+                           Text="{Binding SensorsDeviceStatus}"/>
+
+                <Rectangle Style="{StaticResource micRectStatusStyle}"
+                           Grid.Row="1"
+                           Margin="5"/>
+                
+                <TextBlock Grid.Row="1"
+                           Grid.Column="1"
+                           Text="Microphone enabled"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

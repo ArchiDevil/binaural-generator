@@ -118,9 +118,7 @@ namespace NetworkLayer.Protocol
                 return false;
 
             connectionInterface.ClientConnected += ClientConnectedEvent;
-            bool result = connectionInterface.StartListening(ProtocolShared.protocolPort);
-
-            return result;
+            return connectionInterface.StartListening(ProtocolShared.protocolPort);
         }
 
         public void Stop()

@@ -1,70 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using NetworkLayer.Protocol;
-
-using SharedLibrary.Models;
+﻿using NetworkLayer.Protocol;
 
 namespace ExperimenterUI.Models
 {
     public class SignalViewModel : BaseSignalModel
     {
-        private readonly double maxFrequency = 800.0;
-        private readonly double minFrequency = 100.0;
-        private double frequency = 440.0;
-        private readonly double frequencyStep = 10.0;
+        private readonly double _maxFrequency = 800.0;
+        private readonly double _minFrequency = 100.0;
+        private double _frequency = 440.0;
+        private readonly double _frequencyStep = 10.0;
 
-        private readonly double maxDifference = 26.0;
-        private readonly double minDifference = 0.5;
-        private double difference = 10.0;
-        private readonly double differenceStep = 0.5;
+        private readonly double _maxDifference = 26.0;
+        private readonly double _minDifference = 0.5;
+        private double _difference = 10.0;
+        private readonly double _differenceStep = 0.5;
 
         public double MaxFrequency
         {
-            get { return maxFrequency; }
+            get { return _maxFrequency; }
         }
 
         public double MinFrequency
         {
-            get { return minFrequency; }
+            get { return _minFrequency; }
         }
 
         public double Frequency
         {
-            get { return frequency; }
-            set { frequency = value; RaisePropertyChanged("Frequency"); }
+            get { return _frequency; }
+            set { _frequency = value; RaisePropertyChanged("Frequency"); }
         }
 
         public double FrequencyStep
         {
-            get { return frequencyStep; }
+            get { return _frequencyStep; }
         }
 
         public double MaxDifference
         {
-            get { return maxDifference; }
+            get { return _maxDifference; }
         }
 
         public double MinDifference
         {
-            get { return minDifference; }
+            get { return _minDifference; }
         }
 
         public double Difference
         {
-            get { return difference; }
-            set { difference = value; RaisePropertyChanged("Difference"); }
+            get { return _difference; }
+            set { _difference = value; RaisePropertyChanged("Difference"); }
         }
 
         public double DifferenceStep
         {
-            get { return differenceStep; }
+            get { return _differenceStep; }
         }
 
-        public SignalViewModel(string signalName, ClientProtocol protocol) : base(signalName, protocol)
+        public SignalViewModel(string signalName, ClientProtocol protocol) 
+            : base(signalName, protocol, 0.0, 20.0, 2.0)
         {
         }
     }

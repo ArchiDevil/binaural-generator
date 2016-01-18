@@ -7,22 +7,22 @@
         mc:Ignorable="d"
         xmlns:shared="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:oxy="http://oxyplot.org/wpf"
         Title="Experimenter application"
         Height="650"
-        SizeToContent="Width"
+        Width="1000"
         Closed="Window_Closed">
 
     <Window.Resources>
         <sys:String x:Key="VolumeString">Volume, %</sys:String>
         <sys:String x:Key="CarrierString">Tone, Hz</sys:String>
         <sys:String x:Key="FreqString">Diff, Hz</sys:String>
-        <sys:String x:Key="SmoothString">Smoothness</sys:String>
+        <sys:String x:Key="SmoothString">Flatness</sys:String>
 
         <Style TargetType="TextBlock">
             <Setter Property="Margin"
                     Value="5"/>
         </Style>
-
         <Style TargetType="Rectangle" x:Key="rectangleStatusStyle">
             <Setter Property="Fill" Value="Red"/>
             <Setter Property="Width" Value="12"/>
@@ -38,33 +38,35 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-
         <Style TargetType="Slider">
             <Setter Property="Slider.TickPlacement" 
                     Value="TopLeft"/>
-
             <Setter Property="Slider.IsSnapToTickEnabled" 
                     Value="True"/>
-
             <Setter Property="Margin" 
                     Value="5"/>
-
             <Setter Property="Foreground" 
                     Value="Blue"/>
-
             <Setter Property="HorizontalAlignment" 
                     Value="Center"/>
-
             <Setter Property="Orientation" 
                     Value="Vertical"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin"
+                    Value="5"/>
+        </Style>
+        <Style TargetType="oxy:PlotView">
+            <Setter Property="Margin"
+                    Value="5"/>
         </Style>
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
 
         <Menu Background="White">
@@ -88,31 +90,26 @@
             <MenuItem Header="Exit"
                       Click="ExitMenuItem_Click"/>
         </Menu>
-
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="250" 
                                   MaxWidth="400" 
                                   Width="325"/>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
-
             <shared:ChatWindow x:Name="chatWindow"
                                IsEnabled="{Binding IsConnected}"
                                ChatMessage="ChatWindow_ChatMessage"/>
-
             <GridSplitter Grid.Column="1" 
                           Width="3" 
                           Margin="3" 
                           HorizontalAlignment="Center"/>
-
             <GroupBox Header="Session status"
                       Grid.Column="2">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
@@ -142,34 +139,32 @@
                                Grid.Column="1"/>
                 </Grid>
             </GroupBox>
-        </Grid>
-        <Grid Grid.Row="2">
+            <Grid Grid.Column="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="200" 
-                                  Width="auto"/>
-                <ColumnDefinition MinWidth="130" 
-                                  Width="auto"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
 
-            <ItemsControl x:Name="controlsPanel"
-                          ItemsSource="{Binding SignalModels}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <GroupBox>
+                <ComboBox Grid.Row="0"
+                          x:Name="signalComboBox"
+                          ItemsSource="{Binding SignalModelNames}"
+                          SelectionChanged="ComboBox_SelectionChanged"/>
+                <GroupBox Grid.Row="1"
+                          DataContext="{Binding CurrentSignal}">
                             <GroupBox.Header>
-                                <CheckBox Content="{Binding SignalName}"
+                        <CheckBox Content="Enabled"
                                           IsChecked="{Binding Enabled}"/>
                             </GroupBox.Header>
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
 
                                 <Grid.RowDefinitions>
@@ -178,18 +173,17 @@
                                     <RowDefinition Height="auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="{StaticResource VolumeString}" 
-                                           Margin="5"/>
+                        <TextBlock Text="{StaticResource VolumeString}"/>
                                 <Slider Maximum="{Binding MaxGain}" 
                                         Minimum="{Binding MinGain}" 
                                         Value="{Binding Gain}" 
+                                TickFrequency="{Binding GainStep}"
                                         Grid.Row="1"/>
                                 <shared:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" 
                                                         Grid.Row="2"/>
 
                                 <TextBlock Text="{StaticResource CarrierString}" 
-                                           Grid.Column="1"
-                                           Margin="5"/>
+                                   Grid.Column="1"/>
                                 <Slider Grid.Column="1" 
                                         Grid.Row="1" 
                                         Maximum="{Binding MaxFrequency}" 
@@ -201,8 +195,7 @@
                                                         Grid.Row="2"/>
 
                                 <TextBlock Text="{StaticResource FreqString}" 
-                                           Grid.Column="2"
-                                           Margin="5"/>
+                                   Grid.Column="2"/>
                                 <Slider Grid.Column="2" 
                                         Grid.Row="1" 
                                         Maximum="{Binding MaxDifference}" 
@@ -214,12 +207,9 @@
                                                         Grid.Row="2"/>
                             </Grid>
                         </GroupBox>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
             <GroupBox x:Name="noiseChannelPanel" 
-                      Grid.Column="1">
+                          Grid.Column="1"
+                          Grid.RowSpan="2">
                 <GroupBox.Header>
                     <CheckBox Content="{Binding Path=NoiseModel.SignalName}" 
                               IsChecked="{Binding Path=NoiseModel.Enabled}"/>
@@ -240,6 +230,7 @@
                     <Slider Maximum="{Binding Path=NoiseModel.MaxGain}" 
                             Minimum="{Binding Path=NoiseModel.MinGain}" 
                             Value="{Binding Path=NoiseModel.Gain}" 
+                            TickFrequency="{Binding Path=NoiseModel.GainStep}"
                             Grid.Row="1"/>
                     <shared:EditableTextBox Text="{Binding Path=NoiseModel.Gain}" 
                                             Grid.Row="2"/>
@@ -257,6 +248,33 @@
                                             Grid.Row="2"/>
                 </Grid>
             </GroupBox>
+        </Grid>
+    </Grid>
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <oxy:PlotView x:Name="tempPlotView" 
+                          Model="{Binding TemperatureModel}"
+                          Grid.Row="0"/>
+            <oxy:PlotView x:Name="resistPlotView" 
+                          Model="{Binding ResistanceModel}"
+                          Grid.Row="1"/>
+            <oxy:PlotView x:Name="pulsePlotView" 
+                          Model="{Binding PulseModel}"
+                          Grid.Row="0"
+                          Grid.Column="1"/>
+            <oxy:PlotView x:Name="motionPlotView" 
+                          Model="{Binding MotionModel}"
+                          Grid.Row="1"
+                          Grid.Column="1"/>
         </Grid>
     </Grid>
 </Window>

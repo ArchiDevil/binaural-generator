@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
+using System.Diagnostics.Contracts;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace ExperimenterUI.Windows
 {
@@ -19,22 +9,36 @@ namespace ExperimenterUI.Windows
     /// </summary>
     public partial class ConnectionDialog : Window
     {
-        public string ConnectionAddress { get; set; } = "localhost";
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        ExperimenterApplicationModel appModel = null;
+        private void RaisePropertyChanged(string propertyName)
+        {
+            var e = PropertyChanged;
+            if (e != null)
+                e(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private string _connectionAddress = "";
+
+        public string ConnectionAddress
+        {
+            get { return _connectionAddress; }
+            set { _connectionAddress = value; RaisePropertyChanged("ConnectionAddress"); }
+        }
+
+        private ExperimenterApplicationModel _appModel = null;
 
         public ConnectionDialog(ExperimenterApplicationModel appModel)
         {
             InitializeComponent();
-            if (appModel == null)
-                throw new ArgumentNullException("appModel");
-
-            this.appModel = appModel;
+            DataContext = this;
+            Contract.Requires(appModel != null, "appModel mustn't be null");
+            _appModel = appModel;
         }
 
         private void Connect_Button_Click(object sender, RoutedEventArgs e)
         {
-            appModel.Connect(ConnectionAddress);
+            _appModel.Connect(_connectionAddress);
             Close();
         }
 
