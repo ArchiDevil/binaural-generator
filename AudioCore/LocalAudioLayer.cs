@@ -31,5 +31,10 @@ namespace AudioCore
             get { return _recorder.Enabled; }
             set { _recorder.Enabled = value; }
         }
+
+        public int AudioInDevicesCount
+        {
+            get { return _recorder.DevicesCount; }
+        }
     }
 }

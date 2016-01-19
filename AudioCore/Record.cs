@@ -38,6 +38,11 @@ namespace AudioCore
             }
         }
 
+        internal int DevicesCount
+        {
+            get { return WaveIn.DeviceCount; }
+        }
+
         private void Input_DataAvailable(object sender, WaveInEventArgs e)
         {
             RecorderInput(sender, e);

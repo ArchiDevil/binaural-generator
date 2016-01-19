@@ -205,7 +205,8 @@ namespace NetworkLayer.Protocol
 
         private bool SendPacket(PacketType type, byte[] data)
         {
-            if (!_connectionInterface.IsListening() ||
+            if (_connectionInterface == null ||
+                !_connectionInterface.IsListening() ||
                 !_connectionInterface.IsClientConnected() ||
                 type == PacketType.Unknown ||
                 data.Length == 0)

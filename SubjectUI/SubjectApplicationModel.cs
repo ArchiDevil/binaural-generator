@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+using AudioCore;
 using NetworkLayer.Protocol;
 using SensorsLayer;
 using SharedLibrary.Models;
@@ -10,7 +9,6 @@ namespace SubjectUI
     public sealed class SubjectApplicationModel : ModelBase, IDisposable
     {
         private bool _connectionStatus = false;
-        private bool _enableMicrophone = true;
         private bool _enableVoice = true;
         private bool _enableSignals = true;
 
@@ -21,6 +19,7 @@ namespace SubjectUI
 
         private ServerProtocol _protocol = new ServerProtocol("Subject");
         private SensorsCollector _collector = new SensorsCollector();
+        private ServerAudioLayer _audioLayer = null;
 
         public delegate void ChatMessageReceiveHandler(string message, DateTime time);
         public event ChatMessageReceiveHandler ChatMessageReceivedEvent = delegate { };
@@ -38,8 +37,8 @@ namespace SubjectUI
 
         public bool EnableMicrophone
         {
-            get { return _enableMicrophone; }
-            set { _enableMicrophone = value; RaisePropertyChanged("EnableMicrophone"); }
+            get { return _audioLayer.RecordingEnabled; }
+            set { _audioLayer.RecordingEnabled = value; RaisePropertyChanged("EnableMicrophone"); }
         }
 
         public bool EnableVoice
@@ -78,6 +77,11 @@ namespace SubjectUI
                 throw new Exception("Unable to start server");
             _protocol.ClientConnected += ClientConnected;
             _protocol.ChatMessageReceive += ChatMessageReceived;
+
+            _audioLayer = new ServerAudioLayer(_protocol);
+            _audioLayer.PlaybackEnabled = true;
+            _audioLayer.RecordingEnabled = true;
+            _isMicrophoneEnabled = _audioLayer.AudioInDevicesCount > 0;
 
             SensorsDeviceStatus = "Device disconnected";
 
@@ -127,18 +131,8 @@ namespace SubjectUI
             return _protocol.SendChatMessage(messageContent);
         }
 
-        public async void CheckSystems()
+        public void CheckSystems()
         {
-            Task<bool> task = new Task<bool>(CheckMicrophone);
-            task.Start();
-            IsMicrophoneEnabled = await task;
-        }
-
-        public bool CheckMicrophone()
-        {
-            // now this is draft, until sensors audiocore won't be completed
-            Thread.Sleep(2000);
-            return true;
         }
 
         public void Dispose()
