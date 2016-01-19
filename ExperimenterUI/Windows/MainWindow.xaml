@@ -62,7 +62,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid Margin="0, 0, 5, 5">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="1*"/>
@@ -72,9 +72,9 @@
         <Menu Background="White">
             <MenuItem Header="Session">
                 <MenuItem Header="New session"
-                          IsEnabled="False"/>
-                <MenuItem Header="Open session"
-                          IsEnabled="False"/>
+                          Click="NewSessionMenuItem_Click"/>
+                <MenuItem Header="Save session as..."
+                          Click="SaveSessionMenuItem_Click"/>
             </MenuItem>
 
             <MenuItem Click="ConnectMenuItem_Click">

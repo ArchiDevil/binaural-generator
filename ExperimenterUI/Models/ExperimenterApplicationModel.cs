@@ -26,6 +26,7 @@ namespace ExperimenterUI
         private ConnectionStatus    _connectionStatus = ConnectionStatus.NoConnection;
         private string              _connectionErrorMessage = "";
         private ClientProtocol      _protocol = null;
+        private Logger              _logger = new Logger();
         private NoiseViewModel      _noiseModel = null;
         private SignalViewModel[]   _signalModels = null;
         private string[]            _signalModelNames = null;
@@ -231,6 +232,14 @@ namespace ExperimenterUI
             s = _temperatureModel.Series[0] as LineSeries;
             s.Points.Add(new DataPoint(_timestamp, e.temperatureValue));
             _temperatureModel.InvalidatePlot(false);
+
+            _logger.LogSensors(new SensorsData
+            {
+                motionValue = e.motionValue,
+                pulseValue = e.pulseValue,
+                skinResistanceValue = e.skinResistanceValue,
+                temperatureValue = e.temperatureValue
+            });
         }
 
         private void _tickTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -258,6 +267,8 @@ namespace ExperimenterUI
             noiseDesc.volume = _noiseModel.Enabled ? _noiseModel.Gain : 0.0;
 
             _protocol.SendSignalSettings(channelDescs, noiseDesc);
+
+            _logger.LogSignalsChange(_signalModels, _noiseModel);
         }
 
         private void SignalModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -288,6 +299,7 @@ namespace ExperimenterUI
                 else
                 {
                     _connectionStatus = ConnectionStatus.Connected;
+                    _logger.StartSession();
                     RaisePropertyChanged("IsConnected");
                 }
             }
@@ -311,8 +323,20 @@ namespace ExperimenterUI
             CurrentSignal = _signalModels[selectedIndex];
         }
 
+        internal void StartNewSession()
+        {
+            _logger = new Logger();
+        }
+
+        internal void CloseSession(string filename)
+        {
+            _logger.EndSession();
+            _logger.DumpData(filename);
+        }
+
         public void Dispose()
         {
+            _logger.EndSession();
             if (_protocol != null)
                 _protocol.Dispose();
         }

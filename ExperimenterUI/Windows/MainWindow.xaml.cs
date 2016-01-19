@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 using NetworkLayer.Protocol;
 
 namespace ExperimenterUI.Windows
@@ -10,8 +11,8 @@ namespace ExperimenterUI.Windows
     /// </summary>
     public sealed partial class MainWindow : Window, IDisposable
     {
-        private ClientProtocol _protocol = new ClientProtocol("TEST TEST TEST");
-        private ExperimenterApplicationModel _model = null;
+        private ClientProtocol                  _protocol = new ClientProtocol("TEST TEST TEST");
+        private ExperimenterApplicationModel    _model = null;
 
         public MainWindow()
         {
@@ -58,6 +59,21 @@ namespace ExperimenterUI.Windows
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _model.SelectChannel((sender as ComboBox).SelectedIndex);
+        }
+
+        private void NewSessionMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            _model.StartNewSession();
+        }
+
+        private void SaveSessionMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "Session file (*.seslog)|*.seslog";
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            if (dialog.ShowDialog(this) == true)
+                _model.CloseSession(dialog.FileName);
         }
     }
 }
