@@ -28,6 +28,9 @@ namespace NetworkLayer.Protocol
         Queue<Packet> _sendingQueue = new Queue<Packet>();
         Queue<Packet> _receivedQueue = new Queue<Packet>();
 
+        int _sendingConnectionLostCount = 0;
+        int _receivingConnectionLostCount = 0;
+
         private void SendingWorker()
         {
             while (true)
@@ -37,7 +40,14 @@ namespace NetworkLayer.Protocol
                 if (_connectionInterface == null ||
                     !_connectionInterface.IsConnected() ||
                     _sendingThreadTerminate.WaitOne(0))
-                    break;
+                {
+                    if (_sendingConnectionLostCount++ == 10)
+                    {
+                        break;
+                    }
+                    continue;
+                }
+                _sendingConnectionLostCount = 0;
 
                 if (_sendingQueue.Count == 0)
                     continue;
@@ -61,7 +71,14 @@ namespace NetworkLayer.Protocol
 
                 if (!_connectionInterface.IsConnected() ||
                     _receivingThreadTerminate.WaitOne(0))
-                    break;
+                {
+                    if (_receivingConnectionLostCount++ == 10)
+                    {
+                        break;
+                    }
+                    continue;
+                }
+                _receivingConnectionLostCount = 0;
 
                 byte[] temporalBuffer = new byte[1024];
                 int receivedCount = _connectionInterface.Receive(temporalBuffer, 100);
@@ -150,10 +167,12 @@ namespace NetworkLayer.Protocol
                 return false;
             }
 
+            _sendingConnectionLostCount = 0;
             _sendingThreadStopped.Reset();
             _sendingWorker = new Thread(SendingWorker);
             _sendingWorker.Start();
 
+            _receivingConnectionLostCount = 0;
             _receivingThreadStopped.Reset();
             _receivingWorker = new Thread(ReceivingWorker);
             _receivingWorker.Start();
