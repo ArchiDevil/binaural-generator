@@ -1,29 +1,41 @@
-﻿using System.Diagnostics.Contracts;
-using System.Linq;
+﻿using AudioCore.AudioPrimitives;
+using AudioCore.SampleProviders;
 using NetworkLayer.Protocol;
+using System;
+using System.Diagnostics.Contracts;
+using System.Linq;
 
-namespace AudioCore
+namespace AudioCore.Layers
 {
-    public class ClientAudioLayer : LocalAudioLayer
+    public class ClientAudioLayer : RecordedAudioLayer
     {
         private ClientProtocol _protocol = null;
+        private BufferedProvider _buffererProvider = null;
 
         public ClientAudioLayer(ClientProtocol protocol) : base()
         {
             Contract.Requires(protocol != null, "protocol mustn't be null");
-            this._protocol = protocol;
-            protocol.VoiceWindowReceive += Protocol_VoiceWindowReceive;
+
+            _buffererProvider = new BufferedProvider(44100);
+            _protocol = protocol;
+            _protocol.VoiceWindowReceive += Protocol_VoiceWindowReceive;
+            _playbackProvider.AddProvider(_buffererProvider);
             _recorder.RecorderInput += Recorder_RecorderInput;
         }
 
         private void Recorder_RecorderInput(object sender, NAudio.Wave.WaveInEventArgs e)
         {
+            //UNDONE: buffer is not completely full!
             _protocol.SendVoiceWindow(e.Buffer);
         }
 
         private void Protocol_VoiceWindowReceive(object sender, VoiceWindowDataEventArgs e)
         {
-            _playback.AddSamples(e.data);
+            float[] buffer = new float[e.data.Length / 4]; // 4 bytes per each float
+            for (int i = 0; i < buffer.Length; ++i)
+                buffer[i] = BitConverter.ToSingle(e.data, i * 4);
+
+            _buffererProvider.AddSamples(buffer, e.samplingRate);
         }
 
         public override void SetSignalSettings(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)

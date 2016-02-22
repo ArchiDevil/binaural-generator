@@ -2,7 +2,7 @@
 
 using BWSitterGenerator.Models;
 
-using AudioCore;
+using AudioCore.Layers;
 
 namespace BWSitterGenerator
 {

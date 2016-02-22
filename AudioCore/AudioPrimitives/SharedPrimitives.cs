@@ -1,4 +1,4 @@
-﻿namespace AudioCore
+﻿namespace AudioCore.AudioPrimitives
 {
     internal static class UtilFuncs
     {

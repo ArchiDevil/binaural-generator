@@ -122,6 +122,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AudioCore\AudioCore.csproj">
+      <Project>{b18c8fee-cb53-498e-83d5-e2ebd5d989f1}</Project>
+      <Name>AudioCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NetworkLayer\NetworkLayer.csproj">
       <Project>{4e2a6554-b7ce-4c36-9aa3-025c5322e58a}</Project>
       <Name>NetworkLayer</Name>

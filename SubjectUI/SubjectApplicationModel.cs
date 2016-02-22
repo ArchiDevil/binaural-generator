@@ -1,5 +1,5 @@
 ﻿using System;
-using AudioCore;
+using AudioCore.Layers;
 using NetworkLayer.Protocol;
 using SensorsLayer;
 using SharedLibrary.Models;

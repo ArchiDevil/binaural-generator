@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-using AudioCore;
+using AudioCore.AudioPrimitives;
 
 namespace BWSitterGenerator.Models
 {

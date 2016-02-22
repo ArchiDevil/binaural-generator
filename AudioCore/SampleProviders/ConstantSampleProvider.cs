@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AudioCore.AudioPrimitives;
 
 namespace AudioCore.SampleProviders
 {
-    public class ConstantSampleProvider : SampleProvider
+    internal class ConstantSampleProvider : SampleProvider
     {
         private BasicSignalModel[] _channelSignals = null;
         private BasicNoiseModel _noiseSignal = null;
-
         private double _lastSmoothness; // it's in indeterminate state to create generator on first use
-
         private double _previousLeftValue = 0.0;
         private double _previousRightValue = 0.0;
 
-        public ConstantSampleProvider() : base()
+        internal ConstantSampleProvider() : base()
         {
             _channelSignals = new BasicSignalModel[4];
             for (int i = 0; i < _channelSignals.Length; ++i)
@@ -25,16 +20,16 @@ namespace AudioCore.SampleProviders
             _noiseSignal = new BasicNoiseModel();
         }
 
-        public ConstantSampleProvider(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal) : base()
+        internal ConstantSampleProvider(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal) : base()
         {
-            this._channelSignals = channelSignals;
-            this._noiseSignal = noiseSignal;
+            _channelSignals = channelSignals;
+            _noiseSignal = noiseSignal;
         }
 
-        public void SetSignals(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
+        internal void SetSignals(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
         {
-            this._channelSignals = channelSignals;
-            this._noiseSignal = noiseSignal;
+            _channelSignals = channelSignals;
+            _noiseSignal = noiseSignal;
         }
 
         public override int Read(float[] buffer, int offset, int count)

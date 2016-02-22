@@ -46,16 +46,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientAudioLayer.cs" />
-    <Compile Include="LocalAudioLayer.cs" />
+    <Compile Include="Layers\ClientAudioLayer.cs" />
+    <Compile Include="Layers\LocalAudioLayer.cs" />
+    <Compile Include="Layers\RecordedAudioLayer.cs" />
+    <Compile Include="SampleProviders\BufferedProvider.cs" />
     <Compile Include="SampleProviders\ConstantSampleProvider.cs" />
+    <Compile Include="SampleProviders\MixerProvider.cs" />
     <Compile Include="SampleProviders\ModelledSampleProvider.cs" />
-    <Compile Include="Playback.cs" />
+    <Compile Include="AudioPrimitives\Playback.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Record.cs" />
+    <Compile Include="AudioPrimitives\Record.cs" />
     <Compile Include="SampleProviders\SampleProvider.cs" />
-    <Compile Include="ServerAudioLayer.cs" />
-    <Compile Include="SharedAudioContent.cs" />
+    <Compile Include="Layers\ServerAudioLayer.cs" />
+    <Compile Include="AudioPrimitives\SharedPrimitives.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
