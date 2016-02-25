@@ -21,7 +21,7 @@ namespace AudioCore.SampleProviders
 
             if (waveFormat != null)
             {
-                if (waveFormat != provider.WaveFormat)
+                if (!waveFormat.Equals(provider.WaveFormat))
                     throw new ArgumentException("Wave formats in the all prodivers must be the same for now");
             }
             else

@@ -29,7 +29,7 @@ namespace ExperimenterUI
 
             DateTime eventTime = DateTime.Now;
             TimeSpan delta = eventTime - _data.sessionStart;
-            _data.sensorsData.Add(delta.Seconds, sensorsData);
+            _data.sensorsData.Add((int)delta.TotalMilliseconds, sensorsData);
         }
 
         public void LogSubjectVoice(byte[] buffer)
@@ -39,7 +39,7 @@ namespace ExperimenterUI
 
             DateTime eventTime = DateTime.Now;
             TimeSpan delta = eventTime - _data.sessionStart;
-            _data.subjectVoiceData.Add(delta.Seconds, buffer);
+            _data.subjectVoiceData.Add((int)delta.TotalMilliseconds, buffer);
         }
 
         public void LogExperimenterVoice(byte[] buffer)
@@ -49,7 +49,7 @@ namespace ExperimenterUI
 
             DateTime eventTime = DateTime.Now;
             TimeSpan delta = eventTime - _data.sessionStart;
-            _data.experimenterVoiceData.Add(delta.Seconds, buffer);
+            _data.experimenterVoiceData.Add((int)delta.TotalMilliseconds, buffer);
         }
 
         public void LogSignalsChange(SignalViewModel[] signals, NoiseViewModel noise)
@@ -59,8 +59,8 @@ namespace ExperimenterUI
 
             DateTime eventTime = DateTime.Now;
             TimeSpan delta = eventTime - _data.sessionStart;
-            _data.signalsData.Add(delta.Seconds, signals);
-            _data.noiseData.Add(delta.Seconds, noise);
+            _data.signalsData.Add((int)delta.TotalMilliseconds, signals);
+            _data.noiseData.Add((int)delta.TotalMilliseconds, noise);
         }
 
         public void DumpData(string filename)
