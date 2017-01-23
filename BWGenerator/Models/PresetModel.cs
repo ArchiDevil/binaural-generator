@@ -51,10 +51,10 @@ namespace BWGenerator.Models
         {
             Name = "Enter your name";
             Description = "Enter your description";
-            Signals = new ObservableCollection<Signal>();
-
-            Signals.Add(new Signal { Name = "Signal 1" });
-
+            Signals = new ObservableCollection<Signal>
+            {
+                new Signal { Name = "Signal 1" }
+            };
             noisePoints = new NoisePoint[3];
             noisePoints[0] = new NoisePoint { Time = 0.0, SmoothnessValue = 0.9, VolumeValue = 90.0 };
             noisePoints[1] = new NoisePoint { Time = 15.0, SmoothnessValue = 0.86, VolumeValue = 85.0 };

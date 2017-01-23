@@ -44,10 +44,12 @@ namespace AudioCore.Layers
             ChannelDescription[] signals = new ChannelDescription[enabledSignals];
             for (int i = 0; i < signals.Length; ++i)
             {
-                signals[i] = new ChannelDescription();
-                signals[i].carrierFrequency = channelSignals[i].frequency;
-                signals[i].differenceFrequency = channelSignals[i].difference;
-                signals[i].volume = channelSignals[i].gain;
+                signals[i] = new ChannelDescription()
+                {
+                    carrierFrequency = channelSignals[i].frequency,
+                    differenceFrequency = channelSignals[i].difference,
+                    volume = channelSignals[i].gain
+                };
             }
 
             NoiseDescription noise = new NoiseDescription();

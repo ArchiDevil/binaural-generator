@@ -46,10 +46,10 @@ namespace NetworkLayer
                     return false;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //Debug.Assert(false, e.Message);
-                throw e;
+                throw;
             }
 
             return true;

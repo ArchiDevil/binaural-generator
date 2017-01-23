@@ -51,10 +51,7 @@ namespace ExperimenterUI.Models
         public BaseSignalModel(string signalName, ClientProtocol protocol)
         {
             _signalName = signalName;
-
-            if (protocol == null)
-                throw new ArgumentNullException("protocol");
-            _protocol = protocol;
+            _protocol = protocol ?? throw new ArgumentNullException("protocol");
         }
 
         public BaseSignalModel(string signalName, ClientProtocol protocol, double minGain, double maxGain, double gainStep)

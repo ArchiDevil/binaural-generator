@@ -109,8 +109,8 @@ namespace BWGenerator
             noiseSmoothnessModel = new NoisePlotViewModel(Preset, NoiseSmoothnessGetter, NoiseSmoothnessSetter);
             noiseVolumeModel = new NoisePlotViewModel(Preset, NoiseVolumeGetter, NoiseVolumeSetter);
 
-            NoiseSmoothnessPlot.Model = noiseSmoothnessModel.model;
-            NoiseVolumePlot.Model = noiseVolumeModel.model;
+            NoiseSmoothnessPlot.Model = noiseSmoothnessModel.Model;
+            NoiseVolumePlot.Model = noiseVolumeModel.Model;
         }
 
         void SelectModel(Graphs type, PlotView plot, int modelIndex, int signalId)
@@ -133,7 +133,7 @@ namespace BWGenerator
             }
 
             signalPlotModels[modelIndex] = newModel;
-            plot.Model = newModel.model;
+            plot.Model = newModel.Model;
         }
 
         private void Play_Click(object sender, RoutedEventArgs e)

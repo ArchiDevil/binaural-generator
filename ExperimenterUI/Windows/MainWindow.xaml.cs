@@ -68,10 +68,11 @@ namespace ExperimenterUI.Windows
 
         private void SaveSessionMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Filter = "Session file (*.seslog)|*.seslog";
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
+            SaveFileDialog dialog = new SaveFileDialog()
+            {
+                Filter = "Session file (*.seslog)|*.seslog",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
             if (dialog.ShowDialog(this) == true)
                 _model.CloseSession(dialog.FileName);
         }

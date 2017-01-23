@@ -43,7 +43,7 @@ namespace SharedLibrary.UserControls
             }
         }
 
-        private void chatType_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void ChatType_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e == null || e.Key != Key.Enter)
                 return;
@@ -51,7 +51,7 @@ namespace SharedLibrary.UserControls
             e.Handled = SendMessage();
         }
 
-        private void sendButton_Click(object sender, RoutedEventArgs e)
+        private void SendButton_Click(object sender, RoutedEventArgs e)
         {
             e.Handled = SendMessage();
         }

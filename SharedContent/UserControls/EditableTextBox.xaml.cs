@@ -23,14 +23,14 @@ namespace SharedLibrary.UserControls
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBox), new UIPropertyMetadata());
 
-        private void editBox_LostFocus(object sender, RoutedEventArgs e)
+        private void EditBox_LostFocus(object sender, RoutedEventArgs e)
         {
             textBlock.Text = editBox.Text;
             textBlock.Visibility = Visibility.Visible;
             editBox.Visibility = Visibility.Collapsed;
         }
 
-        private void textBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void TextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             textBlock.Visibility = Visibility.Collapsed;
             editBox.Text = textBlock.Text;

@@ -7,7 +7,7 @@ namespace BWGenerator.Models
 {
     public class SignalViewModel : ModelBase
     {
-        public int startTimeSeconds
+        public int StartTimeSeconds
         {
             get
             {
@@ -15,7 +15,7 @@ namespace BWGenerator.Models
             }
             set
             {
-                if (value < 0.0 || value > endTimeSeconds)
+                if (value < 0.0 || value > EndTimeSeconds)
                     return;
 
                 currentSignal.points[0].Time = value;
@@ -27,11 +27,11 @@ namespace BWGenerator.Models
                     }
                 }
 
-                RaisePropertyChanged("startTimeSeconds");
+                RaisePropertyChanged("StartTimeSeconds");
             }
         }
 
-        public int endTimeSeconds
+        public int EndTimeSeconds
         {
             get
             {
@@ -39,7 +39,7 @@ namespace BWGenerator.Models
             }
             set
             {
-                if (value < 0.0 || value < startTimeSeconds)
+                if (value < 0.0 || value < StartTimeSeconds)
                     return;
 
                 currentSignal.points[currentSignal.points.Count() - 1].Time = value;
@@ -51,11 +51,11 @@ namespace BWGenerator.Models
                     }
                 }
 
-                RaisePropertyChanged("endTimeSeconds");
+                RaisePropertyChanged("EndTimeSeconds");
             }
         }
 
-        public string signalName
+        public string SignalName
         {
             get
             {
@@ -64,7 +64,7 @@ namespace BWGenerator.Models
             set
             {
                 currentSignal.Name = value;
-                RaisePropertyChanged("signalName");
+                RaisePropertyChanged("SignalName");
             }
         }
 

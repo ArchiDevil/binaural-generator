@@ -10,11 +10,7 @@ namespace BWSitterGenerator.Models
 
         protected void RaisePropertyChanged(string propertyName)
         {
-            var e = PropertyChanged;
-            if (e != null)
-            {
-                e(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public bool Enabled

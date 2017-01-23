@@ -9,7 +9,7 @@ namespace BWGenerator.Models
     {
         public delegate double SelectValueDelegate(SignalPoint point);
 
-        public PlotModel model { get; }
+        public PlotModel Model { get; }
 
         private SelectValueDelegate selector = null;
         private Signal signal = null;
@@ -19,7 +19,7 @@ namespace BWGenerator.Models
         {
             this.selector = selector;
             this.signal = signal;
-            model = CreatePlotModel();
+            Model = CreatePlotModel();
         }
 
         private PlotModel CreatePlotModel()
@@ -67,7 +67,7 @@ namespace BWGenerator.Models
         void MouseUpHandler(object sender, OxyMouseEventArgs e)
         {
             indexOfPointToMove = -1;
-            model.InvalidatePlot(false);
+            Model.InvalidatePlot(false);
             e.Handled = true;
         }
 
@@ -77,7 +77,7 @@ namespace BWGenerator.Models
                 return;
 
             currentSerie.Points[indexOfPointToMove] = currentSerie.InverseTransform(e.Position);
-            model.InvalidatePlot(false);
+            Model.InvalidatePlot(false);
             e.Handled = true;
         }
 
@@ -100,7 +100,7 @@ namespace BWGenerator.Models
                 indexOfPointToMove = i;
             }
 
-            model.InvalidatePlot(false);
+            Model.InvalidatePlot(false);
             e.Handled = true;
         }
     }

@@ -78,9 +78,11 @@ namespace SubjectUI
             _protocol.ClientConnected += ClientConnected;
             _protocol.ChatMessageReceive += ChatMessageReceived;
 
-            _audioLayer = new ServerAudioLayer(_protocol);
-            _audioLayer.PlaybackEnabled = true;
-            _audioLayer.RecordingEnabled = true;
+            _audioLayer = new ServerAudioLayer(_protocol)
+            {
+                PlaybackEnabled = true,
+                RecordingEnabled = true
+            };
             _isMicrophoneEnabled = _audioLayer.AudioInDevicesCount > 0;
 
             SensorsDeviceStatus = "Device disconnected";
@@ -89,7 +91,7 @@ namespace SubjectUI
             _collector.SensorsDataReceived += SensorsDataReceived;
             _collector.DeviceConnected += SensorsDeviceConnected;
             _collector.DeviceDisconnected += SensorsDeviceDisconnected;
-            _collector.StartDeviceExploring();
+            _collector.StartDeviceExploringAsync();
         }
 
         private void SensorsDeviceConnected(object sender, ConnectedEventArgs e)

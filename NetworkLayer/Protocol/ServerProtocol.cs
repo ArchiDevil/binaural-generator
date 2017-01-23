@@ -204,8 +204,10 @@ namespace NetworkLayer.Protocol
 
             MemoryStream m = new MemoryStream();
             BinaryFormatter b = new BinaryFormatter();
-            ClientChatMessageEventArgs msg = new ClientChatMessageEventArgs();
-            msg.message = message;
+            ClientChatMessageEventArgs msg = new ClientChatMessageEventArgs()
+            {
+                message = message
+            };
             b.Serialize(m, msg);
             return SendPacket(PacketType.ChatMessage, m.GetBuffer());
         }
@@ -257,8 +259,10 @@ namespace NetworkLayer.Protocol
                     if (packetSize <= 0)
                         return;
 
-                    ClientInfoEventArgs info = new ClientInfoEventArgs();
-                    info.clientName = Encoding.UTF8.GetString(buffer, 5, packetSize);
+                    ClientInfoEventArgs info = new ClientInfoEventArgs()
+                    {
+                        clientName = Encoding.UTF8.GetString(buffer, 5, packetSize)
+                    };
                     ClientConnected(this, info);
 
                     ServerInfoEventArgs serverInfo = new ServerInfoEventArgs { serverName = this._serverName };

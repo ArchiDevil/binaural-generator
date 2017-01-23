@@ -53,7 +53,7 @@ namespace SensorsLayer
         public event DeviceConnectedHandler DeviceConnected = delegate { };
         public event DeviceDisconnectedHandler DeviceDisconnected = delegate { };
 
-        public async void StartDeviceExploring()
+        public async void StartDeviceExploringAsync()
         {
             Task t = new Task(() =>
             {

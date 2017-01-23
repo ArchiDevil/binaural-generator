@@ -9,7 +9,7 @@ namespace BWGenerator.Models
     {
         public delegate double NoiseValueDelegateGetter(NoisePoint point);
         public delegate void NoiseValueDelegateSetter(NoisePoint point, double value);
-        public PlotModel model { get; }
+        public PlotModel Model { get; }
 
         private NoiseValueDelegateGetter getter = null;
         private NoiseValueDelegateSetter setter = null;
@@ -21,7 +21,7 @@ namespace BWGenerator.Models
             this.getter = getter;
             this.setter = setter;
             this.currentPreset = currentPreset;
-            model = CreatePlotModel();
+            Model = CreatePlotModel();
         }
 
         private PlotModel CreatePlotModel()
@@ -69,7 +69,7 @@ namespace BWGenerator.Models
         void MouseUpHandler(object sender, OxyMouseEventArgs e)
         {
             indexOfPointToMove = -1;
-            model.InvalidatePlot(false);
+            Model.InvalidatePlot(false);
             e.Handled = true;
 
             for(int i = 0; i < currentSerie.Points.Count; ++i)
@@ -94,7 +94,7 @@ namespace BWGenerator.Models
             {
                 currentSerie.Points[indexOfPointToMove] = modifiedPosition;
             }
-            model.InvalidatePlot(false);
+            Model.InvalidatePlot(false);
             e.Handled = true;
         }
 
@@ -117,7 +117,7 @@ namespace BWGenerator.Models
             //    indexOfPointToMove = i;
             //}
 
-            model.InvalidatePlot(false);
+            Model.InvalidatePlot(false);
             e.Handled = true;
         }
     }

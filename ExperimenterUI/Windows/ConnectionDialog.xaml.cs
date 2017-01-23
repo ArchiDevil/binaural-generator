@@ -13,9 +13,7 @@ namespace ExperimenterUI.Windows
 
         private void RaisePropertyChanged(string propertyName)
         {
-            var e = PropertyChanged;
-            if (e != null)
-                e(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private string _connectionAddress = "";
@@ -38,7 +36,7 @@ namespace ExperimenterUI.Windows
 
         private void Connect_Button_Click(object sender, RoutedEventArgs e)
         {
-            _appModel.Connect(_connectionAddress);
+            _appModel.ConnectAsync(_connectionAddress);
             Close();
         }
 

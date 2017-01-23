@@ -24,14 +24,14 @@
     
     <StackPanel>
         <TextBlock Name="textBlock"
-                   MouseLeftButtonUp="textBlock_MouseLeftButtonUp"
+                   MouseLeftButtonUp="TextBlock_MouseLeftButtonUp"
                    Text="{Binding ElementName=root, Path=Text, Mode=TwoWay}"
                    Cursor="Hand"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"/>
         <TextBox Name="editBox"
                  Visibility="Collapsed"
-                 LostFocus="editBox_LostFocus"
+                 LostFocus="EditBox_LostFocus"
                  Text="{Binding ElementName=root, Path=Text, Mode=TwoWay}"
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"/>

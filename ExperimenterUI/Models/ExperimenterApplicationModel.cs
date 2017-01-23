@@ -121,9 +121,10 @@ namespace ExperimenterUI
             _protocol = protocol;
             _protocol.SensorsReceive += _protocol_SensorsReceive;
             _noiseModel.PropertyChanged += NoiseModelPropertyChanged;
-            _audioLayer = new ClientAudioLayer(_protocol);
-            _audioLayer.PlaybackEnabled = false;
-
+            _audioLayer = new ClientAudioLayer(_protocol)
+            {
+                PlaybackEnabled = false
+            };
             _tickTimer.Elapsed += _tickTimer_Elapsed;
             _tickTimer.AutoReset = true;
             _tickTimer.Start();
@@ -266,10 +267,11 @@ namespace ExperimenterUI
                 channelDescs[i].enabled = _signalModels[i].Enabled;
             }
 
-            NoiseDescription noiseDesc = new NoiseDescription();
-            noiseDesc.smoothness = _noiseModel.Smoothness;
-            noiseDesc.volume = _noiseModel.Enabled ? _noiseModel.Gain : 0.0;
-
+            NoiseDescription noiseDesc = new NoiseDescription()
+            {
+                smoothness = _noiseModel.Smoothness,
+                volume = _noiseModel.Enabled ? _noiseModel.Gain : 0.0
+            };
             _protocol.SendSignalSettings(channelDescs, noiseDesc);
             // _audioLayer.SetSignalSettings(_signalModels, _noiseModel);
             _logger.LogSignalsChange(_signalModels, _noiseModel);
@@ -285,7 +287,7 @@ namespace ExperimenterUI
             SendNewSettings();
         }
 
-        internal async void Connect(string connectionAddress)
+        internal async void ConnectAsync(string connectionAddress)
         {
             _connectionStatus = ConnectionStatus.Connection;
             RaisePropertyChanged("IsConnected");
