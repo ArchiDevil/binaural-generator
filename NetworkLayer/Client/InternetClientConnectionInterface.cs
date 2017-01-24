@@ -49,7 +49,7 @@ namespace NetworkLayer
             catch (Exception)
             {
                 //Debug.Assert(false, e.Message);
-                throw;
+                return false;
             }
 
             return true;

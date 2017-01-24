@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using NetworkLayer.Protocol;
 using SharedLibrary.Models;
 
@@ -50,8 +51,10 @@ namespace ExperimenterUI.Models
 
         public BaseSignalModel(string signalName, ClientProtocol protocol)
         {
+            Contract.Requires<ArgumentNullException>(protocol != null, "protocol mustn't be null");
+
             _signalName = signalName;
-            _protocol = protocol ?? throw new ArgumentNullException("protocol");
+            _protocol = protocol;
         }
 
         public BaseSignalModel(string signalName, ClientProtocol protocol, double minGain, double maxGain, double gainStep)
@@ -59,7 +62,7 @@ namespace ExperimenterUI.Models
         {
             _minGain = minGain;
             _maxGain = maxGain;
-            _gain = maxGain;
+            Gain = maxGain;
             _gainStep = gainStep;
         }
     }

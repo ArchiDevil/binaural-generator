@@ -73,8 +73,9 @@ namespace SubjectUI
 
         public SubjectApplicationModel()
         {
-            if(!_protocol.Bind())
+            if (!_protocol.Bind())
                 throw new Exception("Unable to start server");
+
             _protocol.ClientConnected += ClientConnected;
             _protocol.ChatMessageReceive += ChatMessageReceived;
 
@@ -83,7 +84,7 @@ namespace SubjectUI
                 PlaybackEnabled = true,
                 RecordingEnabled = true
             };
-            _isMicrophoneEnabled = _audioLayer.AudioInDevicesCount > 0;
+            IsMicrophoneEnabled = _audioLayer.AudioInDevicesCount > 0;
 
             SensorsDeviceStatus = "Device disconnected";
 
@@ -121,7 +122,7 @@ namespace SubjectUI
             if (!AreSensorsEnabled)
                 return;
 
-            if(!_protocol.SendSensorsData(e.temperatureValue, e.skinResistanceValue, e.motionValue, e.pulseValue))
+            if (!_protocol.SendSensorsData(e.temperatureValue, e.skinResistanceValue, e.motionValue, e.pulseValue))
             {
                 //UNDONE: temporary here before correct error handling will be implemented
                 throw new Exception("Unable to send data");
