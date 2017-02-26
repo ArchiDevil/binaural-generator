@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-
+﻿using System.Linq;
 using SharedLibrary.Models;
 
 namespace BWGenerator.Models

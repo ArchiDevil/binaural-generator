@@ -47,7 +47,7 @@ namespace AudioCore.SampleProviders
             int outIndex = offset;
             int returnVal = 0;
 
-            for (int i = 0; i < count / _waveFormat.Channels; i++)
+            for (int i = 0; i < count / WaveFormat.Channels; i++)
             {
                 double leftFrequency = 0.0;
                 double rightFrequency = 0.0;
@@ -55,7 +55,7 @@ namespace AudioCore.SampleProviders
                 double leftSampleValue = 0.0;
                 double rightSampleValue = 0.0;
 
-                double multiple = UtilFuncs.TwoPi / _waveFormat.SampleRate;
+                double multiple = UtilFuncs.TwoPi / WaveFormat.SampleRate;
 
                 foreach (var signal in _channelSignals)
                 {
@@ -79,7 +79,7 @@ namespace AudioCore.SampleProviders
                 buffer[outIndex++] += (float)rightSampleValue;
 
                 _nSample++;
-                _time += 1.0 / _waveFormat.SampleRate;
+                _time += 1.0 / WaveFormat.SampleRate;
             }
 
             return returnVal;
@@ -105,7 +105,7 @@ namespace AudioCore.SampleProviders
             double leftSampleValue = 0.0;
             double rightSampleValue = 0.0;
 
-            for (int i = 0; i < count / _waveFormat.Channels; i++)
+            for (int i = 0; i < count / WaveFormat.Channels; i++)
             {
                 noiseLeftValue = rand.NextDouble() * 2.0 - 1.0;
                 noiseLeftValue = _previousLeftValue * (_noiseSignal.smoothness) + noiseLeftValue * (1.0 - _noiseSignal.smoothness);

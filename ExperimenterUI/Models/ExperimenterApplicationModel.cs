@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
@@ -30,28 +29,13 @@ namespace ExperimenterUI
         private ClientProtocol      _protocol = null;
         private Logger              _logger = new Logger();
         private ClientAudioLayer    _audioLayer = null;
-        private NoiseViewModel      _noiseModel = null;
-        private SignalViewModel[]   _signalModels = null;
         private string[]            _signalModelNames = null;
         private SignalViewModel     _currentSignal = null;
-        private TimeSpan            _sessionTime = new TimeSpan(0, 0, 0);
-        private string              _subjectName = "";
         private Timer               _tickTimer = new Timer(1000);
-        private PlotModel           _pulseModel = new PlotModel();
-        private PlotModel           _motionModel = new PlotModel();
-        private PlotModel           _resistanceModel = new PlotModel();
-        private PlotModel           _temperatureModel = new PlotModel();
         private int                 _timestamp = 0;
 
-        public NoiseViewModel NoiseModel
-        {
-            get { return _noiseModel; }
-        }
-
-        public SignalViewModel[] SignalModels
-        {
-            get { return _signalModels; }
-        }
+        public NoiseViewModel NoiseModel { get; } = null;
+        public SignalViewModel[] SignalModels { get; } = null;
 
         public string[] SignalModelNames
         {
@@ -64,35 +48,12 @@ namespace ExperimenterUI
             get { return _connectionStatus == ConnectionStatus.Connected; }
         }
 
-        public TimeSpan SessionTime
-        {
-            get { return _sessionTime; }
-        }
-
-        public string SubjectName
-        {
-            get { return _subjectName; }
-        }
-
-        public PlotModel PulseModel
-        {
-            get { return _pulseModel; }
-        }
-
-        public PlotModel MotionModel
-        {
-            get { return _motionModel; }
-        }
-
-        public PlotModel ResistanceModel
-        {
-            get { return _resistanceModel; }
-        }
-
-        public PlotModel TemperatureModel
-        {
-            get { return _temperatureModel; }
-        }
+        public TimeSpan SessionTime { get; private set; } = new TimeSpan(0, 0, 0);
+        public string SubjectName { get; } = "";
+        public PlotModel PulseModel { get; } = new PlotModel();
+        public PlotModel MotionModel { get; } = new PlotModel();
+        public PlotModel ResistanceModel { get; } = new PlotModel();
+        public PlotModel TemperatureModel { get; } = new PlotModel();
 
         public SignalViewModel CurrentSignal
         {
@@ -100,28 +61,25 @@ namespace ExperimenterUI
             private set { _currentSignal = value; RaisePropertyChanged("CurrentSignal"); }
         }
 
-        public event ClientProtocol.ChatMessageReceiveHandler ChatMessageReceived = delegate
-        { };
+        public event ClientProtocol.ChatMessageReceiveHandler ChatMessageReceived = delegate { };
 
         public ExperimenterApplicationModel(ClientProtocol protocol)
         {
-            Contract.Requires(protocol != null, "protocol mustn't be null");
-
             const int signalsCount = 4;
-            _noiseModel = new NoiseViewModel("Noise channel", protocol);
-            _signalModels = new SignalViewModel[signalsCount];
+            NoiseModel = new NoiseViewModel("Noise channel", protocol);
+            SignalModels = new SignalViewModel[signalsCount];
             _signalModelNames = new string[signalsCount];
             for (int i = 0; i < signalsCount; i++)
             {
                 string signalName = "Channel " + (i + 1);
-                _signalModels[i] = new SignalViewModel(signalName, protocol);
-                _signalModels[i].PropertyChanged += SignalModelPropertyChanged;
+                SignalModels[i] = new SignalViewModel(signalName, protocol);
+                SignalModels[i].PropertyChanged += SignalModelPropertyChanged;
                 _signalModelNames[i] = signalName;
             }
 
-            _protocol = protocol;
+            _protocol = protocol ?? throw new ArgumentNullException("protocol");
             _protocol.SensorsReceived += _protocol_SensorsReceive;
-            _noiseModel.PropertyChanged += NoiseModelPropertyChanged;
+            NoiseModel.PropertyChanged += NoiseModelPropertyChanged;
             _audioLayer = new ClientAudioLayer(_protocol)
             {
                 PlaybackEnabled = false
@@ -130,21 +88,21 @@ namespace ExperimenterUI
             _tickTimer.AutoReset = true;
             _tickTimer.Start();
 
-            _pulseModel.Title = "Pulse";
-            _pulseModel.Axes.Add(new LinearAxis
+            PulseModel.Title = "Pulse";
+            PulseModel.Axes.Add(new LinearAxis
             {
                 Maximum = 120,
                 Minimum = 20,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Solid,
             });
-            _pulseModel.Axes.Add(new LinearAxis
+            PulseModel.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Bottom,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Solid,
             });
-            _pulseModel.Series.Add(new LineSeries
+            PulseModel.Series.Add(new LineSeries
             {
                 Color = OxyColors.SkyBlue,
                 MarkerType = MarkerType.Square,
@@ -152,21 +110,21 @@ namespace ExperimenterUI
                 MarkerFill = OxyColors.SkyBlue,
             });
 
-            _motionModel.Title = "Motion";
-            _motionModel.Axes.Add(new LinearAxis
+            MotionModel.Title = "Motion";
+            MotionModel.Axes.Add(new LinearAxis
             {
                 Maximum = 100,
                 Minimum = 0,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Solid,
             });
-            _motionModel.Axes.Add(new LinearAxis
+            MotionModel.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Bottom,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Solid,
             });
-            _motionModel.Series.Add(new LineSeries
+            MotionModel.Series.Add(new LineSeries
             {
                 Color = OxyColors.SkyBlue,
                 MarkerType = MarkerType.Square,
@@ -174,8 +132,8 @@ namespace ExperimenterUI
                 MarkerFill = OxyColors.SkyBlue,
             });
 
-            _resistanceModel.Title = "Resistance";
-            _resistanceModel.Axes.Add(new LogarithmicAxis
+            ResistanceModel.Title = "Resistance";
+            ResistanceModel.Axes.Add(new LogarithmicAxis
             {
                 Maximum = 10e9,
                 Minimum = 10e3,
@@ -183,13 +141,13 @@ namespace ExperimenterUI
                 MinorGridlineStyle = LineStyle.Solid,
                 StringFormat = "0.###E+0",
             });
-            _resistanceModel.Axes.Add(new LinearAxis
+            ResistanceModel.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Bottom,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Solid,
             });
-            _resistanceModel.Series.Add(new LineSeries
+            ResistanceModel.Series.Add(new LineSeries
             {
                 Color = OxyColors.SkyBlue,
                 MarkerType = MarkerType.Square,
@@ -197,21 +155,21 @@ namespace ExperimenterUI
                 MarkerFill = OxyColors.SkyBlue,
             });
 
-            _temperatureModel.Title = "Temperature";
-            _temperatureModel.Axes.Add(new LinearAxis
+            TemperatureModel.Title = "Temperature";
+            TemperatureModel.Axes.Add(new LinearAxis
             {
                 Maximum = 37.0,
                 Minimum = 35.0,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Solid,
             });
-            _temperatureModel.Axes.Add(new LinearAxis
+            TemperatureModel.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Bottom,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Solid,
             });
-            _temperatureModel.Series.Add(new LineSeries
+            TemperatureModel.Series.Add(new LineSeries
             {
                 Color = OxyColors.SkyBlue,
                 MarkerType = MarkerType.Square,
@@ -223,21 +181,21 @@ namespace ExperimenterUI
         private void _protocol_SensorsReceive(object sender, SensorsDataEventArgs e)
         {
             _timestamp += 1;
-            LineSeries s = _pulseModel.Series[0] as LineSeries;
+            LineSeries s = PulseModel.Series[0] as LineSeries;
             s.Points.Add(new DataPoint(_timestamp, e.pulseValue));
-            _pulseModel.InvalidatePlot(false);
+            PulseModel.InvalidatePlot(false);
 
-            s = _motionModel.Series[0] as LineSeries;
+            s = MotionModel.Series[0] as LineSeries;
             s.Points.Add(new DataPoint(_timestamp, e.motionValue));
-            _motionModel.InvalidatePlot(false);
+            MotionModel.InvalidatePlot(false);
 
-            s = _resistanceModel.Series[0] as LineSeries;
+            s = ResistanceModel.Series[0] as LineSeries;
             s.Points.Add(new DataPoint(_timestamp, e.skinResistanceValue));
-            _resistanceModel.InvalidatePlot(false);
+            ResistanceModel.InvalidatePlot(false);
 
-            s = _temperatureModel.Series[0] as LineSeries;
+            s = TemperatureModel.Series[0] as LineSeries;
             s.Points.Add(new DataPoint(_timestamp, e.temperatureValue));
-            _temperatureModel.InvalidatePlot(false);
+            TemperatureModel.InvalidatePlot(false);
 
             _logger.LogSensors(new SensorsData
             {
@@ -252,30 +210,30 @@ namespace ExperimenterUI
         {
             if (_connectionStatus == ConnectionStatus.Connected)
             {
-                _sessionTime += new TimeSpan(0, 0, 1);
+                SessionTime += new TimeSpan(0, 0, 1);
                 RaisePropertyChanged("SessionTime");
             }
         }
 
         private void SendNewSettings()
         {
-            ChannelDescription[] channelDescs = new ChannelDescription[_signalModels.Length];
+            ChannelDescription[] channelDescs = new ChannelDescription[SignalModels.Length];
             for (int i = 0; i < channelDescs.Length; ++i)
             {
-                channelDescs[i].carrierFrequency = _signalModels[i].Frequency;
-                channelDescs[i].differenceFrequency = _signalModels[i].Difference;
-                channelDescs[i].volume = _signalModels[i].Gain;
-                channelDescs[i].enabled = _signalModels[i].Enabled;
+                channelDescs[i].carrierFrequency = SignalModels[i].Frequency;
+                channelDescs[i].differenceFrequency = SignalModels[i].Difference;
+                channelDescs[i].volume = SignalModels[i].Gain;
+                channelDescs[i].enabled = SignalModels[i].Enabled;
             }
 
             NoiseDescription noiseDesc = new NoiseDescription()
             {
-                smoothness = _noiseModel.Smoothness,
-                volume = _noiseModel.Enabled ? _noiseModel.Gain : 0.0
+                smoothness = NoiseModel.Smoothness,
+                volume = NoiseModel.Enabled ? NoiseModel.Gain : 0.0
             };
             _protocol.SendSignalSettings(channelDescs, noiseDesc);
             // _audioLayer.SetSignalSettings(_signalModels, _noiseModel);
-            _logger.LogSignalsChange(_signalModels, _noiseModel);
+            _logger.LogSignalsChange(SignalModels, NoiseModel);
         }
 
         private void SignalModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -327,7 +285,7 @@ namespace ExperimenterUI
 
         internal void SelectChannel(int selectedIndex)
         {
-            CurrentSignal = _signalModels[selectedIndex];
+            CurrentSignal = SignalModels[selectedIndex];
         }
 
         internal void StartNewSession()

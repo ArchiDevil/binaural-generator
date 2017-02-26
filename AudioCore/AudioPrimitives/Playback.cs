@@ -1,6 +1,6 @@
 ﻿using System;
-using NAudio.Wave;
 using AudioCore.SampleProviders;
+using NAudio.Wave;
 
 namespace AudioCore.AudioPrimitives
 {

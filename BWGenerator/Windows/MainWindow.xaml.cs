@@ -5,9 +5,6 @@ using System.Windows.Controls;
 
 using BWGenerator.Models;
 
-using AudioCore;
-using AudioCore.SampleProviders;
-
 using OxyPlot;
 using OxyPlot.Wpf;
 
@@ -114,7 +111,7 @@ namespace BWGenerator
         }
 
         void SelectModel(Graphs type, PlotView plot, int modelIndex, int signalId)
-            {
+        {
             SignalPlotViewModel newModel = null;
 
             switch (type)

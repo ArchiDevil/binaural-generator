@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
-using System.Diagnostics.Contracts;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
 
 namespace ExperimenterUI.Windows
@@ -17,6 +17,7 @@ namespace ExperimenterUI.Windows
         }
 
         private string _connectionAddress = "";
+        private ExperimenterApplicationModel _appModel = null;
 
         public string ConnectionAddress
         {
@@ -24,14 +25,11 @@ namespace ExperimenterUI.Windows
             set { _connectionAddress = value; RaisePropertyChanged("ConnectionAddress"); }
         }
 
-        private ExperimenterApplicationModel _appModel = null;
-
         public ConnectionDialog(ExperimenterApplicationModel appModel)
         {
             InitializeComponent();
             DataContext = this;
-            Contract.Requires(appModel != null, "appModel mustn't be null");
-            _appModel = appModel;
+            _appModel = appModel ?? throw new ArgumentException("appModel must not be null");
         }
 
         private void Connect_Button_Click(object sender, RoutedEventArgs e)

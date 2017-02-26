@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+﻿using System;
+using System.Collections.Generic;
 
 namespace AudioCore.SampleProviders
 {
@@ -17,7 +17,8 @@ namespace AudioCore.SampleProviders
 
         internal void AddSamples(float[] buffer, int sampleRate)
         {
-            Contract.Requires(sampleRate == _sampleRate, "Sample rate must be equal to sample rate which was set on object creation");
+            if(sampleRate != _sampleRate)
+                throw new ArgumentException("Sample rate must be equal to sample rate which was set on object creation");
             _buffer.AddRange(buffer);
         }
 

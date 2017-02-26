@@ -6,20 +6,10 @@ namespace ExperimenterUI.Models
 {
     public class BaseSignalModel : ModelBase
     {
-        private readonly string _signalName = "";
         private bool _enabled = false;
-
-        private readonly double _maxGain = 100.0;
-        private readonly double _minGain = 0.0;
-        private readonly double _gainStep = 1.0;
         private double _gain = 50.0;
 
         protected readonly ClientProtocol _protocol = null;
-
-        public string SignalName
-        {
-            get { return _signalName; }
-        }
 
         public bool Enabled
         {
@@ -27,15 +17,10 @@ namespace ExperimenterUI.Models
             set { _enabled = value; RaisePropertyChanged("Enabled"); }
         }
 
-        public double MaxGain
-        {
-            get { return _maxGain; }
-        }
-
-        public double MinGain
-        {
-            get { return _minGain; }
-        }
+        public double MaxGain { get; } = 100.0;
+        public double MinGain { get; } = 0.0;
+        public double GainStep { get; } = 1.0;
+        public string SignalName { get; } = "";
 
         public double Gain
         {
@@ -43,27 +28,19 @@ namespace ExperimenterUI.Models
             set { _gain = value; RaisePropertyChanged("Gain"); }
         }
 
-        public double GainStep
-        {
-            get { return _gainStep; }
-        }
-
         public BaseSignalModel(string signalName, ClientProtocol protocol)
         {
-            if (protocol == null)
-                throw new ArgumentNullException("protocol");
-
-            _signalName = signalName;
-            _protocol = protocol;
+            SignalName = signalName;
+            _protocol = protocol ?? throw new ArgumentNullException("protocol");
         }
 
         public BaseSignalModel(string signalName, ClientProtocol protocol, double minGain, double maxGain, double gainStep)
             : this(signalName, protocol)
         {
-            _minGain = minGain;
-            _maxGain = maxGain;
+            MinGain = minGain;
+            MaxGain = maxGain;
             Gain = maxGain;
-            _gainStep = gainStep;
+            GainStep = gainStep;
         }
     }
 }

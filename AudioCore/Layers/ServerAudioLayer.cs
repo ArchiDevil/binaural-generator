@@ -1,8 +1,7 @@
-﻿using AudioCore.AudioPrimitives;
+﻿using System;
+using AudioCore.AudioPrimitives;
 using AudioCore.SampleProviders;
 using NetworkLayer;
-using System;
-using System.Diagnostics.Contracts;
 using NetworkLayer.ProtocolShared;
 
 namespace AudioCore.Layers
@@ -14,10 +13,8 @@ namespace AudioCore.Layers
 
         public ServerAudioLayer(ServerProtocol protocol) : base()
         {
-            Contract.Requires(protocol != null, "protocol mustn't be null");
-
             _buffererProvider = new BufferedProvider(44100);
-            _protocol = protocol;
+            _protocol = protocol ?? throw new ArgumentNullException("protocol");
             _protocol.VoiceWindowReceived += Protocol_VoiceWindowReceive;
             _playbackProvider.AddProvider(_buffererProvider);
             _recorder.RecorderInput += Recorder_RecorderInput;
