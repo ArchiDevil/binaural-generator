@@ -1,69 +1,43 @@
 ﻿using System;
 
-namespace NetworkLayer.Protocol
+namespace NetworkLayer.ProtocolShared
 {
-    internal static class ProtocolShared
+    internal static class ProtocolConstants
     {
         internal const int protocolPort = 31012;
     }
 
-    /// <summary>
-    /// This packet type is used as header in protocol.
-    /// This is explicitly inherited from byte to make sure bytes count sent.
-    /// </summary>
-    internal enum PacketType : byte
+    enum ProtocolPacketType : byte
     {
         Unknown,
-        ProtocolInfoMessage,
-        ClientInfoMessage,
-        ServerInfoMessage,
-        ChatMessage,
-        VoiceMessage,
-        SettingsMessage,
-        SensorsMessage,
-        // please, add new packet types in the end
+        ProtocolInfoPacket,
+        ClientInfoPacket,
+        ServerInfoPacket,
+        SoundSettingsPacket,
+        SensorsDataPacket,
+        VoiceWindowPacket,
+        ChatMessagePacket,
     }
 
     /// <summary>
-    /// This class encapsulates serialization logics to send structures over Internet
+    /// This class encapsulates protocol packets to send over connection layer
     /// </summary>
-    internal class Packet
+    [Serializable]
+    internal class ProtocolPacket
     {
-        readonly public PacketType type = PacketType.Unknown;
-        readonly public byte[] data = null;
-
-        internal byte[] SerializedData
-        {
-            get
-            {
-                // packet type header + packet data size + packet data
-                int bufferSize = data.Length;
-                byte[] packetData = new byte[bufferSize + sizeof(PacketType) + sizeof(int)];
-
-                // packet type header
-                BitConverter.GetBytes((byte)type).CopyTo(packetData, 0);
-
-                // packet data size
-                BitConverter.GetBytes(bufferSize).CopyTo(packetData, sizeof(PacketType));
-
-                // packet data
-                data.CopyTo(packetData, sizeof(PacketType) + sizeof(int));
-
-                return packetData;
-            }
-        }
-
-        internal Packet(PacketType type, byte[] data)
-        {
-            this.type = type;
-            this.data = data;
-        }
+        public ProtocolPacketType packetType;
+        public object serializedData;
     }
 
+    /// <summary>
+    /// This class contains all information about currently used protocol.
+    /// If something is changed, you should update protocol version
+    /// to break compatibility with previous version
+    /// </summary>
     [Serializable]
     internal class ProtocolInfo
     {
-        public int protocolVersion = -1;
+        public int protocolVersion = 1;
     }
 
     /// <summary>
@@ -94,7 +68,7 @@ namespace NetworkLayer.Protocol
         public double carrierFrequency;
         public double differenceFrequency;
         public double volume;
-        public bool   enabled;
+        public bool enabled;
 
         public ChannelDescription(double carrierFrequency, double differenceFrequency, double volume, bool enabled)
         {

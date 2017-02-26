@@ -1,4 +1,4 @@
-﻿using NetworkLayer.Protocol;
+﻿using NetworkLayer;
 
 namespace ExperimenterUI.Models
 {

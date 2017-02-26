@@ -41,15 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\IClientConnectionInterface.cs" />
-    <Compile Include="Client\InternetClientConnectionInterface.cs" />
+    <Compile Include="Client\ClientNetworkConnectionLayer.cs" />
+    <Compile Include="Client\IClientConnectionLayer.cs" />
     <Compile Include="NetworkShared.cs" />
     <Compile Include="Protocol\ProtocolShared.cs" />
     <Compile Include="Protocol\ServerProtocol.cs" />
-    <Compile Include="Server\IServerConnectionInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\ClientProtocol.cs" />
-    <Compile Include="Server\InternetServerConnectionInterface.cs" />
+    <Compile Include="Server\IServerConnectionLayer.cs" />
+    <Compile Include="Server\ServerNetworkConnectionLayer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,12 +1,13 @@
 ﻿using System;
 using AudioCore.Layers;
-using NetworkLayer.Protocol;
+using NetworkLayer;
+using NetworkLayer.ProtocolShared;
 using SensorsLayer;
 using SharedLibrary.Models;
 
 namespace SubjectUI
 {
-    public sealed class SubjectApplicationModel : ModelBase, IDisposable
+    public sealed class SubjectApplicationModel : ModelBase
     {
         private bool _connectionStatus = false;
         private bool _enableVoice = true;
@@ -77,7 +78,7 @@ namespace SubjectUI
                 throw new Exception("Unable to start server");
 
             _protocol.ClientConnected += ClientConnected;
-            _protocol.ChatMessageReceive += ChatMessageReceived;
+            _protocol.ChatMessageReceived += ChatMessageReceived;
 
             _audioLayer = new ServerAudioLayer(_protocol)
             {
@@ -136,12 +137,6 @@ namespace SubjectUI
 
         public void CheckSystems()
         {
-        }
-
-        public void Dispose()
-        {
-            if (_protocol != null)
-                _protocol.Dispose();
         }
     }
 }

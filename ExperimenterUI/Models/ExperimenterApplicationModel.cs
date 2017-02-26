@@ -6,7 +6,8 @@ using System.Timers;
 using System.Windows;
 using AudioCore.Layers;
 using ExperimenterUI.Models;
-using NetworkLayer.Protocol;
+using NetworkLayer;
+using NetworkLayer.ProtocolShared;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
@@ -119,7 +120,7 @@ namespace ExperimenterUI
             }
 
             _protocol = protocol;
-            _protocol.SensorsReceive += _protocol_SensorsReceive;
+            _protocol.SensorsReceived += _protocol_SensorsReceive;
             _noiseModel.PropertyChanged += NoiseModelPropertyChanged;
             _audioLayer = new ClientAudioLayer(_protocol)
             {
@@ -343,8 +344,6 @@ namespace ExperimenterUI
         public void Dispose()
         {
             _logger.EndSession();
-            if (_protocol != null)
-                _protocol.Dispose();
         }
     }
 }

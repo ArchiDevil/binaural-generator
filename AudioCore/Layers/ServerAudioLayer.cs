@@ -1,8 +1,9 @@
 ﻿using AudioCore.AudioPrimitives;
 using AudioCore.SampleProviders;
-using NetworkLayer.Protocol;
+using NetworkLayer;
 using System;
 using System.Diagnostics.Contracts;
+using NetworkLayer.ProtocolShared;
 
 namespace AudioCore.Layers
 {
@@ -17,7 +18,7 @@ namespace AudioCore.Layers
 
             _buffererProvider = new BufferedProvider(44100);
             _protocol = protocol;
-            _protocol.VoiceWindowReceive += Protocol_VoiceWindowReceive;
+            _protocol.VoiceWindowReceived += Protocol_VoiceWindowReceive;
             _playbackProvider.AddProvider(_buffererProvider);
             _recorder.RecorderInput += Recorder_RecorderInput;
         }

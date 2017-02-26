@@ -2,7 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
-using NetworkLayer.Protocol;
+using NetworkLayer;
+using NetworkLayer.ProtocolShared;
 
 namespace ExperimenterUI.Windows
 {
@@ -21,7 +22,7 @@ namespace ExperimenterUI.Windows
             _model = new ExperimenterApplicationModel(_protocol);
             DataContext = _model;
             signalComboBox.SelectedIndex = 0;
-            _protocol.ChatMessageReceive += ChatMessageReceiveHandler;
+            _protocol.ChatMessageReceived += ChatMessageReceiveHandler;
         }
 
         private void ChatWindow_ChatMessage(string message, DateTime time)

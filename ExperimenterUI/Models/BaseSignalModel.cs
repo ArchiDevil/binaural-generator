@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
-using NetworkLayer.Protocol;
+using NetworkLayer;
 using SharedLibrary.Models;
 
 namespace ExperimenterUI.Models
@@ -51,7 +50,8 @@ namespace ExperimenterUI.Models
 
         public BaseSignalModel(string signalName, ClientProtocol protocol)
         {
-            Contract.Requires<ArgumentNullException>(protocol != null, "protocol mustn't be null");
+            if (protocol == null)
+                throw new ArgumentNullException("protocol");
 
             _signalName = signalName;
             _protocol = protocol;
