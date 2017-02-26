@@ -50,6 +50,9 @@ namespace ExperimenterUI.Windows
         {
             _model.Dispose();
             _model = null;
+
+            _protocol.Disconnect();
+            _protocol = null;
         }
 
         private void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e)

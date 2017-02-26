@@ -138,5 +138,10 @@ namespace SubjectUI
         public void CheckSystems()
         {
         }
+
+        public void ProtocolStop()
+        {
+            _protocol.Stop();
+        }
     }
 }

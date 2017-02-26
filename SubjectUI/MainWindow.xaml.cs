@@ -34,6 +34,7 @@ namespace SubjectUI
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            _model.ProtocolStop();
             _model = null;
         }
     }
