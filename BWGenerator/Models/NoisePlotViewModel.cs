@@ -54,7 +54,7 @@ namespace BWGenerator.Models
             };
 
             foreach (var point in currentPreset.noisePoints)
-                s1.Points.Add(new DataPoint { X = point.Time, Y = getter(point) });
+                s1.Points.Add(new DataPoint(point.Time, getter(point)));
 
             model.Series.Add(s1);
             s1.MouseDown += MouseDownHandler;

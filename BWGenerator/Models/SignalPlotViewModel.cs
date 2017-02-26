@@ -52,7 +52,7 @@ namespace BWGenerator.Models
             };
 
             foreach(var point in signal.points)
-                s1.Points.Add(new DataPoint { X = point.Time, Y = selector(point) });
+                s1.Points.Add(new DataPoint(point.Time, selector(point)));
 
             model.Series.Add(s1);
             s1.MouseDown += MouseDownHandler;
