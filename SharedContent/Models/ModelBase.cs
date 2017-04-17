@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace SharedLibrary.Models
 {
@@ -6,7 +7,7 @@ namespace SharedLibrary.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void RaisePropertyChanged(string propertyName)
+        protected void RaisePropertyChanged([CallerMemberName]string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

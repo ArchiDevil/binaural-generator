@@ -25,9 +25,9 @@ namespace ExperimenterUI.Windows
             _protocol.ChatMessageReceived += ChatMessageReceiveHandler;
         }
 
-        private void ChatWindow_ChatMessage(string message, DateTime time)
+        private void ChatWindow_ChatMessage(object sender, SharedLibrary.UserControls.ChatMessageEventArgs args)
         {
-            _model.SendChatMessage(message, time);
+            _model.SendChatMessage(args.Message, args.Time);
         }
 
         private void ExitMenuItem_Click(object sender, RoutedEventArgs e)

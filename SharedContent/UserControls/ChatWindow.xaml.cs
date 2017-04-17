@@ -12,12 +12,23 @@ namespace SharedLibrary.UserControls
     /// <summary>
     /// Interaction logic for ChatWindow.xaml
     /// </summary>
+    public class ChatMessageEventArgs : EventArgs
+    {
+        public string Message { get; set; }
+        public DateTime Time { get; set; }
+
+        public ChatMessageEventArgs(string message, DateTime time)
+        {
+            Message = message;
+            Time = time;
+        }
+    }
+
     public partial class ChatWindow : UserControl
     {
-        public delegate void ChatMessageHandler(string message, DateTime time);
+        public delegate void ChatMessageHandler(object sender, ChatMessageEventArgs e);
 
-        public event ChatMessageHandler ChatMessage = delegate
-        { };
+        public event ChatMessageHandler ChatMessage;
 
         public ChatWindow()
         {
@@ -63,7 +74,7 @@ namespace SharedLibrary.UserControls
                 return false;
             DateTime messageTime = DateTime.Now;
 
-            ChatMessage(chatType.Text, DateTime.Now);
+            ChatMessage?.Invoke(this, new ChatMessageEventArgs(chatType.Text, DateTime.Now));
             chatType.Text = "";
 
             AddMessage(message, messageTime, false);
@@ -83,8 +94,8 @@ namespace SharedLibrary.UserControls
             {
                 FontSize = 12,
                 FontFamily = new FontFamily("Arial"),
-                Foreground = received 
-                            ? (SolidColorBrush)(new BrushConverter().ConvertFrom("#aa4444")) 
+                Foreground = received
+                            ? (SolidColorBrush)(new BrushConverter().ConvertFrom("#aa4444"))
                             : (SolidColorBrush)(new BrushConverter().ConvertFrom("#4444aa"))
             };
 

@@ -7,6 +7,7 @@ namespace AudioCore.Layers
         internal Record _recorder = null;
 
         public RecordedAudioLayer()
+            : base()
         {
             _recorder = new Record(44100, 16, 1);
         }

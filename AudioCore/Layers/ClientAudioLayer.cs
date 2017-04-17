@@ -12,7 +12,8 @@ namespace AudioCore.Layers
         private ClientProtocol _protocol = null;
         private BufferedProvider _buffererProvider = null;
 
-        public ClientAudioLayer(ClientProtocol protocol) : base()
+        public ClientAudioLayer(ClientProtocol protocol) 
+            : base()
         {
             _buffererProvider = new BufferedProvider(44100);
             _protocol = protocol ?? throw new ArgumentNullException("protocol");
@@ -36,31 +37,31 @@ namespace AudioCore.Layers
             _buffererProvider.AddSamples(buffer, e.samplingRate);
         }
 
-        public override void SetSignalSettings(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
+        public bool SendSignalSettings(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
         {
-            int enabledSignals = channelSignals.Count((x) => x.enabled == true);
+            int enabledSignals = channelSignals.Count((x) => x.Enabled == true);
             ChannelDescription[] signals = new ChannelDescription[enabledSignals];
             for (int i = 0; i < signals.Length; ++i)
             {
                 signals[i] = new ChannelDescription()
                 {
-                    carrierFrequency = channelSignals[i].frequency,
-                    differenceFrequency = channelSignals[i].difference,
-                    volume = channelSignals[i].gain
+                    carrierFrequency = channelSignals[i].Frequency,
+                    differenceFrequency = channelSignals[i].Difference,
+                    volume = channelSignals[i].Gain
                 };
             }
 
             NoiseDescription noise = new NoiseDescription();
-            if (noiseSignal.enabled)
+            if (noiseSignal.Enabled)
             {
-                noise.smoothness = noiseSignal.smoothness;
-                noise.volume = noiseSignal.gain;
+                noise.smoothness = noiseSignal.Smoothness;
+                noise.volume = noiseSignal.Gain;
             }
             else
             {
                 noise.volume = 0.0;
             }
-            _protocol.SendSignalSettings(signals, noise);
+            return _protocol.SendSignalSettings(signals, noise);
         }
     }
 }

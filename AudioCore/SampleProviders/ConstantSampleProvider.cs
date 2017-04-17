@@ -59,17 +59,17 @@ namespace AudioCore.SampleProviders
 
                 foreach (var signal in _channelSignals)
                 {
-                    if (!signal.enabled)
+                    if (!signal.Enabled)
                         continue;
 
                     // return non-zero only if we wrote some values
                     returnVal = count;
 
-                    leftFrequency = signal.frequency;
-                    rightFrequency = leftFrequency - signal.difference;
+                    leftFrequency = signal.Frequency;
+                    rightFrequency = leftFrequency - signal.Difference;
 
-                    leftSampleValue += Gain * signal.gain / 100.0f * Math.Sin(_nSample * multiple * leftFrequency);
-                    rightSampleValue += Gain * signal.gain / 100.0f * Math.Sin(_nSample * multiple * rightFrequency);
+                    leftSampleValue += Gain * signal.Gain / 100.0f * Math.Sin(_nSample * multiple * leftFrequency);
+                    rightSampleValue += Gain * signal.Gain / 100.0f * Math.Sin(_nSample * multiple * rightFrequency);
                 }
 
                 // add signal here, cause noise can be applied before signal
@@ -90,11 +90,11 @@ namespace AudioCore.SampleProviders
             // may be we need to save old array to avoid TICKS in sound
             int outIndex = offset;
 
-            if (!_noiseSignal.enabled)
+            if (!_noiseSignal.Enabled)
                 return count;
 
-            if (_noiseSignal.smoothness != _lastSmoothness)
-                _lastSmoothness = _noiseSignal.smoothness;
+            if (_noiseSignal.Smoothness != _lastSmoothness)
+                _lastSmoothness = _noiseSignal.Smoothness;
 
             Random rand = new Random();
             double noiseLeftValue = 0.0;
@@ -108,13 +108,13 @@ namespace AudioCore.SampleProviders
             for (int i = 0; i < count / WaveFormat.Channels; i++)
             {
                 noiseLeftValue = rand.NextDouble() * 2.0 - 1.0;
-                noiseLeftValue = _previousLeftValue * (_noiseSignal.smoothness) + noiseLeftValue * (1.0 - _noiseSignal.smoothness);
-                noiseLeftValue *= Gain * _noiseSignal.gain / 100.0f;
+                noiseLeftValue = _previousLeftValue * (_noiseSignal.Smoothness) + noiseLeftValue * (1.0 - _noiseSignal.Smoothness);
+                noiseLeftValue *= Gain * _noiseSignal.Gain / 100.0f;
                 _previousLeftValue = noiseLeftValue;
 
                 noiseRightValue = rand.NextDouble() * 2.0 - 1.0;
-                noiseRightValue = _previousRightValue * (_noiseSignal.smoothness) + noiseRightValue * (1.0 - _noiseSignal.smoothness);
-                noiseRightValue *= Gain * _noiseSignal.gain / 100.0f;
+                noiseRightValue = _previousRightValue * (_noiseSignal.Smoothness) + noiseRightValue * (1.0 - _noiseSignal.Smoothness);
+                noiseRightValue *= Gain * _noiseSignal.Gain / 100.0f;
                 _previousRightValue = noiseRightValue;
 
                 // mono for now =(

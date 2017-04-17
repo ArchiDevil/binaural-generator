@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ExperimenterUI"
         mc:Ignorable="d"
         xmlns:shared="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -29,6 +28,7 @@
             <Setter Property="Height" Value="12"/>
             <Setter Property="RadiusX" Value="12"/>
             <Setter Property="RadiusY" Value="12"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
 
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsConnected}" 

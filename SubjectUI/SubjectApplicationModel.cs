@@ -33,43 +33,43 @@ namespace SubjectUI
         public bool IsConnected
         {
             get { return _connectionStatus; }
-            private set { _connectionStatus = value; RaisePropertyChanged("IsConnected"); RaisePropertyChanged("ConnectionStatus"); }
+            private set { _connectionStatus = value; RaisePropertyChanged(); RaisePropertyChanged("ConnectionStatus"); }
         }
 
         public bool EnableMicrophone
         {
             get { return _audioLayer.RecordingEnabled; }
-            set { _audioLayer.RecordingEnabled = value; RaisePropertyChanged("EnableMicrophone"); }
+            set { _audioLayer.RecordingEnabled = value; RaisePropertyChanged(); }
         }
 
         public bool EnableVoice
         {
             get { return _enableVoice; }
-            set { _enableVoice = value; RaisePropertyChanged("EnableVoice"); }
+            set { _enableVoice = value; RaisePropertyChanged(); }
         }
 
         public bool EnableSignals
         {
             get { return _enableSignals; }
-            set { _enableSignals = value; RaisePropertyChanged("EnableSignals"); }
+            set { _enableSignals = value; RaisePropertyChanged(); }
         }
 
         public bool AreSensorsEnabled
         {
             get { return _areSensorsEnabled; }
-            private set { _areSensorsEnabled = value; RaisePropertyChanged("AreSensorsEnabled"); }
+            private set { _areSensorsEnabled = value; RaisePropertyChanged(); }
         }
 
         public bool IsMicrophoneEnabled
         {
             get { return _isMicrophoneEnabled; }
-            private set { _isMicrophoneEnabled = value; RaisePropertyChanged("IsMicrophoneEnabled"); }
+            private set { _isMicrophoneEnabled = value; RaisePropertyChanged(); }
         }
 
         public string SensorsDeviceStatus
         {
             get { return _sensorsDeviceStatus; }
-            private set { _sensorsDeviceStatus = value; RaisePropertyChanged("SensorsDeviceStatus"); }
+            private set { _sensorsDeviceStatus = value; RaisePropertyChanged(); }
         }
 
         public SubjectApplicationModel()
@@ -79,6 +79,8 @@ namespace SubjectUI
 
             _protocol.ClientConnected += ClientConnected;
             _protocol.ChatMessageReceived += ChatMessageReceived;
+            _protocol.ClientDisconnected += _protocol_ClientDisconnected;
+            _protocol.ConnectionLost += _protocol_ClientDisconnected;
 
             _audioLayer = new ServerAudioLayer(_protocol)
             {
@@ -94,6 +96,11 @@ namespace SubjectUI
             _collector.DeviceConnected += SensorsDeviceConnected;
             _collector.DeviceDisconnected += SensorsDeviceDisconnected;
             _collector.StartDeviceExploringAsync();
+        }
+
+        private void _protocol_ClientDisconnected(object sender, EventArgs e)
+        {
+            IsConnected = false;
         }
 
         private void SensorsDeviceConnected(object sender, ConnectedEventArgs e)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using NAudio.Wave;
 
 namespace AudioCore.SampleProviders
@@ -17,12 +18,12 @@ namespace AudioCore.SampleProviders
         internal void AddProvider(SampleProvider provider)
         {
             if (provider == null)
-                throw new ArgumentException("Param mustn't be null", "provider");
+                throw new ArgumentNullException("provider");
 
             if (waveFormat != null)
             {
                 if (!waveFormat.Equals(provider.WaveFormat))
-                    throw new ArgumentException("Wave formats in the all prodivers must be the same for now");
+                    throw new ArgumentException("Wave formats in the all providers must be the same for now");
             }
             else
             {
@@ -34,7 +35,9 @@ namespace AudioCore.SampleProviders
 
         public override int Read(float[] buffer, int offset, int count)
         {
-            float[] resultingBuffer = new float[count];
+            for(int i = offset; i < offset + count; ++i)
+                buffer[i] = 0.0f;
+
             foreach (var provider in providers)
             {
                 float[] temporaryBuffer = new float[count];
@@ -44,7 +47,7 @@ namespace AudioCore.SampleProviders
                     throw new ApplicationException("Provider returned wrong number of samples");
 
                 for (int i = 0; i < temporaryBuffer.Length; ++i)
-                    resultingBuffer[i] += temporaryBuffer[i];
+                    buffer[i + offset] += temporaryBuffer[i];
             }
 
             return count;

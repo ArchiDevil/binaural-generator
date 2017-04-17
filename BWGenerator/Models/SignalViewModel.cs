@@ -25,7 +25,7 @@ namespace BWGenerator.Models
                     }
                 }
 
-                RaisePropertyChanged("StartTimeSeconds");
+                RaisePropertyChanged();
             }
         }
 
@@ -49,7 +49,7 @@ namespace BWGenerator.Models
                     }
                 }
 
-                RaisePropertyChanged("EndTimeSeconds");
+                RaisePropertyChanged();
             }
         }
 
@@ -62,7 +62,7 @@ namespace BWGenerator.Models
             set
             {
                 currentSignal.Name = value;
-                RaisePropertyChanged("SignalName");
+                RaisePropertyChanged();
             }
         }
 

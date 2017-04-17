@@ -69,8 +69,8 @@ namespace BWSitterGenerator
 
             signalModels[0].Enabled = true;
 
-            noiseModel.Gain = 50.0f;
             noiseModel.Enabled = false;
+            noiseModel.Gain = 50.0f;
             noiseModel.Smoothness = 0.5;
         }
     }

@@ -13,7 +13,7 @@ namespace ExperimenterUI.Models
         public double Smoothness
         {
             get { return _smoothness; }
-            set { _smoothness = value; RaisePropertyChanged("Smoothness"); }
+            set { _smoothness = value; RaisePropertyChanged(); }
         }
 
         public NoiseViewModel(string signalName, ClientProtocol protocol) 

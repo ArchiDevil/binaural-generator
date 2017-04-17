@@ -14,7 +14,7 @@ namespace ExperimenterUI.Models
         public bool Enabled
         {
             get { return _enabled; }
-            set { _enabled = value; RaisePropertyChanged("Enabled"); }
+            set { _enabled = value; RaisePropertyChanged(); }
         }
 
         public double MaxGain { get; } = 100.0;
@@ -25,7 +25,7 @@ namespace ExperimenterUI.Models
         public double Gain
         {
             get { return _gain; }
-            set { _gain = value; RaisePropertyChanged("Gain"); }
+            set { _gain = value; RaisePropertyChanged(); }
         }
 
         public BaseSignalModel(string signalName, ClientProtocol protocol)

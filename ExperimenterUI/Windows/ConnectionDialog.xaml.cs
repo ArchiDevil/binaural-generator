@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 
 namespace ExperimenterUI.Windows
@@ -11,7 +12,7 @@ namespace ExperimenterUI.Windows
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void RaisePropertyChanged(string propertyName)
+        private void RaisePropertyChanged([CallerMemberName]string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -22,7 +23,7 @@ namespace ExperimenterUI.Windows
         public string ConnectionAddress
         {
             get { return _connectionAddress; }
-            set { _connectionAddress = value; RaisePropertyChanged("ConnectionAddress"); }
+            set { _connectionAddress = value; RaisePropertyChanged(); }
         }
 
         public ConnectionDialog(ExperimenterApplicationModel appModel)

@@ -22,9 +22,9 @@ namespace SubjectUI
             chatWindow.PushChatMessage(message, time);
         }
 
-        private void ChatWindow_ChatMessage(string message, DateTime time)
+        private void ChatWindow_ChatMessage(object sender, SharedLibrary.UserControls.ChatMessageEventArgs args)
         {
-            _model.SendChatMessage(message, time);
+            _model.SendChatMessage(args.Message, args.Time);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

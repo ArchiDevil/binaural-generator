@@ -11,18 +11,48 @@ namespace AudioCore.Layers
         private ServerProtocol _protocol = null;
         private BufferedProvider _buffererProvider = null;
 
-        public ServerAudioLayer(ServerProtocol protocol) : base()
+        public ServerAudioLayer(ServerProtocol protocol)
+            : base()
         {
             _buffererProvider = new BufferedProvider(44100);
             _protocol = protocol ?? throw new ArgumentNullException("protocol");
             _protocol.VoiceWindowReceived += Protocol_VoiceWindowReceive;
+            _protocol.SettingsReceived += _protocol_SettingsReceived;
+            _protocol.ClientDisconnected += _protocol_ClientDisconnected;
+            _protocol.ConnectionLost += _protocol_ClientDisconnected;
+
             _playbackProvider.AddProvider(_buffererProvider);
             _recorder.RecorderInput += Recorder_RecorderInput;
         }
 
-        public override void SetSignalSettings(BasicSignalModel[] channelSignals, BasicNoiseModel noiseSignal)
+        private void _protocol_ClientDisconnected(object sender, EventArgs e)
         {
-            throw new Exception("Cannot be used on server");
+            PlaybackEnabled = false;
+            RecordingEnabled = false;
+        }
+
+        private void _protocol_SettingsReceived(object sender, SettingsDataEventArgs e)
+        {
+            BasicSignalModel[] signals = new BasicSignalModel[e.channels.Length];
+            for (int i = 0; i < e.channels.Length; ++i)
+            {
+                signals[i] = new BasicSignalModel()
+                {
+                    Enabled = e.channels[i].enabled,
+                    Frequency = e.channels[i].carrierFrequency,
+                    Difference = e.channels[i].differenceFrequency,
+                    Gain = e.channels[i].volume
+                };
+            }
+
+            BasicNoiseModel noise = new BasicNoiseModel()
+            {
+                Enabled = e.noise.enabled,
+                Gain = e.noise.volume,
+                Smoothness = e.noise.smoothness
+            };
+
+            SetSignalSettings(signals, noise);
         }
 
         private void Protocol_VoiceWindowReceive(object sender, VoiceWindowDataEventArgs e)

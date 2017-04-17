@@ -1,40 +1,41 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 using AudioCore.AudioPrimitives;
 
 namespace BWSitterGenerator.Models
 {
-    class SignalModel : BasicSignalModel
+    class SignalModel : BasicSignalModel, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void RaisePropertyChanged(string propertyName)
+        protected void RaisePropertyChanged([CallerMemberName]string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public bool Enabled
+        public new bool Enabled
         {
-            get { return enabled; }
-            set { enabled = value; RaisePropertyChanged("Enabled"); }
+            get { return base.Enabled; }
+            set { base.Enabled = value; RaisePropertyChanged(); }
         }
 
-        public float Gain
+        public new double Gain
         {
-            get { return gain; }
-            set { gain = value; RaisePropertyChanged("Gain"); }
+            get { return base.Gain; }
+            set { base.Gain = value; RaisePropertyChanged(); }
         }
 
-        public double Frequency
+        public new double Frequency
         {
-            get { return frequency; }
-            set { frequency = value; RaisePropertyChanged("Frequency"); }
+            get { return base.Frequency; }
+            set { base.Frequency = value; RaisePropertyChanged(); }
         }
 
-        public double Difference
+        public new double Difference
         {
-            get { return difference; }
-            set { difference = value; RaisePropertyChanged("Difference"); }
+            get { return base.Difference; }
+            set { base.Difference = value; RaisePropertyChanged(); }
         }
     }
 }

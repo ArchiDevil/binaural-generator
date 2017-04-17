@@ -40,7 +40,7 @@ namespace ExperimenterUI
         public string[] SignalModelNames
         {
             get { return _signalModelNames; }
-            private set { _signalModelNames = value; RaisePropertyChanged("SignalModelNames"); }
+            private set { _signalModelNames = value; RaisePropertyChanged(); }
         }
 
         public bool IsConnected
@@ -58,7 +58,7 @@ namespace ExperimenterUI
         public SignalViewModel CurrentSignal
         {
             get { return _currentSignal; }
-            private set { _currentSignal = value; RaisePropertyChanged("CurrentSignal"); }
+            private set { _currentSignal = value; RaisePropertyChanged(); }
         }
 
         public event ClientProtocol.ChatMessageReceiveHandler ChatMessageReceived = delegate { };
@@ -79,11 +79,15 @@ namespace ExperimenterUI
 
             _protocol = protocol ?? throw new ArgumentNullException("protocol");
             _protocol.SensorsReceived += _protocol_SensorsReceive;
+            _protocol.ConnectionFinished += _protocol_ConnectionFinished;
+            _protocol.ConnectionLost += _protocol_ConnectionLost;
+
             NoiseModel.PropertyChanged += NoiseModelPropertyChanged;
             _audioLayer = new ClientAudioLayer(_protocol)
             {
                 PlaybackEnabled = false
             };
+
             _tickTimer.Elapsed += _tickTimer_Elapsed;
             _tickTimer.AutoReset = true;
             _tickTimer.Start();
@@ -178,6 +182,18 @@ namespace ExperimenterUI
             });
         }
 
+        private void _protocol_ConnectionLost(object sender, EventArgs e)
+        {
+            _connectionStatus = ConnectionStatus.Error;
+            RaisePropertyChanged("IsConnected");
+        }
+
+        private void _protocol_ConnectionFinished(object sender, EventArgs e)
+        {
+            _connectionStatus = ConnectionStatus.NoConnection;
+            RaisePropertyChanged("IsConnected");
+        }
+
         private void _protocol_SensorsReceive(object sender, SensorsDataEventArgs e)
         {
             _timestamp += 1;
@@ -265,6 +281,7 @@ namespace ExperimenterUI
                 {
                     _connectionStatus = ConnectionStatus.Connected;
                     _logger.StartSession();
+                    SessionTime = new TimeSpan(0, 0, 0);
                     RaisePropertyChanged("IsConnected");
                 }
             }

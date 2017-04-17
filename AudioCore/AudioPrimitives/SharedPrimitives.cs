@@ -7,16 +7,16 @@
 
     public class BasicSignalModel
     {
-        public double difference = 0.0;
-        public bool enabled = false;
-        public double frequency = 0.0;
-        public float gain = 100.0f;
+        public double Difference { get; set; } = 0.0;
+        public bool Enabled { get; set; } = false;
+        public double Frequency { get; set; } = 0.0;
+        public double Gain { get; set; } = 100.0f;
     }
 
     public class BasicNoiseModel
     {
-        public bool enabled = false;
-        public float gain = 100.0f;
-        public double smoothness = 0.0;
+        public bool Enabled { get; set; } = false;
+        public double Gain { get; set; } = 100.0f;
+        public double Smoothness { get; set; } = 0.0;
     }
 }

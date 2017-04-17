@@ -27,7 +27,7 @@ namespace BWGenerator.Models
         public string Name
         {
             get { return name; }
-            set { name = value; RaisePropertyChanged("Name"); }
+            set { name = value; RaisePropertyChanged(); }
         }
 
         public SignalPoint[] points = null;
@@ -62,13 +62,13 @@ namespace BWGenerator.Models
         public string Name
         {
             get { return name; }
-            set { name = value; RaisePropertyChanged("Name"); }
+            set { name = value; RaisePropertyChanged(); }
         }
 
         public string Description
         {
             get { return description; }
-            set { description = value; RaisePropertyChanged("Description"); }
+            set { description = value; RaisePropertyChanged(); }
         }
 
         public TimeSpan TotalLength

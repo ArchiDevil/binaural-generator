@@ -18,13 +18,13 @@ namespace ExperimenterUI.Models
         public double Frequency
         {
             get { return _frequency; }
-            set { _frequency = value; RaisePropertyChanged("Frequency"); }
+            set { _frequency = value; RaisePropertyChanged(); }
         }
 
         public double Difference
         {
             get { return _difference; }
-            set { _difference = value; RaisePropertyChanged("Difference"); }
+            set { _difference = value; RaisePropertyChanged(); }
         }
 
         public SignalViewModel(string signalName, ClientProtocol protocol) 
