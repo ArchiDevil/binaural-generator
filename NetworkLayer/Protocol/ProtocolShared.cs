@@ -65,28 +65,30 @@ namespace NetworkLayer.ProtocolShared
     [Serializable]
     public struct ChannelDescription
     {
+        public bool enabled;
         public double carrierFrequency;
         public double differenceFrequency;
         public double volume;
-        public bool enabled;
 
         public ChannelDescription(double carrierFrequency, double differenceFrequency, double volume, bool enabled)
         {
+            this.enabled = enabled;
             this.carrierFrequency = carrierFrequency;
             this.differenceFrequency = differenceFrequency;
             this.volume = volume;
-            this.enabled = enabled;
         }
     }
 
     [Serializable]
     public struct NoiseDescription
     {
+        public bool enabled;
         public double smoothness;
         public double volume;
 
-        public NoiseDescription(double smoothness, double volume)
+        public NoiseDescription(bool enabled, double smoothness, double volume)
         {
+            this.enabled = enabled;
             this.smoothness = smoothness;
             this.volume = volume;
         }

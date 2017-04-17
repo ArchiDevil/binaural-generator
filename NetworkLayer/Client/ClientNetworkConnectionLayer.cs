@@ -13,10 +13,10 @@ namespace NetworkLayer.Client
 {
     public class ClientNetworkConnectionLayer : IClientConnectionLayer, IDisposable
     {
-        public event ClientConnectionHandler ConnectionEstablished = delegate { };
-        public event ClientDisconnectionHandler ConnectionLost = delegate { };
-        public event ClientDisconnectionHandler ConnectionFinished = delegate { };
-        public event PacketReceivedHander PacketReceived = delegate { };
+        public event ClientConnectionHandler ConnectionEstablished;
+        public event ClientDisconnectionHandler ConnectionLost;
+        public event ClientDisconnectionHandler ConnectionFinished;
+        public event PacketReceivedHander PacketReceived;
 
         ManualResetEvent _workerThreadStopped = new ManualResetEvent(false);
         ManualResetEvent _workerThreadTerminate = new ManualResetEvent(false);
@@ -66,10 +66,10 @@ namespace NetworkLayer.Client
                         {
                             int receivedCount = _sender.Receive(temporalBuffer);
                             receivedBuffer.AddRange(temporalBuffer.Take(receivedCount));
-                            SharedFunctions.ExtractPackets(ref receivedBuffer, out bool disconnection, x => PacketReceived(this, x));
+                            SharedFunctions.ExtractPackets(ref receivedBuffer, out bool disconnection, x => PacketReceived?.Invoke(this, x));
                             if (disconnection)
                             {
-                                ConnectionFinished(this);
+                                ConnectionFinished?.Invoke(this);
                                 _workerThreadTerminate.Set();
                                 _workerThreadStopped.Set();
                                 _sender.Close();
@@ -98,7 +98,7 @@ namespace NetworkLayer.Client
                 catch (Exception e)
                 {
                     Debug.Print(e.Message);
-                    ConnectionLost(this);
+                    ConnectionLost?.Invoke(this);
                     _errorDiscovered.Set();
                     break;
                 }
@@ -147,7 +147,7 @@ namespace NetworkLayer.Client
                     return false;
                 }
 
-                ConnectionEstablished(this);
+                ConnectionEstablished?.Invoke(this);
             }
             catch (Exception exc)
             {

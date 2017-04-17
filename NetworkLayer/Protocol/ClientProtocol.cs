@@ -12,10 +12,16 @@ namespace NetworkLayer
         public delegate void SensorsReceiveHandler(object sender, SensorsDataEventArgs e);
         public delegate void VoiceWindowReceiveHandler(object sender, VoiceWindowDataEventArgs e);
         public delegate void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e);
+        public delegate void DisconnectionHandler(object sender, EventArgs e);
 
-        IClientConnectionLayer connectionLayer = new ClientNetworkConnectionLayer();
+        public event SensorsReceiveHandler SensorsReceived;
+        public event VoiceWindowReceiveHandler VoiceWindowReceived;
+        public event ChatMessageReceiveHandler ChatMessageReceived;
+        public event DisconnectionHandler ConnectionFinished;
+        public event DisconnectionHandler ConnectionLost;
 
-        string _clientName = string.Empty;
+        private IClientConnectionLayer connectionLayer = new ClientNetworkConnectionLayer();
+        private string _clientName = string.Empty;
 
         private bool SendPacket(ProtocolPacketType type, object data)
         {
@@ -52,6 +58,8 @@ namespace NetworkLayer
                 return false;
 
             connectionLayer.PacketReceived += ConnectionLayer_PacketReceived;
+            connectionLayer.ConnectionFinished += ConnectionLayer_ConnectionFinished;
+            connectionLayer.ConnectionLost += ConnectionLayer_ConnectionLost;
 
             ProtocolInfo protocolInfo = new ProtocolInfo();
             if (!SendPacket(ProtocolPacketType.ProtocolInfoPacket, protocolInfo))
@@ -70,6 +78,16 @@ namespace NetworkLayer
             return true;
         }
 
+        private void ConnectionLayer_ConnectionLost(object sender)
+        {
+            ConnectionLost?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void ConnectionLayer_ConnectionFinished(object sender)
+        {
+            ConnectionFinished?.Invoke(this, EventArgs.Empty);
+        }
+
         private void ConnectionLayer_PacketReceived(object sender, ConnectionLayerShared.PacketReceivedEventArgs e)
         {
             MemoryStream m = new MemoryStream(e.data as byte[]);
@@ -85,19 +103,19 @@ namespace NetworkLayer
                 case ProtocolPacketType.SensorsDataPacket:
                     {
                         SensorsDataEventArgs args = packet.serializedData as SensorsDataEventArgs;
-                        SensorsReceived(this, args);
+                        SensorsReceived?.Invoke(this, args);
                         break;
                     }
                 case ProtocolPacketType.VoiceWindowPacket:
                     {
                         VoiceWindowDataEventArgs args = packet.serializedData as VoiceWindowDataEventArgs;
-                        VoiceWindowReceived(this, args);
+                        VoiceWindowReceived?.Invoke(this, args);
                         break;
                     }
                 case ProtocolPacketType.ChatMessagePacket:
                     {
                         ClientChatMessageEventArgs args = packet.serializedData as ClientChatMessageEventArgs;
-                        ChatMessageReceived(this, args);
+                        ChatMessageReceived?.Invoke(this, args);
                         break;
                     }
                 default:
@@ -141,9 +159,5 @@ namespace NetworkLayer
             ClientChatMessageEventArgs data = new ClientChatMessageEventArgs { message = message };
             return SendPacket(ProtocolPacketType.ChatMessagePacket, data);
         }
-
-        public event SensorsReceiveHandler SensorsReceived = delegate { };
-        public event VoiceWindowReceiveHandler VoiceWindowReceived = delegate { };
-        public event ChatMessageReceiveHandler ChatMessageReceived = delegate { };
     }
 }

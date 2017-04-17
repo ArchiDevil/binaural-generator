@@ -152,7 +152,7 @@ namespace Tests
             {
                 channelDesc[i] = new ChannelDescription(440.0, 10.0, 1.0, true);
             }
-            NoiseDescription noiseDesc = new NoiseDescription(10.0, 1.0);
+            NoiseDescription noiseDesc = new NoiseDescription(true, 10.0, 1.0);
             Assert.IsTrue(protocol.SendSignalSettings(channelDesc, noiseDesc));
             Thread.Sleep(200);
 
@@ -163,6 +163,7 @@ namespace Tests
 
             SettingsDataEventArgs args = packets[2].serializedData as SettingsDataEventArgs;
             Assert.AreEqual(args.channels.Length, channelDesc.Length);
+            Assert.AreEqual(args.noise.enabled, noiseDesc.enabled);
             Assert.AreEqual(args.noise.smoothness, noiseDesc.smoothness, 0.0001);
             Assert.AreEqual(args.noise.volume, noiseDesc.volume, 0.0001);
 

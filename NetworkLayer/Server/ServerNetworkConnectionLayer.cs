@@ -13,26 +13,21 @@ namespace NetworkLayer.Server
 {
     public class ServerNetworkConnectionLayer : IServerConnectionLayer, IDisposable
     {
-        public event ServerClientConnectionHandler ClientConnected = delegate { };
-        public event ServerClientDisconnectionHandler ClientDisconnected = delegate { };
-        public event ServerClientDisconnectionHandler ConnectionLost = delegate { };
-        public event PacketReceivedHander PacketReceived = delegate { };
+        public event ServerClientConnectionHandler ClientConnected;
+        public event ServerClientDisconnectionHandler ClientDisconnected;
+        public event ServerClientDisconnectionHandler ConnectionLost;
+        public event PacketReceivedHander PacketReceived;
 
-        Thread _sendingWorker = null;
-        Thread _receivingWorker = null;
-
-        ManualResetEvent _sendingThreadStopped = new ManualResetEvent(false);
-        ManualResetEvent _sendingThreadTerminate = new ManualResetEvent(false);
-
-        ManualResetEvent _receivingThreadStopped = new ManualResetEvent(false);
-        ManualResetEvent _receivingThreadTerminate = new ManualResetEvent(false);
-
-        ManualResetEvent _errorDiscovered = new ManualResetEvent(false);
+        Thread _socketWorker = null;
 
         Queue<Packet> _sendingQueue = new Queue<Packet>();
+        Queue<Packet> _receivedQueue = new Queue<Packet>();
 
+        ManualResetEvent _workerThreadStopped = new ManualResetEvent(false);
+        ManualResetEvent _workerThreadTerminate = new ManualResetEvent(false);
+        ManualResetEvent _errorDiscovered = new ManualResetEvent(false);
         List<Socket> _listenerSockets = new List<Socket>();
-        Socket _client = null;
+        Socket _sender = null;
 
         private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
@@ -47,41 +42,37 @@ namespace NetworkLayer.Server
             args.Completed += AcceptCompleted;
             (sender as Socket).AcceptAsync(args);
 
-            if (_client != null)
+            if (_sender != null)
             {
-                if (_client.IsConnected())
-                    _client.Shutdown(SocketShutdown.Both);
-                _client.Close();
-                _client = null;
+                if (_sender.IsConnected())
+                    _sender.Shutdown(SocketShutdown.Both);
+                _sender.Close();
+                _sender = null;
             }
 
-            _client = e.AcceptSocket;
+            _sender = e.AcceptSocket;
 
-            if (!_client.IsConnected())
+            if (!_sender.IsConnected())
                 return;
 
             try
             {
                 byte[] buffer = new byte[1024];
-                int received = _client.Receive(buffer);
+                int received = _sender.Receive(buffer);
                 string message = Encoding.ASCII.GetString(buffer, 0, received);
                 if (message.IndexOf(ConnectionLayerConstants.handshakeString) == -1)
                     throw new Exception("Handshake failed");
 
                 buffer = Encoding.ASCII.GetBytes(ConnectionLayerConstants.handshakeString);
-                if (_client.Send(buffer) == 0)
+                if (_sender.Send(buffer) == 0)
                     throw new Exception("Handshake failed");
 
-                // everything is ok, start workers
-                _sendingThreadStopped.Reset();
-                _sendingWorker = new Thread(SendingWorker);
-                _sendingWorker.Start();
+                // everything is OK, start workers
+                _workerThreadStopped.Reset();
+                _socketWorker = new Thread(SocketWorker);
+                _socketWorker.Start();
 
-                _receivingThreadStopped.Reset();
-                _receivingWorker = new Thread(ReceivingWorker);
-                _receivingWorker.Start();
-
-                ClientConnected(this, new ClientConnectedEventArgs { clientAddress = _client.RemoteEndPoint.Serialize().ToString() });
+                ClientConnected?.Invoke(this, new ClientConnectedEventArgs { clientAddress = _sender.RemoteEndPoint.Serialize().ToString() });
             }
             catch (Exception exc)
             {
@@ -90,80 +81,82 @@ namespace NetworkLayer.Server
             }
         }
 
-        private void SendingWorker()
-        {
-            while (!_sendingThreadTerminate.WaitOne(0))
-            {
-                try
-                {
-                    if (!IsListening() || !IsClientConnected())
-                        throw new Exception("Connection lost");
-
-                    // nothing to send
-                    if (_sendingQueue.Count == 0)
-                    {
-                        Thread.Yield();
-                        continue;
-                    }
-
-                    Packet packetToSend = _sendingQueue.Dequeue();
-                    int bytesSent = _client.Send(packetToSend.SerializedData);
-                    if (bytesSent == 0)
-                        throw new Exception("Socket failed to send data");
-                }
-                catch (Exception e)
-                {
-                    Debug.Print(e.Message);
-                    ConnectionLost(this);
-                    _errorDiscovered.Set();
-                    break;
-                }
-            }
-
-            _sendingThreadStopped.Set();
-        }
-
-        private void ReceivingWorker()
+        private void SocketWorker()
         {
             List<byte> receivedBuffer = new List<byte>(1024);
             byte[] temporalBuffer = new byte[1024];
 
-            while (!_receivingThreadTerminate.WaitOne(0))
+            while (true)
             {
                 try
                 {
-                    if (!IsListening() || !IsClientConnected())
-                        throw new Exception("Connection lost");
+                    bool error = false;
+                    if (!_sender.Poll(1000 * 100, SelectMode.SelectWrite))
+                    {
+                        Debug.Print("Sending socket closed unexpectedly");
+                        error = true;
+                    }
 
-                    if(_client.Available == 0)
+                    if (_sendingQueue.Count != 0 && !error)
+                    {
+                        while (_sendingQueue.Count > 0)
+                        {
+                            Packet packetToSend = _sendingQueue.Dequeue();
+                            // TODO: handle sending correctly
+                            int sentBytesCount = _sender.Send(packetToSend.SerializedData);
+                            if (sentBytesCount == 0)
+                            {
+                                Debug.Print("Sending socket was unable to send data");
+                                error = true;
+                                break;
+                            }
+                        }
+                    }
+                    else if (_sender.Available > 0 && !error)
+                    {
+                        while (_sender.Available > 0)
+                        {
+                            int receivedCount = _sender.Receive(temporalBuffer);
+                            receivedBuffer.AddRange(temporalBuffer.Take(receivedCount));
+                            SharedFunctions.ExtractPackets(ref receivedBuffer, out bool disconnection, x => PacketReceived?.Invoke(this, x));
+                            if (disconnection)
+                            {
+                                ClientDisconnected?.Invoke(this);
+                                _workerThreadTerminate.Set();
+                                _workerThreadStopped.Set();
+                                _sender.Close();
+                                _sender = null;
+                                return;
+                            }
+                        }
+                    }
+                    else if (!error)
                     {
                         Thread.Yield();
                         continue;
                     }
 
-                    int receivedCount = _client.Receive(temporalBuffer);
-                    receivedBuffer.AddRange(temporalBuffer.Take(receivedCount));
-                    SharedFunctions.ExtractPackets(ref receivedBuffer, out bool disconnection, x => PacketReceived(this, x));
-                    if (disconnection)
+                    if (error)
                     {
-                        ClientDisconnected(this);
-                        _receivingThreadTerminate.Set();
-                        _sendingThreadTerminate.Set();
-                        _client.Close();
-                        _client = null;
+                        _errorDiscovered.Set();
+                        break;
+                    }
+
+                    if (_workerThreadTerminate.WaitOne(0))
+                    {
                         break;
                     }
                 }
                 catch (Exception e)
                 {
                     Debug.Print(e.Message);
-                    ConnectionLost(this);
+                    ConnectionLost?.Invoke(this);
                     _errorDiscovered.Set();
                     break;
                 }
             }
 
-            _receivingThreadStopped.Set();
+            _workerThreadStopped.Set();
         }
 
         private bool SendPacket(PacketType packetType, byte[] data)
@@ -229,7 +222,7 @@ namespace NetworkLayer.Server
 
         public bool IsClientConnected()
         {
-            return _client != null;
+            return _sender != null;
         }
 
         public bool IsListening()
@@ -253,34 +246,23 @@ namespace NetworkLayer.Server
             if (!error)
                 SendPacket(PacketType.FinishingPacket, new byte[1]);
 
-            if (_sendingWorker != null)
+            if (_socketWorker != null)
             {
-                _sendingThreadTerminate.Set();
-                if (!_sendingThreadStopped.WaitOne(1000))
+                _workerThreadTerminate.Set();
+                if (!_workerThreadStopped.WaitOne(1000))
                     throw new Exception("Unable to stop connection layer");
 
-                _sendingWorker.Abort();
-                _sendingWorker = null;
-                _sendingThreadTerminate.Reset();
+                _socketWorker.Abort();
+                _socketWorker = null;
+                _workerThreadTerminate.Reset();
             }
 
-            if (_receivingWorker != null)
+            if (_sender != null)
             {
-                _receivingThreadTerminate.Set();
-                if (!_receivingThreadStopped.WaitOne(1000))
-                    throw new Exception("Unable to stop connection layer");
-
-                _receivingWorker.Abort();
-                _receivingWorker = null;
-                _receivingThreadTerminate.Reset();
-            }
-
-            if (_client != null)
-            {
-                if (_client.IsConnected())
-                    _client.Shutdown(SocketShutdown.Both);
-                _client.Close();
-                _client = null;
+                if (_sender.IsConnected())
+                    _sender.Shutdown(SocketShutdown.Both);
+                _sender.Close();
+                _sender = null;
             }
 
             try
@@ -309,7 +291,10 @@ namespace NetworkLayer.Server
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            StopInternal();
+
+            _workerThreadStopped.Dispose();
+            _workerThreadTerminate.Dispose();
         }
     }
 }

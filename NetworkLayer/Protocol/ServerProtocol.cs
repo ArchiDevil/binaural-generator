@@ -10,16 +10,17 @@ namespace NetworkLayer
     public sealed class ServerProtocol
     {
         public delegate void ClientConnectionHandler(object sender, ClientInfoEventArgs e);
-        public delegate void ClientDisconnectionHandler(object sender);
+        public delegate void ClientDisconnectionHandler(object sender, EventArgs e);
         public delegate void SettingsReceiveHandler(object sender, SettingsDataEventArgs e);
         public delegate void VoiceWindowReceiveHandler(object sender, VoiceWindowDataEventArgs e);
         public delegate void ChatMessageReceiveHandler(object sender, ClientChatMessageEventArgs e);
 
-        public event ClientConnectionHandler ClientConnected = delegate { };
-        public event ClientDisconnectionHandler ClientDisconnected = delegate { };
-        public event SettingsReceiveHandler SettingsReceived = delegate { };
-        public event VoiceWindowReceiveHandler VoiceWindowReceived = delegate { };
-        public event ChatMessageReceiveHandler ChatMessageReceived = delegate { };
+        public event ClientConnectionHandler ClientConnected;
+        public event ClientDisconnectionHandler ClientDisconnected;
+        public event ClientDisconnectionHandler ConnectionLost;
+        public event SettingsReceiveHandler SettingsReceived;
+        public event VoiceWindowReceiveHandler VoiceWindowReceived;
+        public event ChatMessageReceiveHandler ChatMessageReceived;
 
         string _serverName = string.Empty;
 
@@ -52,7 +53,12 @@ namespace NetworkLayer
 
         private void ConnectionLayer_ClientDisconnected(object sender)
         {
-            ClientDisconnected(this);
+            ClientDisconnected?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void ConnectionLayer_ConnectionLost(object sender)
+        {
+            ConnectionLost?.Invoke(this, EventArgs.Empty);
         }
 
         private void ConnectionLayer_PacketReceived(object sender, ConnectionLayerShared.PacketReceivedEventArgs e)
@@ -68,25 +74,25 @@ namespace NetworkLayer
                 case ProtocolPacketType.ClientInfoPacket:
                     {
                         ClientInfoEventArgs args = packet.serializedData as ClientInfoEventArgs;
-                        ClientConnected(this, args);
+                        ClientConnected?.Invoke(this, args);
                         break;
                     }
                 case ProtocolPacketType.SoundSettingsPacket:
                     {
                         SettingsDataEventArgs args = packet.serializedData as SettingsDataEventArgs;
-                        SettingsReceived(this, args);
+                        SettingsReceived?.Invoke(this, args);
                         break;
                     }
                 case ProtocolPacketType.VoiceWindowPacket:
                     {
                         VoiceWindowDataEventArgs args = packet.serializedData as VoiceWindowDataEventArgs;
-                        VoiceWindowReceived(this, args);
+                        VoiceWindowReceived?.Invoke(this, args);
                         break;
                     }
                 case ProtocolPacketType.ChatMessagePacket:
                     {
                         ClientChatMessageEventArgs args = packet.serializedData as ClientChatMessageEventArgs;
-                        ChatMessageReceived(this, args);
+                        ChatMessageReceived?.Invoke(this, args);
                         break;
                     }
                 default:
@@ -121,6 +127,7 @@ namespace NetworkLayer
             connectionLayer.ClientConnected += ConnectionLayer_ClientConnected;
             connectionLayer.ClientDisconnected += ConnectionLayer_ClientDisconnected;
             connectionLayer.PacketReceived += ConnectionLayer_PacketReceived;
+            connectionLayer.ConnectionLost += ConnectionLayer_ConnectionLost;
 
             return true;
         }
