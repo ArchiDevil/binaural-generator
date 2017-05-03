@@ -119,12 +119,6 @@
                       IsChecked="{Binding EnableVoice}"
                       Content="Enable experimenter's voice"/>
 
-            <CheckBox Grid.Row="3"
-                      Grid.ColumnSpan="2"
-                      IsEnabled="{Binding IsConnected}"
-                      IsChecked="{Binding EnableSignals}"
-                      Content="Enable signals"/>
-
             <Separator Grid.Row="4"
                        Grid.ColumnSpan="2"
                        Margin="5"/>

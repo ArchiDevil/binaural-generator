@@ -11,10 +11,7 @@ namespace SubjectUI
     {
         private bool _connectionStatus = false;
         private bool _enableVoice = true;
-        private bool _enableSignals = true;
-
         private bool _areSensorsEnabled = false;
-        private bool _isMicrophoneEnabled = false;
 
         private string _sensorsDeviceStatus = "";
 
@@ -23,7 +20,7 @@ namespace SubjectUI
         private ServerAudioLayer _audioLayer = null;
 
         public delegate void ChatMessageReceiveHandler(string message, DateTime time);
-        public event ChatMessageReceiveHandler ChatMessageReceivedEvent = delegate { };
+        public event ChatMessageReceiveHandler ChatMessageReceivedEvent;
 
         public string ConnectionStatus
         {
@@ -48,12 +45,6 @@ namespace SubjectUI
             set { _enableVoice = value; RaisePropertyChanged(); }
         }
 
-        public bool EnableSignals
-        {
-            get { return _enableSignals; }
-            set { _enableSignals = value; RaisePropertyChanged(); }
-        }
-
         public bool AreSensorsEnabled
         {
             get { return _areSensorsEnabled; }
@@ -62,8 +53,7 @@ namespace SubjectUI
 
         public bool IsMicrophoneEnabled
         {
-            get { return _isMicrophoneEnabled; }
-            private set { _isMicrophoneEnabled = value; RaisePropertyChanged(); }
+            get { return _audioLayer.AudioInDevicesCount > 0; }
         }
 
         public string SensorsDeviceStatus
@@ -85,9 +75,9 @@ namespace SubjectUI
             _audioLayer = new ServerAudioLayer(_protocol)
             {
                 PlaybackEnabled = true,
-                RecordingEnabled = true
+                RecordingEnabled = false
             };
-            IsMicrophoneEnabled = _audioLayer.AudioInDevicesCount > 0;
+            RaisePropertyChanged("IsMicrophoneEnabled");
 
             SensorsDeviceStatus = "Device disconnected";
 
@@ -122,7 +112,7 @@ namespace SubjectUI
 
         private void ChatMessageReceived(object sender, ClientChatMessageEventArgs e)
         {
-            ChatMessageReceivedEvent(e.message, e.sentTime);
+            ChatMessageReceivedEvent?.Invoke(e.message, e.sentTime);
         }
 
         private void SensorsDataReceived(SensorsLayer.SensorsDataEventArgs e)
