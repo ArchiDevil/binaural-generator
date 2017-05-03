@@ -6,10 +6,16 @@ namespace AudioCore.Layers
     {
         internal Record _recorder = null;
 
-        public RecordedAudioLayer()
+        public RecordedAudioLayer(int rate, int bits, int channels)
             : base()
         {
-            _recorder = new Record(44100, 16, 1);
+            _recorder = new Record(rate, bits, channels);
+        }
+
+        public RecordedAudioLayer(int rate, int bits, int channels, int bufferLength)
+            : base()
+        {
+            _recorder = new Record(rate, bits, channels, bufferLength);
         }
 
         public bool RecordingEnabled

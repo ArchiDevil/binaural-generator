@@ -142,12 +142,12 @@ namespace NetworkLayer
             return SendPacket(ProtocolPacketType.SoundSettingsPacket, data);
         }
 
-        public bool SendVoiceWindow(byte[] voiceData)
+        public bool SendVoiceWindow(int samplingRate, int bytesPerSample, byte[] voiceData)
         {
             if (voiceData == null || voiceData.Length == 0)
                 return false;
 
-            VoiceWindowDataEventArgs data = new VoiceWindowDataEventArgs { data = voiceData };
+            VoiceWindowDataEventArgs data = new VoiceWindowDataEventArgs(samplingRate, bytesPerSample, voiceData);
             return SendPacket(ProtocolPacketType.VoiceWindowPacket, data);
         }
 

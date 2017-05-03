@@ -194,7 +194,7 @@ namespace Tests
             Assert.IsTrue(protocol.Connect("localhost"));
 
             byte[] voice = new byte[100];
-            Assert.IsTrue(protocol.SendVoiceWindow(voice));
+            Assert.IsTrue(protocol.SendVoiceWindow(8000, 1, voice));
             Thread.Sleep(200);
 
             Assert.AreEqual(3, packets.Count);
@@ -254,8 +254,8 @@ namespace Tests
             Assert.IsTrue(protocol.Connect("localhost"));
 
             byte[] b = new byte[0];
-            Assert.IsFalse(protocol.SendVoiceWindow(b));
-            Assert.IsFalse(protocol.SendVoiceWindow(null));
+            Assert.IsFalse(protocol.SendVoiceWindow(8000, 1, b));
+            Assert.IsFalse(protocol.SendVoiceWindow(8000, 1, null));
         }
 
         [TestMethod]
@@ -313,7 +313,7 @@ namespace Tests
             server.SendData(CreateInfoPacket());
 
             // create chat message packet
-            VoiceWindowDataEventArgs sentArgs = new VoiceWindowDataEventArgs { data = voiceData };
+            VoiceWindowDataEventArgs sentArgs = new VoiceWindowDataEventArgs(8000, 1, voiceData);
             ProtocolPacket p = new ProtocolPacket() { packetType = ProtocolPacketType.VoiceWindowPacket, serializedData = sentArgs };
 
             MemoryStream m = new MemoryStream();

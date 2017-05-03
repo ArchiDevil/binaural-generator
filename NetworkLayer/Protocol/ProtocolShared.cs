@@ -124,8 +124,16 @@ namespace NetworkLayer.ProtocolShared
     [Serializable]
     public class VoiceWindowDataEventArgs : EventArgs
     {
-        public int samplingRate = 44100;
-        public byte[] data = new byte[44100]; // sampling rate is 44100 Hz
+        public VoiceWindowDataEventArgs(int samplingRate, int bytesPerSample, byte[] data)
+        {
+            this.samplingRate = samplingRate;
+            this.bytesPerSample = bytesPerSample;
+            this.data = data;
+        }
+
+        public int samplingRate;
+        public int bytesPerSample;
+        public byte[] data; // sampling rate is 44100 Hz
     }
 
     /// <summary>

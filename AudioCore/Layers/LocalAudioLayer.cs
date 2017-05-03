@@ -7,15 +7,12 @@ namespace AudioCore.Layers
     {
         internal Playback _playback = null;
 
-        internal ConstantSampleProvider _constantProvider = null;
-        internal MixerProvider _playbackProvider = null;
+        internal ConstantSampleProvider _constantProvider = new ConstantSampleProvider();
+        internal MixerProvider _playbackProvider = new MixerProvider();
 
         public LocalAudioLayer()
         {
-            _playbackProvider = new MixerProvider();
-            _constantProvider = new ConstantSampleProvider();
             _playback = new Playback(_playbackProvider);
-
             _playbackProvider.AddProvider(_constantProvider);
         }
 

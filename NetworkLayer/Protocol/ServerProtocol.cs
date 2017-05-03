@@ -150,12 +150,12 @@ namespace NetworkLayer
             return SendData(ProtocolPacketType.SensorsDataPacket, data);
         }
 
-        public bool SendVoiceWindow(byte[] voiceData)
+        public bool SendVoiceWindow(int samplingRate, int bytesPerSample, byte[] voiceData)
         {
             if (voiceData == null)
                 return false;
 
-            VoiceWindowDataEventArgs data = new VoiceWindowDataEventArgs { data = voiceData };
+            VoiceWindowDataEventArgs data = new VoiceWindowDataEventArgs(samplingRate, bytesPerSample, voiceData);
             return SendData(ProtocolPacketType.VoiceWindowPacket, data);
         }
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+
 using AudioCore.AudioPrimitives;
 using AudioCore.SampleProviders;
 using NetworkLayer;
@@ -9,19 +11,19 @@ namespace AudioCore.Layers
     public class ServerAudioLayer : RecordedAudioLayer
     {
         private ServerProtocol _protocol = null;
-        private BufferedProvider _buffererProvider = null;
+        private BufferedProvider _bufferedProvider = null;
 
         public ServerAudioLayer(ServerProtocol protocol)
-            : base()
+            : base(8000, 16, 1, 50)
         {
-            _buffererProvider = new BufferedProvider(44100);
+            _bufferedProvider = new BufferedProvider(44100);
             _protocol = protocol ?? throw new ArgumentNullException("protocol");
             _protocol.VoiceWindowReceived += Protocol_VoiceWindowReceive;
             _protocol.SettingsReceived += _protocol_SettingsReceived;
             _protocol.ClientDisconnected += _protocol_ClientDisconnected;
             _protocol.ConnectionLost += _protocol_ClientDisconnected;
 
-            _playbackProvider.AddProvider(_buffererProvider);
+            _playbackProvider.AddProvider(_bufferedProvider);
             _recorder.RecorderInput += Recorder_RecorderInput;
         }
 
@@ -57,17 +59,51 @@ namespace AudioCore.Layers
 
         private void Protocol_VoiceWindowReceive(object sender, VoiceWindowDataEventArgs e)
         {
-            float[] buffer = new float[e.data.Length / 4]; // 4 bytes per each float
-            for (int i = 0; i < buffer.Length; ++i)
-                buffer[i] = BitConverter.ToSingle(e.data, i * 4);
+            int srcBytes = e.bytesPerSample;
+            int dstBytes = _bufferedProvider.WaveFormat.BitsPerSample / 8;
 
-            _buffererProvider.AddSamples(buffer, e.samplingRate);
+            int size = SignalRateConverter.CalculateOutputBufferSize(e.data.Length,
+                                                                     e.bytesPerSample,
+                                                                     e.samplingRate,
+                                                                     dstBytes,
+                                                                     _bufferedProvider.WaveFormat.SampleRate);
+            byte[] dst = new byte[size];
+            SignalRateConverter.Convert(e.data,
+                                        e.samplingRate,
+                                        e.bytesPerSample,
+                                        dst,
+                                        _bufferedProvider.WaveFormat.SampleRate,
+                                        dstBytes);
+
+            float[] samples = new float[dst.Length / dstBytes * 2];
+            for (int i = 0; i < dst.Length / dstBytes; i++)
+            {
+                float sample = 0.0f;
+                if (dstBytes == 1)
+                    sample = dst[i] / 128.0f - 1.0f;
+
+                if (dstBytes == 2)
+                    sample = BitConverter.ToInt16(dst, i * sizeof(short));
+
+                if (dstBytes == 4)
+                    sample = BitConverter.ToInt32(dst, i * sizeof(int));
+
+                if (srcBytes == 2)
+                    sample /= short.MaxValue;
+
+                if (srcBytes == 4)
+                    sample /= int.MaxValue;
+
+                samples[(i * 2) + 0] = sample;
+                samples[(i * 2) + 1] = sample;
+            }
+
+            _bufferedProvider.AddSamples(samples, _bufferedProvider.WaveFormat.SampleRate);
         }
 
-        private void Recorder_RecorderInput(object sender, NAudio.Wave.WaveInEventArgs e)
+        private void Recorder_RecorderInput(object sender, RecoderInputEventArgs e)
         {
-            //UNDONE: buffer is not completely full!
-            _protocol.SendVoiceWindow(e.Buffer);
+            _protocol.SendVoiceWindow(e.Format.SampleRate, e.Format.BitsPerSample / 8, e.Buffer.Take(e.BytesRecorded).ToArray());
         }
     }
 }

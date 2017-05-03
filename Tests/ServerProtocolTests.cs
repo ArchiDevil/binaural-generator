@@ -235,7 +235,7 @@ namespace Tests
                 voiceData[i] = (byte)i;
 
             Assert.IsTrue(isConnected.WaitOne(waitingTimeout));
-            Assert.IsTrue(serverProtocol.SendVoiceWindow(voiceData));
+            Assert.IsTrue(serverProtocol.SendVoiceWindow(8000, 1, voiceData));
             Thread.Sleep(200);
 
             // check received packets
@@ -273,8 +273,8 @@ namespace Tests
             for (int i = 0; i < voiceData.Length; ++i)
                 voiceData[i] = (byte)i;
 
-            Assert.IsFalse(serverProtocol.SendVoiceWindow(null));
-            Assert.IsFalse(serverProtocol.SendVoiceWindow(voiceData));
+            Assert.IsFalse(serverProtocol.SendVoiceWindow(8000, 1, null));
+            Assert.IsFalse(serverProtocol.SendVoiceWindow(8000, 1, voiceData));
         }
 
         [TestMethod]
@@ -419,7 +419,7 @@ namespace Tests
                 voiceData[i] = (byte)i;
 
             // create chat message packet
-            VoiceWindowDataEventArgs sentArgs = new VoiceWindowDataEventArgs { data = voiceData };
+            VoiceWindowDataEventArgs sentArgs = new VoiceWindowDataEventArgs(8000, 1, voiceData);
             ProtocolPacket packet = new ProtocolPacket()
             {
                 packetType = ProtocolPacketType.VoiceWindowPacket,

@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioPrimitives\SignalRateConverter.cs" />
     <Compile Include="Layers\ClientAudioLayer.cs" />
     <Compile Include="Layers\LocalAudioLayer.cs" />
     <Compile Include="Layers\RecordedAudioLayer.cs" />
