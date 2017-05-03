@@ -43,10 +43,7 @@ namespace ExperimenterUI
             private set { _signalModelNames = value; RaisePropertyChanged(); }
         }
 
-        public bool IsConnected
-        {
-            get { return _connectionStatus == ConnectionStatus.Connected; }
-        }
+        public bool IsConnected => _connectionStatus == ConnectionStatus.Connected;
 
         public TimeSpan SessionTime { get; private set; } = new TimeSpan(0, 0, 0);
         public string SubjectName { get; } = "";
@@ -59,6 +56,33 @@ namespace ExperimenterUI
         {
             get { return _currentSignal; }
             private set { _currentSignal = value; RaisePropertyChanged(); }
+        }
+
+        public bool VoiceEnabled
+        {
+            get { return _audioLayer != null ? _audioLayer.RecordingEnabled : false; }
+
+            set
+            {
+                if (_audioLayer != null)
+                {
+                    _audioLayer.RecordingEnabled = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        public bool SubjectVoiceEnabled
+        {
+            get { return _audioLayer != null ? _audioLayer.PlaybackEnabled : false; }
+            set
+            {
+                if(_audioLayer != null)
+                {
+                    _audioLayer.PlaybackEnabled = value;
+                    RaisePropertyChanged();
+                }
+            }
         }
 
         public event ClientProtocol.ChatMessageReceiveHandler ChatMessageReceived = delegate { };
