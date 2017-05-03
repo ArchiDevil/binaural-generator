@@ -55,7 +55,7 @@ namespace AudioCore.SampleProviders
                 double leftSampleValue = 0.0;
                 double rightSampleValue = 0.0;
 
-                double multiple = UtilFuncs.TwoPi / WaveFormat.SampleRate;
+                double multiple = 2.0 * Math.PI / WaveFormat.SampleRate;
 
                 foreach (var signal in _channelSignals)
                 {

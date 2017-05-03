@@ -1,10 +1,5 @@
 ﻿namespace AudioCore.AudioPrimitives
 {
-    internal static class UtilFuncs
-    {
-        internal static double TwoPi = 2 * 3.14159265;
-    }
-
     public class BasicSignalModel
     {
         public double Difference { get; set; } = 0.0;
