@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:BWGenerator"
         mc:Ignorable="d"
         Title="Signal properties" Width="250" WindowStyle="ToolWindow" ResizeMode="NoResize" SizeToContent="Height">
     <Window.Resources>
@@ -13,7 +12,7 @@
 
         <Style TargetType="TextBlock">
             <Setter Property="Margin" Value="5"/>
-            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Padding" Value="2"/>
         </Style>
 
         <Style TargetType="TextBox">
@@ -22,7 +21,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition/>
@@ -33,18 +32,23 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         
         <TextBlock Text="Name: " Grid.Column="0" Grid.Row="0"/>
-        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding signalName}"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SignalName}"/>
         
-        <TextBlock Text="Start time:" Grid.Row="1" Grid.Column="0"/>
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding startTimeSeconds}"/>
+        <TextBlock Text="From:" Grid.Row="1" Grid.Column="0"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding StartTimeSeconds}"/>
         <TextBlock Text="sec" Grid.Row="1" Grid.Column="2"/>
 
-        <TextBlock Text="End time:" Grid.Row="2" Grid.Column="0"/>
-        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding endTimeSeconds}"/>
+        <TextBlock Text="To:" Grid.Row="2" Grid.Column="0"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding EndTimeSeconds}"/>
         <TextBlock Text="sec" Grid.Row="2" Grid.Column="2"/>
+
+        <TextBlock Text="Duration:" Grid.Row="3" Grid.Column="0"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Duration}"/>
+        <TextBlock Text="sec" Grid.Row="3" Grid.Column="2"/>
 
         <Button Content="Close" Grid.Row="4" Grid.ColumnSpan="4" HorizontalAlignment="Center" Padding="20 3 20 3" Click="Button_Click"/>
     </Grid>

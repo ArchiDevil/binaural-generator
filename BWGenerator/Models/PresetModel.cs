@@ -1,25 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SharedLibrary.Models;
 
 namespace BWGenerator.Models
 {
-    public class SignalPoint
+    public class BaseDataPoint
     {
-        public double Time { get; set; }
-        public double DifferenceValue { get; set; }
-        public double CarrierValue { get; set; }
-        public double VolumeValue { get; set; }
+        public double Time { get; set; } = 0.0;
+    }
+
+    public class SignalDataPoint : BaseDataPoint
+    {
+        public double DifferenceValue { get; set; } = 8.0;
+        public double CarrierValue { get; set; } = 440.0;
+        public double VolumeValue { get; set; } = 50.0;
     }
 
     public class Signal : ModelBase
     {
         public Signal()
         {
-            points = new SignalPoint[2];
-            points[0] = new SignalPoint { Time = 0.0, DifferenceValue = 8.0, CarrierValue = 330.0, VolumeValue = 80.0 };
-            points[1] = new SignalPoint { Time = 30.0, DifferenceValue = 10.0, CarrierValue = 440.0, VolumeValue = 100.0 };
+            points = new List<SignalDataPoint>(2)
+            {
+                new SignalDataPoint { Time = 0.0, DifferenceValue = 8.0, CarrierValue = 330.0, VolumeValue = 50.0 },
+                new SignalDataPoint { Time = 30.0, DifferenceValue = 10.0, CarrierValue = 440.0, VolumeValue = 75.0 }
+            };
         }
 
         private string name = "";
@@ -30,14 +37,13 @@ namespace BWGenerator.Models
             set { name = value; RaisePropertyChanged(); }
         }
 
-        public SignalPoint[] points = null;
+        public List<SignalDataPoint> points = null;
     }
 
-    public class NoisePoint
+    public class NoiseDataPoint : BaseDataPoint
     {
-        public double Time { get; set; }
-        public double SmoothnessValue { get; set; }
-        public double VolumeValue { get; set; }
+        public double SmoothnessValue { get; set; } = 0.9;
+        public double VolumeValue { get; set; } = 75.0;
     }
 
     public class PresetModel : ModelBase
@@ -53,10 +59,12 @@ namespace BWGenerator.Models
             {
                 new Signal { Name = "Signal 1" }
             };
-            noisePoints = new NoisePoint[3];
-            noisePoints[0] = new NoisePoint { Time = 0.0, SmoothnessValue = 0.9, VolumeValue = 90.0 };
-            noisePoints[1] = new NoisePoint { Time = 15.0, SmoothnessValue = 0.86, VolumeValue = 85.0 };
-            noisePoints[2] = new NoisePoint { Time = 30.0, SmoothnessValue = 0.92, VolumeValue = 100.0 };
+            noisePoints = new List<NoiseDataPoint>(3)
+            {
+                new NoiseDataPoint { Time = 0.0, SmoothnessValue = 0.9, VolumeValue = 90.0 },
+                new NoiseDataPoint { Time = 15.0, SmoothnessValue = 0.86, VolumeValue = 85.0 },
+                new NoiseDataPoint { Time = 30.0, SmoothnessValue = 0.92, VolumeValue = 100.0 }
+            };
         }
 
         public string Name
@@ -92,13 +100,13 @@ namespace BWGenerator.Models
                         maxTime = signal.points.Last().Time;
                 }
                 int secondsTime = (int)(maxTime - minTime);
-                return new TimeSpan(secondsTime / 3600, secondsTime / 60 % 60, secondsTime % 60);
+                return new TimeSpan(0, 0, secondsTime);
             }
         }
 
         public ObservableCollection<Signal> Signals { get; set; }
 
-        public NoisePoint[] noisePoints = null;
+        public List<NoiseDataPoint> noisePoints = null;
 
         public string[] GraphsList
         {

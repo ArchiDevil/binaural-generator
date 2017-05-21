@@ -12,87 +12,83 @@ namespace BWGenerator
 {
     public partial class MainWindow : Window
     {
-        SignalPlotViewModel[] signalPlotModels = new SignalPlotViewModel[2];
-        NoisePlotViewModel noiseSmoothnessModel = null;
-        NoisePlotViewModel noiseVolumeModel = null;
+        EditablePlotViewModel<SignalDataPoint>[] signalPlotModels = new EditablePlotViewModel<SignalDataPoint>[2];
+        EditablePlotViewModel<NoiseDataPoint> noiseSmoothnessModel = null;
+        EditablePlotViewModel<NoiseDataPoint> noiseVolumeModel = null;
+        OverviewPlotViewModel overviewModel = null;
 
-        // SIGNAL GETTERS
-        public double SignalCarrierGetter(SignalPoint point)
+        public PresetModel Preset { get; set; }
+        public PlotController EditablePlotsController { get; set; } = new PlotController();
+        public PlotController OverviewPlotController { get; set; } = new PlotController();
+        // private Playback playback = null;
+
+        public double SignalCarrierGetter(BaseDataPoint point) => (point as SignalDataPoint).CarrierValue;
+        public double SignalDifferenceGetter(BaseDataPoint point) => (point as SignalDataPoint).DifferenceValue;
+        public double SignalVolumeGetter(BaseDataPoint point) => (point as SignalDataPoint).VolumeValue;
+        public double NoiseSmoothnessGetter(BaseDataPoint point) => (point as NoiseDataPoint).SmoothnessValue;
+        public double NoiseVolumeGetter(BaseDataPoint point) => (point as NoiseDataPoint).VolumeValue;
+
+        public void SignalCarrierSetter(BaseDataPoint point, double value)
         {
-            return point.CarrierValue;
+            (point as SignalDataPoint).CarrierValue = value;
         }
 
-        public double SignalDifferenceGetter(SignalPoint point)
+        public void SignalDifferenceSetter(BaseDataPoint point, double value)
         {
-            return point.DifferenceValue;
+            (point as SignalDataPoint).DifferenceValue = value;
         }
 
-        public double SignalVolumeGetter(SignalPoint point)
+        public void SignalVolumeSetter(BaseDataPoint point, double value)
         {
-            return point.VolumeValue;
+            (point as SignalDataPoint).VolumeValue = value;
         }
 
-        //SIGNAL SETTERS
-        public void SignalCarrierSetter(SignalPoint point, double value)
+        public void NoiseSmoothnessSetter(BaseDataPoint point, double value)
         {
-            point.CarrierValue = value;
+            (point as NoiseDataPoint).SmoothnessValue = value;
         }
 
-        public void SignalDifferenceSetter(SignalPoint point, double value)
+        public void NoiseVolumeSetter(BaseDataPoint point, double value)
         {
-            point.DifferenceValue = value;
+            (point as NoiseDataPoint).VolumeValue = value;
         }
 
-        public void SignalVolumeSetter(SignalPoint point, double value)
-        {
-            point.VolumeValue = value;
-        }
-
-        // NOISE GETTERS
-        public double NoiseSmoothnessGetter(NoisePoint point)
-        {
-            return point.SmoothnessValue;
-        }
-
-        public double NoiseVolumeGetter(NoisePoint point)
-        {
-            return point.VolumeValue;
-        }
-
-        // NOISE SETTERS
-        public void NoiseSmoothnessSetter(NoisePoint point, double value)
-        {
-            point.SmoothnessValue = value;
-        }
-
-        public void NoiseVolumeSetter(NoisePoint point, double value)
-        {
-            point.VolumeValue = value;
-        }
+        public BaseDataPoint SignalDataPointCreator(double time) => new SignalDataPoint { Time = time };
+        public BaseDataPoint NoiseDataPointCreator(double time) => new NoiseDataPoint { Time = time };
 
         public MainWindow()
         {
             InitializeComponent();
 
-            PlotsController = new PlotController();
-            PlotsController.UnbindMouseWheel();
-            PlotsController.UnbindMouseDown(OxyMouseButton.Left);
-            PlotsController.UnbindMouseDown(OxyMouseButton.Right);
+            EditablePlotsController.UnbindMouseWheel();
+            EditablePlotsController.UnbindMouseDown(OxyMouseButton.Left);
+            EditablePlotsController.UnbindMouseDown(OxyMouseButton.Right);
 
-            Plot1.Controller = PlotsController;
-            Plot2.Controller = PlotsController;
-            NoiseSmoothnessPlot.Controller = PlotsController;
-            NoiseVolumePlot.Controller = PlotsController;
+            OverviewPlotController.UnbindMouseDown(OxyMouseButton.Left);
+
+            Plot1.Controller = EditablePlotsController;
+            Plot2.Controller = EditablePlotsController;
+            NoiseSmoothnessPlot.Controller = EditablePlotsController;
+            NoiseVolumePlot.Controller = EditablePlotsController;
+            OverviewPlot.Controller = OverviewPlotController;
 
             Preset = new PresetModel();
 
             DataContext = Preset;
             // playback = new Playback(new ModelledSampleProvider());
-        }
 
-        public PresetModel Preset { get; set; }
-        public PlotController PlotsController { get; set; }
-        // private Playback playback = null;
+            noiseSmoothnessModel = new EditablePlotViewModel<NoiseDataPoint>(Preset.noisePoints, NoiseSmoothnessGetter, NoiseSmoothnessSetter, NoiseDataPointCreator);
+            noiseVolumeModel = new EditablePlotViewModel<NoiseDataPoint>(Preset.noisePoints, NoiseVolumeGetter, NoiseVolumeSetter, NoiseDataPointCreator);
+
+            NoiseSmoothnessPlot.Model = noiseSmoothnessModel.Model;
+            noiseSmoothnessModel.PointsUpdated += InvalidateNoisePlots;
+
+            NoiseVolumePlot.Model = noiseVolumeModel.Model;
+            noiseVolumeModel.PointsUpdated += InvalidateNoisePlots;
+
+            overviewModel = new OverviewPlotViewModel(Preset, SignalCarrierGetter);
+            OverviewPlot.Model = overviewModel.Model;
+        }
 
         void SelectSignal(int signalId)
         {
@@ -101,36 +97,28 @@ namespace BWGenerator
 
             SelectModel((Graphs)Plot1Type.SelectedIndex, Plot1, 0, signalId);
             SelectModel((Graphs)Plot2Type.SelectedIndex, Plot2, 1, signalId);
-
-            //TODO: should be done once =)
-            noiseSmoothnessModel = new NoisePlotViewModel(Preset, NoiseSmoothnessGetter, NoiseSmoothnessSetter);
-            noiseVolumeModel = new NoisePlotViewModel(Preset, NoiseVolumeGetter, NoiseVolumeSetter);
-
-            NoiseSmoothnessPlot.Model = noiseSmoothnessModel.Model;
-            NoiseVolumePlot.Model = noiseVolumeModel.Model;
         }
 
         void SelectModel(Graphs type, PlotView plot, int modelIndex, int signalId)
         {
-            SignalPlotViewModel newModel = null;
+            EditablePlotViewModel<SignalDataPoint> newModel = null;
 
-            switch (type)
-            {
-                case Graphs.Carrier:
-                    newModel = new SignalPlotViewModel(Preset.Signals[signalId], SignalCarrierGetter);
-                    break;
-                case Graphs.Difference:
-                    newModel = new SignalPlotViewModel(Preset.Signals[signalId], SignalDifferenceGetter);
-                    break;
-                case Graphs.Volume:
-                    newModel = new SignalPlotViewModel(Preset.Signals[signalId], SignalVolumeGetter);
-                    break;
-                default:
-                    throw new InvalidCastException();
-            }
+            if (type == Graphs.Carrier)
+                newModel = new EditablePlotViewModel<SignalDataPoint>(Preset.Signals[signalId].points, SignalCarrierGetter, SignalCarrierSetter, SignalDataPointCreator);
+            else if (type == Graphs.Difference)
+                newModel = new EditablePlotViewModel<SignalDataPoint>(Preset.Signals[signalId].points, SignalDifferenceGetter, SignalDifferenceSetter, SignalDataPointCreator);
+            else if (type == Graphs.Volume)
+                newModel = new EditablePlotViewModel<SignalDataPoint>(Preset.Signals[signalId].points, SignalVolumeGetter, SignalVolumeSetter, SignalDataPointCreator);
+            else
+                throw new InvalidCastException();
+
+            if (signalPlotModels[modelIndex] != null)
+                signalPlotModels[modelIndex].PointsUpdated -= InvalidateSignalPlots;
 
             signalPlotModels[modelIndex] = newModel;
             plot.Model = newModel.Model;
+
+            newModel.PointsUpdated += InvalidateSignalPlots;
         }
 
         private void Play_Click(object sender, RoutedEventArgs e)
@@ -150,7 +138,7 @@ namespace BWGenerator
 
         private void AddSignalButton_Click(object sender, RoutedEventArgs e)
         {
-            int signalsCount = Preset.Signals.Count();
+            int signalsCount = Preset.Signals.Count + 1;
             Preset.Signals.Add(new Signal { Name = "Signal " + signalsCount.ToString() });
             PresetSignalsComboBox.SelectedIndex = Preset.Signals.Count - 1;
         }
@@ -173,11 +161,8 @@ namespace BWGenerator
 
             SignalPropertiesWindow window = new SignalPropertiesWindow(Preset.Signals[selectedIndex]);
             window.ShowDialog();
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
+            InvalidateSignalPlots(this, null);
+            InvalidateNoisePlots(this, null);
         }
 
         private void PresetSignalsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -201,6 +186,33 @@ namespace BWGenerator
                 return;
 
             SelectModel((Graphs)Plot2Type.SelectedIndex, Plot2, 1, signalId);
+        }
+
+        private void MenuExit_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void PresetSignalsComboBox_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            ComboBox target = sender as ComboBox;
+            PresetModel value = e.NewValue as PresetModel;
+            if (value.Signals.Count > 0)
+                target.SelectedIndex = 0;
+        }
+
+        private void InvalidateSignalPlots(object sender, EventArgs e)
+        {
+            foreach (var model in signalPlotModels)
+                model.InvalidateGraphs();
+            overviewModel.InvalidateGraphs();
+        }
+
+        private void InvalidateNoisePlots(object sender, EventArgs e)
+        {
+            noiseSmoothnessModel.InvalidateGraphs();
+            noiseVolumeModel.InvalidateGraphs();
+            overviewModel.InvalidateGraphs();
         }
     }
 }

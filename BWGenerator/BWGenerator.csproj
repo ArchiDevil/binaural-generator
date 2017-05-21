@@ -82,8 +82,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\NoisePlotViewModel.cs" />
-    <Compile Include="Models\SignalPlotViewModel.cs" />
+    <Compile Include="Models\EditablePlotViewModel.cs" />
+    <Compile Include="Models\OverviewPlotViewModel.cs" />
     <Compile Include="Models\SignalViewModel.cs" />
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

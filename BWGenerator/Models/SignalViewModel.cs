@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using SharedLibrary.Models;
 
 namespace BWGenerator.Models
@@ -9,7 +10,7 @@ namespace BWGenerator.Models
         {
             get
             {
-                return (currentSignal.points.Count() > 0) ? (int)currentSignal.points.First().Time : 0;
+                return (currentSignal.points.Count > 0) ? (int)currentSignal.points.First().Time : 0;
             }
             set
             {
@@ -17,15 +18,16 @@ namespace BWGenerator.Models
                     return;
 
                 currentSignal.points[0].Time = value;
-                for (int i = 1; i < currentSignal.points.Count(); i++)
+                for (int i = 1; i < currentSignal.points.Count; i++)
                 {
                     if (value > currentSignal.points[i].Time)
                     {
-                        SharedLibrary.SharedFuncs.RemoveFromArrayByIndex(ref currentSignal.points, i);
+                        currentSignal.points.RemoveAt(i);
                     }
                 }
 
                 RaisePropertyChanged();
+                RaisePropertyChanged("Duration");
             }
         }
 
@@ -33,23 +35,24 @@ namespace BWGenerator.Models
         {
             get
             {
-                return (currentSignal.points.Count() > 0) ? (int)currentSignal.points.Last().Time : 0;
+                return (currentSignal.points.Count > 0) ? (int)currentSignal.points.Last().Time : 0;
             }
             set
             {
                 if (value < 0.0 || value < StartTimeSeconds)
                     return;
 
-                currentSignal.points[currentSignal.points.Count() - 1].Time = value;
-                for (int i = 0; i < currentSignal.points.Count() - 1; i++)
+                currentSignal.points[currentSignal.points.Count - 1].Time = value;
+                for (int i = 0; i < currentSignal.points.Count - 1; i++)
                 {
                     if (value < currentSignal.points[i].Time)
                     {
-                        SharedLibrary.SharedFuncs.RemoveFromArrayByIndex(ref currentSignal.points, i);
+                        currentSignal.points.RemoveAt(i);
                     }
                 }
 
                 RaisePropertyChanged();
+                RaisePropertyChanged("Duration");
             }
         }
 
@@ -64,6 +67,11 @@ namespace BWGenerator.Models
                 currentSignal.Name = value;
                 RaisePropertyChanged();
             }
+        }
+
+        public TimeSpan Duration
+        {
+            get { return new TimeSpan(0, 0, EndTimeSeconds - StartTimeSeconds); }
         }
 
         private Signal currentSignal = null;

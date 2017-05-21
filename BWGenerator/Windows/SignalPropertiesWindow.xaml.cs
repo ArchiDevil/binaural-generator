@@ -10,6 +10,7 @@ namespace BWGenerator
     public partial class SignalPropertiesWindow : Window
     {
         SignalViewModel viewModel = null;
+
         public SignalPropertiesWindow(Signal currentSignal)
         {
             InitializeComponent();
