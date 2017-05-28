@@ -2,11 +2,8 @@
 
 namespace AudioCore.SampleProviders
 {
-    internal abstract class SampleProvider : ISampleProvider
+    public abstract class SampleProvider : ISampleProvider
     {
-        protected int _nSample = 0;
-        protected double _time = 0.0; // time in seconds
-
         internal float Gain { get; set; } = 1.0f;
 
         internal SampleProvider()

@@ -3,13 +3,15 @@ using AudioCore.AudioPrimitives;
 
 namespace AudioCore.SampleProviders
 {
-    internal class ConstantSampleProvider : SampleProvider
+    internal sealed class ConstantSampleProvider : SampleProvider
     {
         private BasicSignalModel[] _channelSignals = null;
         private BasicNoiseModel _noiseSignal = null;
         private double _lastSmoothness; // it's in indeterminate state to create generator on first use
         private double _previousLeftValue = 0.0;
         private double _previousRightValue = 0.0;
+        private ulong _nSample = 0;
+        private double _time = 0.0; // time in seconds
 
         internal ConstantSampleProvider() : base()
         {
@@ -34,8 +36,7 @@ namespace AudioCore.SampleProviders
 
         public override int Read(float[] buffer, int offset, int count)
         {
-            for (int i = offset; i < offset + count; ++i)
-                buffer[i] = 0.0f;
+            Array.Clear(buffer, offset, count);
 
             int signalSamplesCount = ReadSignals(buffer, offset, count);
             int noiseSamplesCount = ReadNoise(buffer, offset, count);

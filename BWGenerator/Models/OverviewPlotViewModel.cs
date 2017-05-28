@@ -2,6 +2,8 @@
 using OxyPlot.Axes;
 using OxyPlot.Series;
 
+using SharedLibrary.Code;
+
 namespace BWGenerator.Models
 {
     public sealed class OverviewPlotViewModel

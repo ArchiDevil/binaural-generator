@@ -2,22 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+
+using SharedLibrary;
+using SharedLibrary.Code;
 using SharedLibrary.Models;
+
+using AudioCore.SampleProviders;
 
 namespace BWGenerator.Models
 {
-    public class BaseDataPoint
-    {
-        public double Time { get; set; } = 0.0;
-    }
-
-    public class SignalDataPoint : BaseDataPoint
-    {
-        public double DifferenceValue { get; set; } = 8.0;
-        public double CarrierValue { get; set; } = 440.0;
-        public double VolumeValue { get; set; } = 50.0;
-    }
-
     public class Signal : ModelBase
     {
         public Signal()
@@ -40,16 +33,12 @@ namespace BWGenerator.Models
         public List<SignalDataPoint> points = null;
     }
 
-    public class NoiseDataPoint : BaseDataPoint
-    {
-        public double SmoothnessValue { get; set; } = 0.9;
-        public double VolumeValue { get; set; } = 75.0;
-    }
-
     public class PresetModel : ModelBase
     {
         private string name = "";
         private string description = "";
+        private string statusMessage = string.Empty;
+
 
         public PresetModel()
         {
@@ -59,7 +48,7 @@ namespace BWGenerator.Models
             {
                 new Signal { Name = "Signal 1" }
             };
-            noisePoints = new List<NoiseDataPoint>(3)
+            NoisePoints = new List<NoiseDataPoint>(3)
             {
                 new NoiseDataPoint { Time = 0.0, SmoothnessValue = 0.9, VolumeValue = 90.0 },
                 new NoiseDataPoint { Time = 15.0, SmoothnessValue = 0.86, VolumeValue = 85.0 },
@@ -104,9 +93,23 @@ namespace BWGenerator.Models
             }
         }
 
+        public string StatusMessage
+        {
+            get
+            {
+                return statusMessage;
+            }
+
+            set
+            {
+                statusMessage = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public ObservableCollection<Signal> Signals { get; set; }
 
-        public List<NoiseDataPoint> noisePoints = null;
+        public List<NoiseDataPoint> NoisePoints { get; set; } = null;
 
         public string[] GraphsList
         {
@@ -114,6 +117,23 @@ namespace BWGenerator.Models
             {
                 return Enum.GetNames(typeof(Graphs));
             }
+        }
+
+        public void ExportPresetAsWAV(string filename)
+        {
+            // saving as 16-bit file by default
+            ModelledSampleProvider provider = new ModelledSampleProvider(Signals.Select(x => x.points).ToList(), NoisePoints);
+
+            int samplingRate = provider.WaveFormat.SampleRate;
+            ulong samplesCount = (ulong)TotalLength.Seconds * (ulong)samplingRate * 2UL;
+
+            float[] providerContent = new float[samplesCount];
+            provider.Read(providerContent, 0, (int)samplesCount);
+
+            short[] content = providerContent.Select(x => (short)(x * short.MaxValue)).ToArray();
+            WavFile.Save(filename, content);
+
+            StatusMessage = System.IO.Path.GetFileName(filename) + " saved successfully";
         }
     }
 

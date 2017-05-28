@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace AudioCore.SampleProviders
 {
-    internal class BufferedProvider : SampleProvider
+    internal sealed class BufferedProvider : SampleProvider
     {
         private List<float> _buffer = null;
         private int _sampleRate = 0;
@@ -27,8 +27,7 @@ namespace AudioCore.SampleProviders
             if (count > _buffer.Count)
             {
                 _buffer.CopyTo(0, buffer, offset, _buffer.Count);
-                for (int i = 0; i < count - _buffer.Count; ++i)
-                    buffer[i + offset + _buffer.Count] = 0.0f;
+                Array.Clear(buffer, offset + _buffer.Count, count - _buffer.Count);
                 _buffer.Clear();
             }
             else

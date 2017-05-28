@@ -5,7 +5,7 @@ using NAudio.Wave;
 
 namespace AudioCore.SampleProviders
 {
-    internal class MixerProvider : SampleProvider
+    internal sealed class MixerProvider : SampleProvider
     {
         private WaveFormat waveFormat = null;
         List<SampleProvider> providers = null;
@@ -35,8 +35,7 @@ namespace AudioCore.SampleProviders
 
         public override int Read(float[] buffer, int offset, int count)
         {
-            for(int i = offset; i < offset + count; ++i)
-                buffer[i] = 0.0f;
+            Array.Clear(buffer, offset, count);
 
             foreach (var provider in providers)
             {

@@ -5,8 +5,12 @@ using System.Windows.Controls;
 
 using BWGenerator.Models;
 
+using Microsoft.Win32;
+
 using OxyPlot;
 using OxyPlot.Wpf;
+
+using SharedLibrary.Code;
 
 namespace BWGenerator
 {
@@ -77,8 +81,8 @@ namespace BWGenerator
             DataContext = Preset;
             // playback = new Playback(new ModelledSampleProvider());
 
-            noiseSmoothnessModel = new EditablePlotViewModel<NoiseDataPoint>(Preset.noisePoints, NoiseSmoothnessGetter, NoiseSmoothnessSetter, NoiseDataPointCreator);
-            noiseVolumeModel = new EditablePlotViewModel<NoiseDataPoint>(Preset.noisePoints, NoiseVolumeGetter, NoiseVolumeSetter, NoiseDataPointCreator);
+            noiseSmoothnessModel = new EditablePlotViewModel<NoiseDataPoint>(Preset.NoisePoints, NoiseSmoothnessGetter, NoiseSmoothnessSetter, NoiseDataPointCreator);
+            noiseVolumeModel = new EditablePlotViewModel<NoiseDataPoint>(Preset.NoisePoints, NoiseVolumeGetter, NoiseVolumeSetter, NoiseDataPointCreator);
 
             NoiseSmoothnessPlot.Model = noiseSmoothnessModel.Model;
             noiseSmoothnessModel.PointsUpdated += InvalidateNoisePlots;
@@ -159,7 +163,7 @@ namespace BWGenerator
             if (selectedIndex < 0)
                 return;
 
-            SignalPropertiesWindow window = new SignalPropertiesWindow(Preset.Signals[selectedIndex]);
+            SignalPropertiesWindow window = new SignalPropertiesWindow(Preset.Signals[selectedIndex], Preset.NoisePoints);
             window.ShowDialog();
             InvalidateSignalPlots(this, null);
             InvalidateNoisePlots(this, null);
@@ -213,6 +217,21 @@ namespace BWGenerator
             noiseSmoothnessModel.InvalidateGraphs();
             noiseVolumeModel.InvalidateGraphs();
             overviewModel.InvalidateGraphs();
+        }
+
+        private void ExportMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveDialog = new SaveFileDialog()
+            {
+                AddExtension = true,
+                Filter = "WAV file (*.wav)|*.wav",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
+
+            if (saveDialog.ShowDialog(this) == true)
+            {
+                Preset.ExportPresetAsWAV(saveDialog.FileName);
+            }
         }
     }
 }

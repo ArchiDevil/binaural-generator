@@ -40,6 +40,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
         <Menu Background="White">
@@ -50,7 +51,7 @@
                 <MenuItem Header="Save" IsEnabled="False"/>
                 <MenuItem Header="Save as..." IsEnabled="False"/>
                 <Separator/>
-                <MenuItem Header="Export as WAV file..." IsEnabled="False"/>
+                <MenuItem x:Name="ExportMenuItem" Header="Export as WAV file..." Click="ExportMenuItem_Click"/>
                 <Separator/>
                 <MenuItem Header="Exit" Click="MenuExit_Click"/>
             </MenuItem>
@@ -74,7 +75,7 @@
                     <TextBox Grid.Column="1" Text="{Binding Name}"/>
 
                     <TextBlock Text="Description:" Grid.Row="1"/>
-                    <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Description}" AcceptsReturn="True"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Description}" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap"/>
 
                     <TextBlock Text="Summary: " Grid.Row="2" Grid.Column="0"/>
                     <Grid Grid.Row="2" Grid.Column="1">
@@ -194,5 +195,19 @@
                 </Grid>
             </TabItem>
         </TabControl>
+
+        <StatusBar Grid.Row="2" Background="White">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <TextBlock Margin="0" Padding="3,0,0,0" Text="{Binding StatusMessage}"/>
+        </StatusBar>
     </Grid>
 </Window>

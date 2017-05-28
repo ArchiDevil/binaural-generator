@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+
+using SharedLibrary.Code;
 using SharedLibrary.Models;
 
 namespace BWGenerator.Models
@@ -10,19 +13,28 @@ namespace BWGenerator.Models
         {
             get
             {
-                return (currentSignal.points.Count > 0) ? (int)currentSignal.points.First().Time : 0;
+                return (int)currentSignal.points.FirstOrDefault().Time;
             }
             set
             {
                 if (value < 0.0 || value > EndTimeSeconds)
                     return;
 
-                currentSignal.points[0].Time = value;
+                currentSignal.points.FirstOrDefault().Time = value;
                 for (int i = 1; i < currentSignal.points.Count; i++)
                 {
                     if (value > currentSignal.points[i].Time)
                     {
                         currentSignal.points.RemoveAt(i);
+                    }
+                }
+
+                noisePoints.FirstOrDefault().Time = value;
+                for (int i = 1; i < noisePoints.Count; i++)
+                {
+                    if (value > noisePoints[i].Time)
+                    {
+                        noisePoints.RemoveAt(i);
                     }
                 }
 
@@ -35,19 +47,28 @@ namespace BWGenerator.Models
         {
             get
             {
-                return (currentSignal.points.Count > 0) ? (int)currentSignal.points.Last().Time : 0;
+                return (int)currentSignal.points.LastOrDefault().Time;
             }
             set
             {
                 if (value < 0.0 || value < StartTimeSeconds)
                     return;
 
-                currentSignal.points[currentSignal.points.Count - 1].Time = value;
+                currentSignal.points.LastOrDefault().Time = value;
                 for (int i = 0; i < currentSignal.points.Count - 1; i++)
                 {
                     if (value < currentSignal.points[i].Time)
                     {
                         currentSignal.points.RemoveAt(i);
+                    }
+                }
+
+                noisePoints.LastOrDefault().Time = value;
+                for (int i = 0; i < noisePoints.Count - 1; i++)
+                {
+                    if (value < noisePoints[i].Time)
+                    {
+                        noisePoints.RemoveAt(i);
                     }
                 }
 
@@ -75,10 +96,12 @@ namespace BWGenerator.Models
         }
 
         private Signal currentSignal = null;
+        private List<NoiseDataPoint> noisePoints = null;
 
-        public SignalViewModel(Signal currentSignal)
+        public SignalViewModel(Signal currentSignal, List<NoiseDataPoint> noisePoints)
         {
             this.currentSignal = currentSignal;
+            this.noisePoints = noisePoints;
         }
     }
 }

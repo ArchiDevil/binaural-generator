@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 
 using BWGenerator.Models;
+using SharedLibrary.Code;
 
 namespace BWGenerator
 {
@@ -11,10 +13,10 @@ namespace BWGenerator
     {
         SignalViewModel viewModel = null;
 
-        public SignalPropertiesWindow(Signal currentSignal)
+        public SignalPropertiesWindow(Signal currentSignal, List<NoiseDataPoint> noiseDataPoints)
         {
             InitializeComponent();
-            viewModel = new SignalViewModel(currentSignal);
+            viewModel = new SignalViewModel(currentSignal, noiseDataPoints);
             DataContext = viewModel;
         }
 

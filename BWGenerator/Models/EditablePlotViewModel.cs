@@ -5,6 +5,8 @@ using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 
+using SharedLibrary.Code;
+
 namespace BWGenerator.Models
 {
     public sealed class EditablePlotViewModel<T> where T : BaseDataPoint
@@ -65,7 +67,7 @@ namespace BWGenerator.Models
                 Position = AxisPosition.Bottom,
             });
 
-            var s1 = new LineSeries
+            currentSerie = new LineSeries
             {
                 Color = OxyColors.DarkTurquoise,
                 MarkerType = MarkerType.Triangle,
@@ -76,13 +78,12 @@ namespace BWGenerator.Models
             };
 
             foreach (var point in dataPoints)
-                s1.Points.Add(new DataPoint(point.Time, getter(point)));
+                currentSerie.Points.Add(new DataPoint(point.Time, getter(point)));
 
-            model.Series.Add(s1);
-            s1.MouseDown += MouseDownHandler;
-            s1.MouseMove += MouseMoveHandler;
-            s1.MouseUp += MouseUpHandler;
-            currentSerie = s1;
+            model.Series.Add(currentSerie);
+            currentSerie.MouseDown += MouseDownHandler;
+            currentSerie.MouseMove += MouseMoveHandler;
+            currentSerie.MouseUp += MouseUpHandler;
             return model;
         }
 
