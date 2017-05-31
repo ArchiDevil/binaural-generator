@@ -5,6 +5,8 @@ namespace SharedLibrary
 {
     public class WavFile
     {
+        public static int HeaderSize { get => Marshal.SizeOf<WavHeader>(); }
+
         [StructLayout(LayoutKind.Sequential)]
         // Структура, описывающая заголовок WAV файла.
         private struct WavHeader

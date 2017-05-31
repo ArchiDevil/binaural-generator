@@ -8,6 +8,7 @@ using SharedLibrary.Code;
 using SharedLibrary.Models;
 
 using AudioCore.SampleProviders;
+using System.Threading.Tasks;
 
 namespace BWGenerator.Models
 {
@@ -35,10 +36,17 @@ namespace BWGenerator.Models
 
     public class PresetModel : ModelBase
     {
+        public class ProgressUpdatedEventArgs : EventArgs
+        {
+            public int Progress { get; set; }
+        }
+
+        public delegate void ProgressUpdateDelegate(object sender, ProgressUpdatedEventArgs e);
+        public event ProgressUpdateDelegate OnExportProgressUpdated = null;
+
         private string name = "";
         private string description = "";
         private string statusMessage = string.Empty;
-
 
         public PresetModel()
         {
@@ -119,21 +127,48 @@ namespace BWGenerator.Models
             }
         }
 
-        public void ExportPresetAsWAV(string filename)
+        public Task<bool> ExportPresetAsync(string filename)
         {
-            // saving as 16-bit file by default
-            ModelledSampleProvider provider = new ModelledSampleProvider(Signals.Select(x => x.points).ToList(), NoisePoints);
+            var task = new Task<bool>(() =>
+            {
+                try
+                {
+                    OnExportProgressUpdated?.Invoke(this, new ProgressUpdatedEventArgs { Progress = 0 });
 
-            int samplingRate = provider.WaveFormat.SampleRate;
-            ulong samplesCount = (ulong)TotalLength.Seconds * (ulong)samplingRate * 2UL;
+                    // saving as 16-bit file by default
+                    ModelledSampleProvider provider = new ModelledSampleProvider(Signals.Select(x => x.points).ToList(), NoisePoints);
 
-            float[] providerContent = new float[samplesCount];
-            provider.Read(providerContent, 0, (int)samplesCount);
+                    int samplingRate = provider.WaveFormat.SampleRate;
+                    ulong samplesCount = (ulong)TotalLength.TotalSeconds * (ulong)samplingRate * 2UL;
 
-            short[] content = providerContent.Select(x => (short)(x * short.MaxValue)).ToArray();
-            WavFile.Save(filename, content);
+                    if (samplesCount > int.MaxValue)
+                        return false;
 
-            StatusMessage = System.IO.Path.GetFileName(filename) + " saved successfully";
+                    OnExportProgressUpdated?.Invoke(this, new ProgressUpdatedEventArgs { Progress = 5 });
+
+                    float[] providerContent = new float[samplesCount];
+                    provider.Read(providerContent, 0, (int)samplesCount);
+
+                    OnExportProgressUpdated?.Invoke(this, new ProgressUpdatedEventArgs { Progress = 50 });
+
+                    short[] content = new short[samplesCount];
+                    for (ulong i = 0; i < samplesCount; ++i)
+                        content[i] = (short)(providerContent[i] * short.MaxValue);
+                    WavFile.Save(filename, content);
+
+                    OnExportProgressUpdated?.Invoke(this, new ProgressUpdatedEventArgs { Progress = 100 });
+
+                    StatusMessage = System.IO.Path.GetFileName(filename) + " saved successfully";
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            });
+
+            task.Start();
+            return task;
         }
     }
 

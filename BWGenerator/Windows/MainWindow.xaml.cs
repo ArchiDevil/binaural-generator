@@ -221,17 +221,8 @@ namespace BWGenerator
 
         private void ExportMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveDialog = new SaveFileDialog()
-            {
-                AddExtension = true,
-                Filter = "WAV file (*.wav)|*.wav",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-            };
-
-            if (saveDialog.ShowDialog(this) == true)
-            {
-                Preset.ExportPresetAsWAV(saveDialog.FileName);
-            }
+            ExportWindow dialog = new ExportWindow(Preset);
+            dialog.ShowDialog();
         }
     }
 }

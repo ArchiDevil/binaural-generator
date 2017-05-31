@@ -50,6 +50,6 @@
         <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Duration}"/>
         <TextBlock Text="sec" Grid.Row="3" Grid.Column="2"/>
 
-        <Button Content="Close" Grid.Row="4" Grid.ColumnSpan="4" HorizontalAlignment="Center" Padding="20 3 20 3" Click="Button_Click"/>
+        <Button Content="Close" Grid.Row="4" Grid.ColumnSpan="4" HorizontalAlignment="Center" Padding="20 2 20 2" Click="Button_Click"/>
     </Grid>
 </Window>
