@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:BWSitterGenerator"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:SharedLibrary="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
         mc:Ignorable="d"
@@ -14,10 +13,6 @@
         <sys:String x:Key="CarrierString">Tone, Hz</sys:String>
         <sys:String x:Key="FreqString">Diff, Hz</sys:String>
         <sys:String x:Key="SmoothString">Smoothness</sys:String>
-
-        <Style TargetType="Button">
-            <Setter Property="Margin" Value="5"/>
-        </Style>
 
         <Style TargetType="TextBlock">
             <Setter Property="Margin" Value="5"/>
@@ -85,15 +80,15 @@
 
                 <TextBlock Text="{StaticResource VolumeString}"/>
                 <Slider Maximum="50" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
-                <SharedLibrary:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
                 <Slider Grid.Column="1" Maximum="800" Minimum="100" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
-                <SharedLibrary:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Grid.Column="1" Text="{Binding Frequency, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
 
                 <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
                 <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1" TickFrequency="0.5"/>
-                <SharedLibrary:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Grid.Column="2" Text="{Binding Difference, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
             </Grid>
         </GroupBox>
         <GroupBox x:Name="Channel2" Grid.Row="1" Grid.RowSpan="3" Grid.Column="1">
@@ -115,15 +110,15 @@
 
                 <TextBlock Text="{StaticResource VolumeString}"/>
                 <Slider Maximum="50" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
-                <SharedLibrary:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
                 <Slider Grid.Column="1" Maximum="800" Minimum="100" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
-                <SharedLibrary:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Grid.Column="1" Text="{Binding Frequency, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
 
                 <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
                 <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1" TickFrequency="0.5"/>
-                <SharedLibrary:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Grid.Column="2" Text="{Binding Difference, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
             </Grid>
         </GroupBox>
         <GroupBox x:Name="Channel3" Grid.Row="1" Grid.RowSpan="3" Grid.Column="2">
@@ -145,15 +140,15 @@
 
                 <TextBlock Text="{StaticResource VolumeString}"/>
                 <Slider Maximum="50" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
-                <SharedLibrary:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
 
                 <TextBlock Text="{StaticResource CarrierString}" Grid.Column="1"/>
                 <Slider Grid.Column="1" Maximum="800" Minimum="100" Value="{Binding Frequency}" Grid.Row="1" TickFrequency="10"/>
-                <SharedLibrary:EditableTextBox Grid.Column="1" Text="{Binding Frequency}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Grid.Column="1" Text="{Binding Frequency, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
 
                 <TextBlock Text="{StaticResource FreqString}" Grid.Column="2"/>
                 <Slider Grid.Column="2" Maximum="20" Minimum="0" Value="{Binding Difference}" Grid.Row="1" TickFrequency="0.5"/>
-                <SharedLibrary:EditableTextBox Grid.Column="2" Text="{Binding Difference}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Grid.Column="2" Text="{Binding Difference, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
             </Grid>
         </GroupBox>
         <GroupBox x:Name="NoiseChannel" Grid.Row="1" Grid.RowSpan="3" Grid.Column="3">
@@ -174,11 +169,11 @@
 
                 <TextBlock Text="{StaticResource VolumeString}"/>
                 <Slider Maximum="100" Minimum="0" Value="{Binding Gain}" Grid.Row="1"/>
-                <SharedLibrary:EditableTextBox Text="{Binding Gain}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Text="{Binding Gain, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
 
                 <TextBlock Text="{StaticResource SmoothString}" Grid.Column="1"/>
                 <Slider Grid.Column="1" Maximum="1.0" Minimum="0.9" Value="{Binding Smoothness}" Grid.Row="1" TickFrequency="0.001"/>
-                <SharedLibrary:EditableTextBox Grid.Column="1" Text="{Binding Smoothness}" Grid.Row="2"/>
+                <SharedLibrary:EditableTextBox Grid.Column="1" Text="{Binding Smoothness, Mode=TwoWay}" Grid.Row="2" VerticalAlignment="Center"/>
             </Grid>
         </GroupBox>
     </Grid>

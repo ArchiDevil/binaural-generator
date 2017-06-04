@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace SharedLibrary.UserControls
@@ -21,23 +22,47 @@ namespace SharedLibrary.UserControls
         }
 
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBox), new UIPropertyMetadata());
+            DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBox), new UIPropertyMetadata(string.Empty));
 
         private void EditBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            textBlock.Text = editBox.Text;
-            textBlock.Visibility = Visibility.Visible;
-            editBox.Visibility = Visibility.Collapsed;
+            Deactivate();
         }
 
         private void TextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            textBlock.Visibility = Visibility.Collapsed;
-            editBox.Text = textBlock.Text;
-            editBox.Visibility = Visibility.Visible;
-            editBox.Height = textBlock.Height;
-            editBox.Width = textBlock.Width;
-            editBox.Focus();
+            Activate();
+        }
+
+        private void EditBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape || e.Key == Key.Enter)
+            {
+                TextBox tBox = (TextBox)sender;
+                DependencyProperty prop = TextBox.TextProperty;
+
+                BindingExpression binding = BindingOperations.GetBindingExpression(tBox, prop);
+                if (binding != null) { binding.UpdateSource(); }
+
+                Deactivate();
+                e.Handled = true;
+            }
+        }
+
+        private void Activate()
+        {
+            TextBlock.Visibility = Visibility.Collapsed;
+            EditBox.Visibility = Visibility.Visible;
+            EditBox.Height = TextBlock.Height;
+            EditBox.Width = TextBlock.Width;
+            EditBox.Focus();
+            EditBox.SelectAll();
+        }
+
+        private void Deactivate()
+        {
+            TextBlock.Visibility = Visibility.Visible;
+            EditBox.Visibility = Visibility.Collapsed;
         }
     }
 }
