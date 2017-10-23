@@ -13,12 +13,13 @@
         </Style>
 
         <Style TargetType="TextBlock">
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Padding" Value="3"/>
+            <Setter Property="Margin" Value="5 2 5 2"/>
+            <Setter Property="Padding" Value="2"/>
         </Style>
 
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="2"/>
         </Style>
 
         <Style TargetType="Slider">
@@ -153,45 +154,37 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="Smoothness: " Grid.Row="0" Grid.Column="0"/>
-                    <TextBlock Text="Volume: " Grid.Row="1" Grid.Column="0"/>
+                    <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" x:Name="NoiseSmoothnessPanel">
+                        <TextBlock Text="Smoothness: "/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="X:"/>
+                            <TextBlock Text="{Binding Path=PointX, StringFormat={}{0:F2} s}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Y:"/>
+                            <TextBlock Text="{Binding Path=PointY, StringFormat={}{0:P2}}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" x:Name="NoiseVolumePanel">
+                        <TextBlock Text="Volume: "/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="X:"/>
+                            <TextBlock Text="{Binding Path=PointX, StringFormat={}{0:F2} s}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Y:"/>
+                            <TextBlock Text="{Binding Path=PointY, StringFormat={}{0:F2} %}"/>
+                        </StackPanel>
+                    </StackPanel>
 
                     <oxy:PlotView x:Name="NoiseSmoothnessPlot" Grid.Row="0" Grid.Column="1"/>
                     <oxy:PlotView x:Name="NoiseVolumePlot" Grid.Row="1" Grid.Column="1"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Summary and test">
+            <TabItem Header="Summary">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Text="Test play:" Grid.Row="1"/>
-                    <Grid Grid.Row="1" Grid.Column="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-
-                        <Button Width="50" Content="Play" Grid.Column="0" Click="Play_Click"/>
-                        <Button Width="50" Content="Pause" Grid.Column="1" Click="Pause_Click"/>
-                        <Button Width="50" Content="Stop" Grid.Column="2" Click="Stop_Click"/>
-
-                        <oxy:PlotView x:Name="OverviewPlot" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="2"/>
-                    </Grid>
+                    <oxy:PlotView x:Name="OverviewPlot"/>
                 </Grid>
             </TabItem>
         </TabControl>

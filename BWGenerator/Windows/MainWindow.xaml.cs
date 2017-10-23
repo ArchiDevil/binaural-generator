@@ -5,8 +5,6 @@ using System.Windows.Controls;
 
 using BWGenerator.Models;
 
-using Microsoft.Win32;
-
 using OxyPlot;
 using OxyPlot.Wpf;
 
@@ -24,41 +22,21 @@ namespace BWGenerator
         public PresetModel Preset { get; set; }
         public PlotController EditablePlotsController { get; set; } = new PlotController();
         public PlotController OverviewPlotController { get; set; } = new PlotController();
-        // private Playback playback = null;
 
-        public double SignalCarrierGetter(BaseDataPoint point) => (point as SignalDataPoint).CarrierValue;
-        public double SignalDifferenceGetter(BaseDataPoint point) => (point as SignalDataPoint).DifferenceValue;
-        public double SignalVolumeGetter(BaseDataPoint point) => (point as SignalDataPoint).VolumeValue;
-        public double NoiseSmoothnessGetter(BaseDataPoint point) => (point as NoiseDataPoint).SmoothnessValue;
-        public double NoiseVolumeGetter(BaseDataPoint point) => (point as NoiseDataPoint).VolumeValue;
+        public double SignalCarrierGetter(SignalDataPoint point) => point.CarrierValue;
+        public double SignalDifferenceGetter(SignalDataPoint point) => point.DifferenceValue;
+        public double SignalVolumeGetter(SignalDataPoint point) => point.VolumeValue;
+        public double NoiseSmoothnessGetter(NoiseDataPoint point) => point.SmoothnessValue;
+        public double NoiseVolumeGetter(NoiseDataPoint point) => point.VolumeValue;
 
-        public void SignalCarrierSetter(BaseDataPoint point, double value)
-        {
-            (point as SignalDataPoint).CarrierValue = value;
-        }
+        public void SignalCarrierSetter(SignalDataPoint point, double value) => point.CarrierValue = value;
+        public void SignalDifferenceSetter(SignalDataPoint point, double value) => point.DifferenceValue = value;
+        public void SignalVolumeSetter(SignalDataPoint point, double value) => point.VolumeValue = value;
+        public void NoiseSmoothnessSetter(NoiseDataPoint point, double value) => point.SmoothnessValue = value;
+        public void NoiseVolumeSetter(NoiseDataPoint point, double value) => point.VolumeValue = value;
 
-        public void SignalDifferenceSetter(BaseDataPoint point, double value)
-        {
-            (point as SignalDataPoint).DifferenceValue = value;
-        }
-
-        public void SignalVolumeSetter(BaseDataPoint point, double value)
-        {
-            (point as SignalDataPoint).VolumeValue = value;
-        }
-
-        public void NoiseSmoothnessSetter(BaseDataPoint point, double value)
-        {
-            (point as NoiseDataPoint).SmoothnessValue = value;
-        }
-
-        public void NoiseVolumeSetter(BaseDataPoint point, double value)
-        {
-            (point as NoiseDataPoint).VolumeValue = value;
-        }
-
-        public BaseDataPoint SignalDataPointCreator(double time) => new SignalDataPoint { Time = time };
-        public BaseDataPoint NoiseDataPointCreator(double time) => new NoiseDataPoint { Time = time };
+        public SignalDataPoint SignalDataPointCreator(double time) => new SignalDataPoint { Time = time };
+        public NoiseDataPoint NoiseDataPointCreator(double time) => new NoiseDataPoint { Time = time };
 
         public MainWindow()
         {
@@ -79,16 +57,17 @@ namespace BWGenerator
             Preset = new PresetModel();
 
             DataContext = Preset;
-            // playback = new Playback(new ModelledSampleProvider());
 
             noiseSmoothnessModel = new EditablePlotViewModel<NoiseDataPoint>(Preset.NoisePoints, NoiseSmoothnessGetter, NoiseSmoothnessSetter, NoiseDataPointCreator);
             noiseVolumeModel = new EditablePlotViewModel<NoiseDataPoint>(Preset.NoisePoints, NoiseVolumeGetter, NoiseVolumeSetter, NoiseDataPointCreator);
 
             NoiseSmoothnessPlot.Model = noiseSmoothnessModel.Model;
             noiseSmoothnessModel.PointsUpdated += InvalidateNoisePlots;
+            NoiseSmoothnessPanel.DataContext = noiseSmoothnessModel;
 
             NoiseVolumePlot.Model = noiseVolumeModel.Model;
             noiseVolumeModel.PointsUpdated += InvalidateNoisePlots;
+            NoiseVolumePanel.DataContext = noiseVolumeModel;
 
             overviewModel = new OverviewPlotViewModel(Preset, SignalCarrierGetter);
             OverviewPlot.Model = overviewModel.Model;
@@ -123,21 +102,6 @@ namespace BWGenerator
             plot.Model = newModel.Model;
 
             newModel.PointsUpdated += InvalidateSignalPlots;
-        }
-
-        private void Play_Click(object sender, RoutedEventArgs e)
-        {
-            // playback.Play();
-        }
-
-        private void Pause_Click(object sender, RoutedEventArgs e)
-        {
-            // playback.Pause();
-        }
-
-        private void Stop_Click(object sender, RoutedEventArgs e)
-        {
-            // playback.Stop();
         }
 
         private void AddSignalButton_Click(object sender, RoutedEventArgs e)

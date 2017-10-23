@@ -6,19 +6,54 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 
 using SharedLibrary.Code;
+using SharedLibrary.Models;
 
 namespace BWGenerator.Models
 {
-    public sealed class EditablePlotViewModel<T> where T : BaseDataPoint
+    public sealed class EditablePlotViewModel<T> : ModelBase
+        where T : BaseDataPoint
     {
-        public delegate double ValueGetterDelegate(BaseDataPoint point);
-        public delegate void ValueSetterDelegate(BaseDataPoint point, double value);
-        public delegate BaseDataPoint PointCreatorDelegate(double time);
+        public class PointSelectedEventArgs : EventArgs
+        {
+            public int PointIndex { get; set; }
+        }
+
+        public delegate double ValueGetterDelegate(T point);
+        public delegate void ValueSetterDelegate(T point, double value);
+        public delegate T PointCreatorDelegate(double time);
         public delegate void PointsUpdatedDelegate(object sender, EventArgs e);
 
         public event PointsUpdatedDelegate PointsUpdated;
 
+        private T currentPoint = null;
+
         public PlotModel Model { get; }
+
+        public double PointX
+        {
+            get { return currentPoint != null ? currentPoint.Time : 0.0; }
+            set
+            {
+                if (currentPoint != null)
+                {
+                    currentPoint.Time = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        public double PointY
+        {
+            get { return currentPoint != null ? getter(currentPoint) : 0.0; }
+            set
+            {
+                if (currentPoint != null)
+                {
+                    setter(currentPoint, value);
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
         private ValueGetterDelegate getter = null;
         private ValueSetterDelegate setter = null;
@@ -27,6 +62,9 @@ namespace BWGenerator.Models
         private LineSeries currentSerie = null;
         private int indexOfPointToMove = -1;
         private List<T> dataPoints = null;
+
+        private ScreenPoint lastDownPosition;
+        private bool pointIsMoving = false;
 
         public EditablePlotViewModel(List<T> dataPoints, ValueGetterDelegate getter, ValueSetterDelegate setter, PointCreatorDelegate creator)
         {
@@ -46,6 +84,9 @@ namespace BWGenerator.Models
 
             Model.InvalidatePlot(true);
             Model.ResetAllAxes();
+
+            RaisePropertyChanged("PointX");
+            RaisePropertyChanged("PointY");
         }
 
         private PlotModel CreatePlotModel()
@@ -89,7 +130,15 @@ namespace BWGenerator.Models
 
         private void MouseUpHandler(object sender, OxyMouseEventArgs e)
         {
+            if (!pointIsMoving)
+            {
+                currentPoint = dataPoints[indexOfPointToMove];
+                RaisePropertyChanged("PointX");
+                RaisePropertyChanged("PointY");
+            }
+
             indexOfPointToMove = -1;
+            pointIsMoving = false;
             Model.InvalidatePlot(true);
             Model.ResetAllAxes();
             e.Handled = true;
@@ -108,15 +157,22 @@ namespace BWGenerator.Models
             if (indexOfPointToMove == -1)
                 return;
 
-            DataPoint point = currentSerie.InverseTransform(e.Position);
+            if ((lastDownPosition - e.Position).Length < 10 && !pointIsMoving)
+                return;
 
-            if (indexOfPointToMove == 0)
+            DataPoint point = currentSerie.InverseTransform(e.Position);
+            pointIsMoving = true;
+
+            bool isFirstPoint = indexOfPointToMove == 0;
+            bool isLastPoint = indexOfPointToMove == currentSerie.Points.Count - 1;
+
+            if (isFirstPoint)
             {
                 // first point to check, it's X position is always 0.0
                 double newY = point.Y < 0 ? 0.0 : point.Y;
                 point = new DataPoint(0.0, newY);
             }
-            else if (indexOfPointToMove == currentSerie.Points.Count - 1)
+            else if (isLastPoint)
             {
                 // last point to check, it's Y position is always signal-max-time
                 double newY = point.Y < 0 ? 0.0 : point.Y;
@@ -136,12 +192,21 @@ namespace BWGenerator.Models
             currentSerie.Points[indexOfPointToMove] = point;
             Model.InvalidatePlot(false);
             e.Handled = true;
+
+            dataPoints[indexOfPointToMove].Time = point.X;
+            setter(dataPoints[indexOfPointToMove], point.Y);
+
+            currentPoint = dataPoints[indexOfPointToMove];
+            RaisePropertyChanged("PointX");
+            RaisePropertyChanged("PointY");
         }
 
         private void MouseDownHandler(object sender, OxyMouseDownEventArgs e)
         {
             if (e.ChangedButton != OxyMouseButton.Left)
                 return;
+
+            lastDownPosition = e.Position;
 
             int indexOfNearestPoint = (int)Math.Round(e.HitTestResult.Index);
             var nearestPoint = currentSerie.Transform(currentSerie.Points[indexOfNearestPoint]);
@@ -156,13 +221,19 @@ namespace BWGenerator.Models
                 // create new point and move it instead
                 int i = (int)e.HitTestResult.Index + 1;
 
-                T newPoint = creator(e.Position.X) as T;
-                setter(newPoint, e.Position.Y);
+                DataPoint inversed = currentSerie.InverseTransform(e.Position);
+
+                T newPoint = creator(inversed.X) as T;
+                setter(newPoint, inversed.Y);
                 dataPoints.Insert(i, newPoint);
 
-                currentSerie.Points.Insert(i, currentSerie.InverseTransform(e.Position));
+                currentSerie.Points.Insert(i, inversed);
                 indexOfPointToMove = i;
             }
+
+            currentPoint = dataPoints[indexOfPointToMove];
+            RaisePropertyChanged("PointX");
+            RaisePropertyChanged("PointY");
 
             Model.InvalidatePlot(false);
             e.Handled = true;

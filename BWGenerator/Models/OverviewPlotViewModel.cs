@@ -8,30 +8,30 @@ namespace BWGenerator.Models
 {
     public sealed class OverviewPlotViewModel
     {
-        public delegate double ValueGetterDelegate(BaseDataPoint point);
+        public delegate double ValueGetterDelegate(SignalDataPoint point);
         private ValueGetterDelegate getter = null;
 
-        public PlotModel Model { get; private set; }
+        public PlotModel Model { get; }
         PresetModel preset = null;
 
         public OverviewPlotViewModel(PresetModel preset, ValueGetterDelegate getter)
         {
             this.getter = getter;
             this.preset = preset;
-            CreatePlotModel();
+            Model = CreatePlotModel(preset, getter);
         }
 
         public void InvalidateGraphs()
         {
-            CreateSeries();
+            CreateSeries(Model, preset, getter);
 
             Model.InvalidatePlot(true);
             Model.ResetAllAxes();
         }
 
-        private void CreateSeries()
+        private static void CreateSeries(PlotModel model, PresetModel preset, ValueGetterDelegate getter)
         {
-            Model.Series.Clear();
+            model.Series.Clear();
 
             OxyColor[] colors = new OxyColor[]
             {
@@ -54,36 +54,38 @@ namespace BWGenerator.Models
                     MarkerStrokeThickness = 1
                 };
 
-                foreach (var point in serie.points)
+                foreach (SignalDataPoint point in serie.points)
                 {
                     lineSerie.Points.Add(new DataPoint(point.Time, getter(point)));
                 }
 
-                Model.Series.Add(lineSerie);
+                model.Series.Add(lineSerie);
                 ++index;
             }
         }
 
-        private void CreatePlotModel()
+        private static PlotModel CreatePlotModel(PresetModel preset, ValueGetterDelegate getter)
         {
-            Model = new PlotModel();
+            PlotModel model = new PlotModel();
 
             // Y-axis (value)
-            Model.Axes.Add(new LinearAxis
+            model.Axes.Add(new LinearAxis
             {
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Solid,
             });
 
             // X-axis (time)
-            Model.Axes.Add(new LinearAxis
+            model.Axes.Add(new LinearAxis
             {
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Solid,
                 Position = AxisPosition.Bottom,
             });
 
-            CreateSeries();
+            CreateSeries(model, preset, getter);
+
+            return model;
         }
     }
 }
