@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 using SharedLibrary;
 using SharedLibrary.Code;
 using SharedLibrary.Models;
 
 using AudioCore.SampleProviders;
-using System.Threading.Tasks;
 
 namespace BWGenerator.Models
 {
@@ -44,8 +45,8 @@ namespace BWGenerator.Models
         public delegate void ProgressUpdateDelegate(object sender, ProgressUpdatedEventArgs e);
         public event ProgressUpdateDelegate OnExportProgressUpdated = null;
 
-        private string name = "";
-        private string description = "";
+        private string name = string.Empty;
+        private string description = string.Empty;
         private string statusMessage = string.Empty;
 
         public PresetModel()
@@ -119,13 +120,7 @@ namespace BWGenerator.Models
 
         public List<NoiseDataPoint> NoisePoints { get; set; } = null;
 
-        public string[] GraphsList
-        {
-            get
-            {
-                return Enum.GetNames(typeof(Graphs));
-            }
-        }
+        public string[] GraphsList => Enum.GetNames(typeof(Graphs));
 
         public Task<bool> ExportPresetAsync(string filename)
         {
@@ -158,7 +153,7 @@ namespace BWGenerator.Models
 
                     OnExportProgressUpdated?.Invoke(this, new ProgressUpdatedEventArgs { Progress = 100 });
 
-                    StatusMessage = System.IO.Path.GetFileName(filename) + " saved successfully";
+                    StatusMessage = Path.GetFileName(filename) + " saved successfully";
                     return true;
                 }
                 catch (Exception)
