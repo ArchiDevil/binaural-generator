@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:SharedLibrary="clr-namespace:SharedLibrary.UserControls;assembly=SharedLibrary"
         mc:Ignorable="d"
         Title="BWGenerator" Height="400" Width="650">
 
@@ -18,6 +19,11 @@
         </Style>
 
         <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+
+        <Style TargetType="SharedLibrary:EditableTextBox">
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Padding" Value="2"/>
         </Style>
@@ -157,24 +163,24 @@
                     <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" x:Name="NoiseSmoothnessPanel">
                         <TextBlock Text="Smoothness: "/>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="X:"/>
-                            <TextBlock Text="{Binding Path=PointX, StringFormat={}{0:F2} s}"/>
+                            <TextBlock Text="X:" VerticalAlignment="Center"/>
+                            <SharedLibrary:EditableTextBox Text="{Binding Path=PointX, Mode=TwoWay, StringFormat={}{0:F2} s}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Y:"/>
-                            <TextBlock Text="{Binding Path=PointY, StringFormat={}{0:P2}}"/>
+                            <TextBlock Text="Y:" VerticalAlignment="Center"/>
+                            <SharedLibrary:EditableTextBox Text="{Binding Path=PointY, Mode=TwoWay, StringFormat={}{0:F2}}"/>
                         </StackPanel>
                     </StackPanel>
 
                     <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" x:Name="NoiseVolumePanel">
                         <TextBlock Text="Volume: "/>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="X:"/>
-                            <TextBlock Text="{Binding Path=PointX, StringFormat={}{0:F2} s}"/>
+                            <TextBlock Text="X:" VerticalAlignment="Center"/>
+                            <SharedLibrary:EditableTextBox Text="{Binding Path=PointX, Mode=TwoWay, StringFormat={}{0:F2} s}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Y:"/>
-                            <TextBlock Text="{Binding Path=PointY, StringFormat={}{0:F2} %}"/>
+                            <TextBlock Text="Y:" VerticalAlignment="Center"/>
+                            <SharedLibrary:EditableTextBox Text="{Binding Path=PointY, Mode=TwoWay, StringFormat={}{0:F2} %}"/>
                         </StackPanel>
                     </StackPanel>
 

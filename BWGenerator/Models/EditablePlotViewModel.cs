@@ -37,7 +37,8 @@ namespace BWGenerator.Models
                 if (currentPoint != null)
                 {
                     currentPoint.Time = value;
-                    RaisePropertyChanged();
+                    PointsUpdated?.Invoke(this, new EventArgs());
+                    InvalidateGraphs();
                 }
             }
         }
@@ -50,7 +51,8 @@ namespace BWGenerator.Models
                 if (currentPoint != null)
                 {
                     setter(currentPoint, value);
-                    RaisePropertyChanged();
+                    PointsUpdated?.Invoke(this, new EventArgs());
+                    InvalidateGraphs();
                 }
             }
         }
